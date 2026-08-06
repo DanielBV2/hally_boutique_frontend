@@ -86,6 +86,14 @@ src/
 ├── hooks/                       # hooks de TanStack Query por dominio
 └── types/                       # tipos compartidos, alineados a los DTOs del backend
 ```
+## Lección: verificar diagnósticos de OpenCode contra evidencia real
+Cuando dos sesiones de OpenCode (o una sesión y una suposición) reportan
+diagnósticos contradictorios sobre el mismo bug, NUNCA aplicar un fix
+basándose en el reporte sin verificar primero contra el comportamiento
+real (Thunder Client para el backend, console.log/DevTools para el
+frontend). Ya ocurrió con category.name (dato mal cargado, no bug de
+código) y con la forma de respuesta de GET /products (el backend estaba
+correcto, el diagnóstico de una sesión de OpenCode fue incorrecto).
 
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
