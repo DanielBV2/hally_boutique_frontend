@@ -129,6 +129,16 @@ apertura desde header, incrementar/decrementar sin bloquear otros items,
 eliminar por cantidad-a-0 y por botón directo, navegación a /checkout
 (pendiente, esperado 404 por ahora), cierre por X y por overlay.
 
+## Checkout — Paso 1 (Dirección + creación de Order) COMPLETADO Y VERIFICADO
+AddressStep con direcciones existentes (Cards + RadioGroup, default preseleccionada)
+o formulario nuevo (react-hook-form + Zod, Select cerrado de 33 departamentos
+extraído literal de colombiaDepartmentCodes.ts del backend). POST /api/orders
+crea la Order con idempotencyKey generado una vez por sesión de checkout (useRef).
+Batería de 7 pruebas pasando: sin direcciones → formulario directo, creación
+con state correcto verificado en DB, con direcciones → tarjetas + default,
+cancelar formulario sin perder selección, avance a step shipping, carrito
+vacío manejado sin crash, sin sesión redirige a login.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AddressStep } from "@/components/checkout/AddressStep";
+import { ShippingStep } from "@/components/checkout/ShippingStep";
 import { useSession } from "@/hooks/useSession";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types/order";
@@ -29,6 +30,7 @@ export default function CheckoutPage() {
 
   const [step, setStep] = useState<CheckoutStep>("address");
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [order, setOrder] = useState<Order | null>(null);
   const idempotencyKeyRef = useRef(crypto.randomUUID());
 
   useEffect(() => {
@@ -122,14 +124,20 @@ export default function CheckoutPage() {
 
       {step === "address" && <AddressStep onConfirm={handleAddressConfirmed} />}
 
-      {step === "shipping" && (
-        <div className="rounded-xl border border-border bg-muted/30 p-8 text-center">
-          <h2 className="mb-2 text-lg font-medium text-foreground">
-            Envío {orderId && <span className="text-muted-foreground">· {orderId}</span>}
-          </h2>
-          <p className="text-muted-foreground">Próximamente</p>
-        </div>
-      )}
+      {step === "shipping" &&
+        (orderId ? (
+          <ShippingStep
+            orderId={orderId}
+            onConfirm={(updatedOrder) => {
+              setOrder(updatedOrder);
+              setStep("payment");
+            }}
+          />
+        ) : (
+          <div className="rounded-xl border border-border bg-muted/30 p-8 text-center text-muted-foreground">
+            Envío no disponible
+          </div>
+        ))}
 
       {step === "payment" && (
         <div className="rounded-xl border border-border bg-muted/30 p-8 text-center">
