@@ -1,8 +1,10 @@
 'use client';
 import { useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useProduct } from '@/hooks/useProduct';
+import { useSession } from '@/hooks/useSession';
+import { useAddToCartMutation } from '@/hooks/useCart';
 import { VariantSelector } from '@/components/products/VariantSelector';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,7 +12,10 @@ import type { ProductVariant } from '@/types/product';
 
 export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
+  const router = useRouter();
   const { data: product, isLoading, isError } = useProduct(slug);
+  const { isAuthenticated } = useSession();
+  const addToCart = useAddToCartMutation();
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -42,9 +47,12 @@ export default function ProductDetailPage() {
   const currentImage = product.images[selectedImageIndex]?.url;
 
   const handleAddToCart = () => {
-    // TODO: conectar con POST /cart/items una vez exista el flujo de auth
-    // (cookies httpOnly). Por ahora solo placeholder.
-    console.log('Añadir al carrito (pendiente de auth):', selectedVariant);
+    if (!isAuthenticated) {
+      router.push(`/login?redirect=/productos/${slug}`);
+      return;
+    }
+    if (!selectedVariant) return;
+    addToCart.mutate({ variantId: selectedVariant.id, quantity: 1 });
   };
 
   return (
@@ -86,10 +94,14 @@ export default function ProductDetailPage() {
 
         <Button
           className="mt-6 w-full"
-          disabled={!selectedVariant || !selectedVariant.inStock}
+          disabled={!selectedVariant || !selectedVariant.inStock || addToCart.isPending}
           onClick={handleAddToCart}
         >
-          {selectedVariant?.inStock ? 'Añadir al carrito' : 'Selecciona talla y color'}
+          {addToCart.isPending
+            ? 'Añadiendo…'
+            : selectedVariant?.inStock
+              ? 'Añadir al carrito'
+              : 'Selecciona talla y color'}
         </Button>
       </div>
     </div>

@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 import { REFRESH_TOKEN_COOKIE } from "@/lib/auth/constants";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   if (request.cookies.has(REFRESH_TOKEN_COOKIE)) {
     return NextResponse.next();
   }

@@ -95,10 +95,25 @@ frontend). Ya ocurrió con category.name (dato mal cargado, no bug de
 código) y con la forma de respuesta de GET /products (el backend estaba
 correcto, el diagnóstico de una sesión de OpenCode fue incorrecto).
 
+## Lección: Next.js 16 renombró middleware.ts a proxy.ts
+El archivo debe llamarse `src/proxy.ts` (no `middleware.ts`) y exportar una
+función `proxy()` (no `middleware()`). Si el archivo tiene el nombre viejo,
+Next.js lo ignora completamente y SIN NINGÚN ERROR VISIBLE — el matcher y
+la lógica de auth simplemente nunca corren (se manifestó como 404 en vez
+de redirect a /login en una ruta protegida). config.matcher no cambió de
+sintaxis. Migración: renombrar archivo + renombrar función exportada
+(o usar `npx @next/codemod@latest middleware-to-proxy .`).
+
+## Auth (BFF con cookies httpOnly) — COMPLETADO Y VERIFICADO
+Batería de 7 pruebas manuales pasando: cookies invisibles desde JS (con y
+sin sesión), visibles en DevTools→Application con HttpOnly marcado, login,
+GET /api/auth/me refleja sesión, ruta protegida (/checkout) redirige a
+/login?redirect=... sin sesión (vía src/proxy.ts), logout limpia sesión.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
-- [ ] Auth (BFF con cookies httpOnly) — pendiente
+- [x] Auth (BFF con cookies httpOnly) — pendiente
 - [ ] Catálogo (listado, detalle, filtros)
 - [ ] Carrito
 - [ ] Checkout (dirección → envío → pago)

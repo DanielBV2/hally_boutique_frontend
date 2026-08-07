@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useCart } from "@/hooks/useCart";
+import { useSession } from "@/hooks/useSession";
 
 const navLinks = [
   { href: "/productos", label: "Productos" },
@@ -9,6 +14,12 @@ const navLinks = [
 ];
 
 export function Header() {
+  const { isAuthenticated } = useSession();
+  const { data: cart } = useCart();
+
+  const totalItems = cart?.totalItems ?? 0;
+  const showBadge = isAuthenticated && totalItems > 0;
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
@@ -24,9 +35,19 @@ export function Header() {
           ))}
         </nav>
 
-        <Button variant="ghost" size="icon" aria-label="Carrito de compras" asChild>
-          <Link href="/carrito">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Carrito de compras"
+          asChild
+        >
+          <Link href="/carrito" className="relative">
             <ShoppingCart />
+            {showBadge && (
+              <Badge className="absolute -right-1 -top-1 h-4 min-w-4 px-1 text-[10px] leading-none">
+                {totalItems}
+              </Badge>
+            )}
           </Link>
         </Button>
       </div>
