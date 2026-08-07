@@ -1,0 +1,213 @@
+"use client";
+
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  useCart,
+  useRemoveCartItemMutation,
+  useUpdateCartItemMutation,
+} from "@/hooks/useCart";
+import { useCartDrawerStore } from "@/stores/useCartDrawerStore";
+import type { CartItem } from "@/types/cart";
+
+const priceFormatter = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  maximumFractionDigits: 0,
+});
+
+export function CartDrawer() {
+  const { isOpen, close } = useCartDrawerStore();
+  const { data: cart, isLoading } = useCart();
+  const updateCartItem = useUpdateCartItemMutation();
+  const removeCartItem = useRemoveCartItemMutation();
+  const router = useRouter();
+
+  const items = cart?.items ?? [];
+
+  const isUpdatingItem = (itemId: string) =>
+    (updateCartItem.isPending &&
+      updateCartItem.variables?.itemId === itemId) ||
+    (removeCartItem.isPending && removeCartItem.variables === itemId);
+
+  const handleDecrement = (item: CartItem) => {
+    if (item.quantity === 1) {
+      removeCartItem.mutate(item.id);
+      return;
+    }
+    updateCartItem.mutate({
+      itemId: item.id,
+      input: { quantity: item.quantity - 1 },
+    });
+  };
+
+  const handleIncrement = (item: CartItem) => {
+    if (item.quantity >= item.availableStock) return;
+    updateCartItem.mutate({
+      itemId: item.id,
+      input: { quantity: item.quantity + 1 },
+    });
+  };
+
+  const goToCheckout = () => {
+    close();
+    router.push("/checkout");
+  };
+
+  const goToProducts = () => {
+    close();
+    router.push("/productos");
+  };
+
+  return (
+    <Sheet open={isOpen} onOpenChange={(open) => !open && close()}>
+      <SheetContent side="right" className="flex flex-col gap-0 p-0">
+        <SheetHeader className="border-b border-border px-4 py-4">
+          <SheetTitle>Tu carrito</SheetTitle>
+        </SheetHeader>
+
+        <div className="flex-1 overflow-y-auto p-4">
+          {isLoading ? (
+            <div className="flex flex-col gap-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex gap-3 rounded-lg border border-border p-3"
+                >
+                  <Skeleton className="h-16 w-16 shrink-0 rounded-md" />
+                  <div className="flex flex-1 flex-col gap-2">
+                    <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-3 w-1/3" />
+                    <Skeleton className="mt-1 h-7 w-28" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : items.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
+              <ShoppingBag className="h-12 w-12 text-muted-foreground" />
+              <p className="text-muted-foreground">Tu carrito está vacío</p>
+              <Button variant="outline" onClick={goToProducts}>
+                Ver productos
+              </Button>
+            </div>
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {items.map((item) => {
+                const updating = isUpdatingItem(item.id);
+                const stepperDisabled = updating || !item.isAvailable;
+                const plusDisabled =
+                  stepperDisabled || item.quantity >= item.availableStock;
+                return (
+                  <li
+                    key={item.id}
+                    className="flex gap-3 rounded-lg border border-border p-3"
+                  >
+                    {item.thumbnailUrl ? (
+                      <Image
+                        src={item.thumbnailUrl}
+                        alt={item.productName}
+                        width={64}
+                        height={64}
+                        className="h-16 w-16 shrink-0 rounded-md object-cover"
+                      />
+                    ) : (
+                      <div className="h-16 w-16 shrink-0 rounded-md bg-muted" />
+                    )}
+
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="truncate font-medium text-foreground">
+                            {item.productName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {[item.size, item.color].filter(Boolean).join(" · ")}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={`Eliminar ${item.productName}`}
+                          disabled={updating}
+                          onClick={() => removeCartItem.mutate(item.id)}
+                        >
+                          <Trash2 />
+                        </Button>
+                      </div>
+
+                      <p className="text-xs font-medium text-foreground">
+                        {priceFormatter.format(item.unitPrice)}
+                      </p>
+
+                      {!item.isAvailable && (
+                        <Badge variant="destructive" className="w-fit">
+                          No disponible
+                        </Badge>
+                      )}
+
+                      <div className="mt-1 flex items-center justify-between">
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="outline"
+                            size="icon-sm"
+                            aria-label="Disminuir cantidad"
+                            disabled={stepperDisabled}
+                            onClick={() => handleDecrement(item)}
+                          >
+                            <Minus />
+                          </Button>
+                          <span className="w-8 text-center text-sm tabular-nums">
+                            {item.quantity}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="icon-sm"
+                            aria-label="Aumentar cantidad"
+                            disabled={plusDisabled}
+                            onClick={() => handleIncrement(item)}
+                          >
+                            <Plus />
+                          </Button>
+                        </div>
+                        <p className="text-sm font-semibold text-foreground">
+                          {priceFormatter.format(item.subtotal)}
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
+        {items.length > 0 && (
+          <SheetFooter className="border-t border-border">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="font-semibold text-foreground">
+                {priceFormatter.format(cart?.subtotal ?? 0)}
+              </span>
+            </div>
+            <Button className="w-full" onClick={goToCheckout}>
+              Ir a pagar
+            </Button>
+          </SheetFooter>
+        )}
+      </SheetContent>
+    </Sheet>
+  );
+}

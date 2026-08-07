@@ -5,6 +5,7 @@ import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { CartDrawer } from "@/components/cart/CartDrawer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Header />
           <main className="flex flex-1 flex-col">{children}</main>
           <Footer />
+          <CartDrawer />
           <Toaster />
         </Providers>
       </body>

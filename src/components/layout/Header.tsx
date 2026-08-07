@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/hooks/useCart";
 import { useSession } from "@/hooks/useSession";
+import { useCartDrawerStore } from "@/stores/useCartDrawerStore";
 
 const navLinks = [
   { href: "/productos", label: "Productos" },
@@ -16,6 +17,7 @@ const navLinks = [
 export function Header() {
   const { isAuthenticated } = useSession();
   const { data: cart } = useCart();
+  const toggleCart = useCartDrawerStore((state) => state.toggle);
 
   const totalItems = cart?.totalItems ?? 0;
   const showBadge = isAuthenticated && totalItems > 0;
@@ -39,16 +41,15 @@ export function Header() {
           variant="ghost"
           size="icon"
           aria-label="Carrito de compras"
-          asChild
+          onClick={toggleCart}
+          className="relative"
         >
-          <Link href="/carrito" className="relative">
-            <ShoppingCart />
-            {showBadge && (
-              <Badge className="absolute -right-1 -top-1 h-4 min-w-4 px-1 text-[10px] leading-none">
-                {totalItems}
-              </Badge>
-            )}
-          </Link>
+          <ShoppingCart />
+          {showBadge && (
+            <Badge className="absolute -right-1 -top-1 h-4 min-w-4 px-1 text-[10px] leading-none">
+              {totalItems}
+            </Badge>
+          )}
         </Button>
       </div>
     </header>

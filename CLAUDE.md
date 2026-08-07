@@ -110,6 +110,17 @@ sin sesión), visibles en DevTools→Application con HttpOnly marcado, login,
 GET /api/auth/me refleja sesión, ruta protegida (/checkout) redirige a
 /login?redirect=... sin sesión (vía src/proxy.ts), logout limpia sesión.
 
+## Carrito — conexión "Añadir al carrito" COMPLETADA Y VERIFICADA
+POST /cart/items conectado vía BFF (Route Handlers /api/cart, /api/cart/items,
+/api/cart/items/[itemId], todos proxies delgados sobre authenticatedFetch).
+Hooks TanStack Query (useCart, useAddToCartMutation, etc.) con invalidación
+simple, sin optimistic update (decisión intencional, el stock se valida
+server-side). Toasts con sonner. Batería de 5 pruebas pasando: redirect a
+login sin sesión, añadir con toast + badge actualizado, mismo producto
+incrementa cantidad (no duplica), stock insuficiente muestra error real del
+backend, llamadas confirmadas yendo a /api/cart/* (dominio propio) nunca
+directo a localhost:3000.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
