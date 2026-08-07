@@ -1,0 +1,34 @@
+export interface OrderItem {
+  id: string;
+  productName: string;
+  size: string;
+  color: string;
+  unitPrice: number;
+  quantity: number;
+  lineTotal: number;
+}
+
+export interface Order {
+  id: string;
+  status: string;
+  subtotal: number;
+  taxAmount: number;
+  shippingAmount: number;
+  total: number;
+  currency: string;
+  items: OrderItem[];
+  shippingAddressId: string;
+  shippingFullName: string;
+  shippingPhone: string;
+  shippingLine1: string;
+  shippingLine2: string | null;
+  shippingCity: string;
+  shippingState: string;
+  shippingCountry: string;
+  shippingPostalCode: string | null;
+  shippingCarrier: string | null;
+  shippingService: string | null;
+  shippingTrackingNumber: string | null;
+  shippingLabelUrl: string | null;
+  createdAt: string;
+}

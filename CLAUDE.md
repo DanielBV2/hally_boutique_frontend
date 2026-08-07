@@ -121,6 +121,14 @@ incrementa cantidad (no duplica), stock insuficiente muestra error real del
 backend, llamadas confirmadas yendo a /api/cart/* (dominio propio) nunca
 directo a localhost:3000.
 
+## Carrito — Drawer lateral COMPLETADO Y VERIFICADO
+Sheet de shadcn/ui con Zustand (useCartDrawerStore) para estado UI puro.
+Stepper de cantidad con loading independiente por itemId, estados vacío/
+carga/no-disponible manejados. Batería de 7 pruebas pasando: estado vacío,
+apertura desde header, incrementar/decrementar sin bloquear otros items,
+eliminar por cantidad-a-0 y por botón directo, navegación a /checkout
+(pendiente, esperado 404 por ahora), cierre por X y por overlay.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
