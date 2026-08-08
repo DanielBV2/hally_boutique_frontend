@@ -85,6 +85,15 @@ function LoginForm() {
           />
         </div>
 
+        <div className="flex justify-end">
+          <Link
+            href="/olvide-password"
+            className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
+
         {error && <p className="text-sm text-destructive">{error}</p>}
 
         <Button type="submit" disabled={submitting}>

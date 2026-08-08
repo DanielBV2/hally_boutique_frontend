@@ -193,11 +193,19 @@ AddressStep.tsx:30 — warning de lint react-hooks/set-state-in-effect,
 pre-existente al prompt de /cuenta, no se tocó por estar fuera de
 alcance. Pendiente de limpieza en una pasada futura.
 
+## Sección /cuenta COMPLETADA Y VERIFICADA
+Batería de 9 pruebas pasando: bloqueo sin sesión, perfil de solo lectura
+correcto, editar/eliminar/crear dirección (verificado en pgAdmin, con
+AlertDialog de confirmación en delete), pedidos listados con status
+correcto, detalle de pedido completo, y — la más importante — ownership
+verificado: intentar ver el orderId de otro usuario vía URL falla
+correctamente, nunca expone datos ajenos.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
 - [x] Auth (BFF con cookies httpOnly) — pendiente
-- [ ] Catálogo (listado, detalle, filtros)
-- [ ] Carrito
-- [ ] Checkout (dirección → envío → pago)
-- [ ] Cuenta (perfil, direcciones, historial de pedidos)
+- [x] Catálogo (listado, detalle, filtros)
+- [x] Carrito
+- [x] Checkout (dirección → envío → pago)
+- [x] Cuenta (perfil, direcciones, historial de pedidos)
