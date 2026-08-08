@@ -201,6 +201,16 @@ correcto, detalle de pedido completo, y — la más importante — ownership
 verificado: intentar ver el orderId de otro usuario vía URL falla
 correctamente, nunca expone datos ajenos.
 
+## Recuperación de contraseña COMPLETADA Y VERIFICADA
+Batería de 9 pruebas pasando: email inexistente/existente con mismo
+mensaje genérico, correo real recibido con link correcto (localhost:3001),
+enlace sin token bloqueado, validación de contraseña débil rechazada
+client-side, cambio exitoso con redirect a login, login falla con
+contraseña vieja y funciona con la nueva, reintento de token ya usado
+correctamente rechazado. Confirmado: fallo de Resend nunca rompe el
+endpoint (try/catch en emailClient.ts + auth.service.ts ignora el error,
+siempre responde 200 genérico).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

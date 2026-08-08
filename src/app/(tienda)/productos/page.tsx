@@ -1,11 +1,16 @@
 "use client";
 
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+
 import { useProducts } from "@/hooks/useProducts";
 import { ProductCard } from "@/components/products/ProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function ProductsPage() {
-  const { data, isLoading, isError } = useProducts();
+function ProductsGrid() {
+  const searchParams = useSearchParams();
+  const categoryId = searchParams.get("categoryId") ?? undefined;
+  const { data, isLoading, isError } = useProducts({ categoryId });
 
   if (isLoading) {
     return (
@@ -39,5 +44,21 @@ export default function ProductsPage() {
         <ProductCard key={product.id} product={product} />
       ))}
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="grid grid-cols-2 gap-6 p-6 md:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="h-72 w-full rounded-lg" />
+          ))}
+        </div>
+      }
+    >
+      <ProductsGrid />
+    </Suspense>
   );
 }

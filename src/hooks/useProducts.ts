@@ -5,6 +5,7 @@ import { getProducts } from "@/lib/api/products";
 
 export function useProducts(params?: {
   page?: number;
+  limit?: number;
   categoryId?: string;
   search?: string;
 }) {

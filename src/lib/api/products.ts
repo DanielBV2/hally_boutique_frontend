@@ -16,6 +16,7 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
 export async function getProducts(params?: {
   page?: number;
+  limit?: number;
   categoryId?: string;
   search?: string;
 }): Promise<{ items: ProductListItem[]; total: number; page: number }> {

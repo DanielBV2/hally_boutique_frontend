@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +36,17 @@ export function Header() {
             </Button>
           ))}
         </nav>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={isAuthenticated ? "Mi cuenta" : "Iniciar sesión"}
+          asChild
+        >
+          <Link href={isAuthenticated ? "/cuenta" : "/login"}>
+            <User />
+          </Link>
+        </Button>
 
         <Button
           variant="ghost"
