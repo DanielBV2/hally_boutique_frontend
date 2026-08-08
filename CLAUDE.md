@@ -157,6 +157,42 @@ subtotal real superando el umbral). PATCH shipping-selection confirma
 la opción, avanza a step payment con order actualizada (shippingAmount,
 total recalculados).
 
+## Checkout — Paso 3 (Pago con Wompi) + confirmación COMPLETADO Y VERIFICADO
+PaymentStep construye la URL de Wompi con URLSearchParams (sin <form>),
+signature:integrity con los dos puntos, redirect-url dinámica vía
+window.location.origin. Página /checkout/confirmacion con polling
+(máx 10 intentos, 3s) a GET /orders/:id, único vacío de carrito al
+confirmar PAID (ref booleana evita duplicados). Verificado end-to-end
+con pago real en sandbox: Order → PAID, Payment creado, carrito vacío,
+UI de confirmación correcta.
+
+## Lección: pruebas locales con webhooks externos (Wompi) requieren
+## DOS túneles públicos simultáneos con dominios DISTINTOS
+El plan gratuito de ngrok solo permite UN dominio por cuenta — cualquier
+túnel nuevo sin --domain explícito intenta reusar ese mismo dominio,
+causando conflicto (ERR_NGROK_334) si ya está en uso. Como el dominio
+fijo de ngrok ya está registrado en el panel de Wompi como URL de
+webhook, se dejó FIJO apuntando siempre al backend (puerto 3000):
+  ngrok http --domain=<dominio-fijo> 3000
+Para el frontend (redirect-url, que se genera dinámicamente en runtime
+y no está registrado en ningún lado externo) se usó Cloudflare Tunnel
+en su modalidad "quick tunnel" (gratis, sin cuenta, sin conflicto de
+dominio con ngrok por ser servicios distintos):
+  cloudflared tunnel --url http://localhost:3001
+Ambos túneles deben correr en paralelo, en terminales separadas.
+
+## Sección /cuenta (Perfil, Direcciones, Pedidos) COMPLETADA
+Perfil de solo lectura, Direcciones con editar/eliminar (Dialog +
+AlertDialog) reutilizando AddressForm en modo edit, Pedidos con
+paginación real (total/page/limit del backend) y detalle en
+/cuenta/pedidos/[orderId] con envío/guía si aplica. GET /orders del
+backend ahora expone paginación completa.
+
+## Deuda técnica anotada (no bloqueante)
+AddressStep.tsx:30 — warning de lint react-hooks/set-state-in-effect,
+pre-existente al prompt de /cuenta, no se tocó por estar fuera de
+alcance. Pendiente de limpieza en una pasada futura.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

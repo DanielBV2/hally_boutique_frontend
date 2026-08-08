@@ -1,4 +1,4 @@
-import type { CheckoutParams, Order } from "@/types/order";
+import type { CheckoutParams, Order, PaginatedOrders } from "@/types/order";
 import type { ShippingRateOption } from "@/types/shipping";
 
 interface ApiResponse<T> {
@@ -56,4 +56,18 @@ export async function getCheckoutParams(orderId: string): Promise<CheckoutParams
 export async function getOrder(orderId: string): Promise<Order> {
   const res = await fetch(`/api/orders/${orderId}`, { method: "GET" });
   return handleResponse<Order>(res);
+}
+
+export async function getMyOrders(params?: {
+  page?: number;
+  limit?: number;
+}): Promise<PaginatedOrders> {
+  const query = new URLSearchParams();
+  if (params?.page) query.set("page", String(params.page));
+  if (params?.limit) query.set("limit", String(params.limit));
+  const queryString = query.toString();
+  const res = await fetch(`/api/orders${queryString ? `?${queryString}` : ""}`, {
+    method: "GET",
+  });
+  return handleResponse<PaginatedOrders>(res);
 }

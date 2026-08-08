@@ -1,14 +1,13 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useClearCartMutation } from "@/hooks/useCart";
-import { getOrder } from "@/lib/api/orders";
+import { useOrder } from "@/hooks/useOrders";
 import type { Order } from "@/types/order";
 
 const maxAttempts = 10;
@@ -49,10 +48,7 @@ function ConfirmacionContent() {
   const attemptsRef = useRef(0);
   const lastUpdatedAtRef = useRef(0);
 
-  const { data: order, isLoading, dataUpdatedAt } = useQuery({
-    queryKey: ["order", orderId],
-    queryFn: () => getOrder(orderId!),
-    enabled: !!orderId,
+  const { data: order, isLoading, dataUpdatedAt } = useOrder(orderId, {
     refetchInterval: (query) => {
       const status = query.state.data?.status;
       const stillPending = status === "PENDING";

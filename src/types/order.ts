@@ -1,3 +1,12 @@
+export type OrderStatus =
+  | "PENDING"
+  | "PAID"
+  | "PROCESSING"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED"
+  | "REFUNDED";
+
 export interface OrderItem {
   id: string;
   productName: string;
@@ -6,6 +15,22 @@ export interface OrderItem {
   unitPrice: number;
   quantity: number;
   lineTotal: number;
+}
+
+export interface OrderListItem {
+  id: string;
+  status: OrderStatus;
+  total: number;
+  currency: string;
+  itemsCount: number;
+  createdAt: string;
+}
+
+export interface PaginatedOrders {
+  items: OrderListItem[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 export interface CheckoutParams {
@@ -19,7 +44,7 @@ export interface CheckoutParams {
 
 export interface Order {
   id: string;
-  status: string;
+  status: OrderStatus;
   subtotal: number;
   taxAmount: number;
   shippingAmount: number;

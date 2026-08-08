@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCreateAddressMutation } from "@/hooks/useAddresses";
+import { useCreateAddressMutation, useUpdateAddressMutation } from "@/hooks/useAddresses";
 import { COLOMBIA_DEPARTMENTS } from "@/lib/constants/colombia-departments";
 import { addressSchema, type AddressFormValues } from "@/lib/validations/address";
 import type { Address } from "@/types/address";
@@ -31,30 +31,55 @@ import type { Address } from "@/types/address";
 interface AddressFormProps {
   onSuccess: (address: Address) => void;
   onCancel?: () => void;
+  mode?: "create" | "edit";
+  initialValues?: Address;
 }
 
-export function AddressForm({ onSuccess, onCancel }: AddressFormProps) {
+export function AddressForm({
+  onSuccess,
+  onCancel,
+  mode = "create",
+  initialValues,
+}: AddressFormProps) {
   const createAddress = useCreateAddressMutation();
+  const updateAddress = useUpdateAddressMutation();
+  const isEdit = mode === "edit" && !!initialValues;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressSchema),
-    defaultValues: {
-      fullName: "",
-      phone: "",
-      line1: "",
-      line2: "",
-      city: "",
-      state: "",
-      postalCode: "",
-      isDefault: false,
-    },
+    defaultValues: initialValues
+      ? {
+          fullName: initialValues.fullName,
+          phone: initialValues.phone,
+          line1: initialValues.line1,
+          line2: initialValues.line2 ?? "",
+          city: initialValues.city,
+          state: initialValues.state,
+          postalCode: initialValues.postalCode ?? "",
+          isDefault: initialValues.isDefault,
+        }
+      : {
+          fullName: "",
+          phone: "",
+          line1: "",
+          line2: "",
+          city: "",
+          state: "",
+          postalCode: "",
+          isDefault: false,
+        },
   });
 
   async function handleSubmit(values: AddressFormValues) {
     setIsSubmitting(true);
     try {
-      const address = await createAddress.mutateAsync(values);
+      const address = isEdit
+        ? await updateAddress.mutateAsync({
+            id: initialValues!.id,
+            input: values,
+          })
+        : await createAddress.mutateAsync(values);
       onSuccess(address);
     } catch (error) {
       toast.error(
@@ -219,7 +244,11 @@ export function AddressForm({ onSuccess, onCancel }: AddressFormProps) {
             </Button>
           )}
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Guardando…" : "Guardar dirección"}
+            {isSubmitting
+              ? "Guardando…"
+              : isEdit
+                ? "Guardar cambios"
+                : "Guardar dirección"}
           </Button>
         </div>
       </form>
