@@ -1,4 +1,4 @@
-import type { Order } from "@/types/order";
+import type { CheckoutParams, Order } from "@/types/order";
 import type { ShippingRateOption } from "@/types/shipping";
 
 interface ApiResponse<T> {
@@ -43,5 +43,17 @@ export async function selectShipping(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
+  return handleResponse<Order>(res);
+}
+
+export async function getCheckoutParams(orderId: string): Promise<CheckoutParams> {
+  const res = await fetch(`/api/orders/${orderId}/checkout`, {
+    method: "POST",
+  });
+  return handleResponse<CheckoutParams>(res);
+}
+
+export async function getOrder(orderId: string): Promise<Order> {
+  const res = await fetch(`/api/orders/${orderId}`, { method: "GET" });
   return handleResponse<Order>(res);
 }

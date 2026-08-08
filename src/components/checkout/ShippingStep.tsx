@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { Truck } from "lucide-react";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -22,15 +25,23 @@ const copFormatter = new Intl.NumberFormat("es-CO", {
   maximumFractionDigits: 0,
 });
 
+// debe coincidir con FREE_SHIPPING_THRESHOLD del backend
+const FREE_SHIPPING_THRESHOLD = 150000;
+
 const optionKey = (option: ShippingRateOption) =>
   `${option.carrier}::${option.service}`;
 
 interface ShippingStepProps {
   orderId: string;
+  orderSubtotal: number;
   onConfirm: (updatedOrder: Order) => void;
 }
 
-export function ShippingStep({ orderId, onConfirm }: ShippingStepProps) {
+export function ShippingStep({
+  orderId,
+  orderSubtotal,
+  onConfirm,
+}: ShippingStepProps) {
   const {
     data: options,
     isLoading,
@@ -106,6 +117,16 @@ export function ShippingStep({ orderId, onConfirm }: ShippingStepProps) {
 
   return (
     <div className="flex flex-col gap-6">
+      {orderSubtotal >= FREE_SHIPPING_THRESHOLD && (
+        <Alert>
+          <Truck />
+          <AlertTitle>¡Tu pedido tiene envío gratis!</AlertTitle>
+          <AlertDescription>
+            Aplica sin importar la transportadora que elijas.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <RadioGroup
         value={selectedOption ? optionKey(selectedOption) : ""}
         onValueChange={(value) => {

@@ -104,6 +104,15 @@ de redirect a /login en una ruta protegida). config.matcher no cambió de
 sintaxis. Migración: renombrar archivo + renombrar función exportada
 (o usar `npx @next/codemod@latest middleware-to-proxy .`).
 
+## Lección: componentes de shadcn SIEMPRE vía CLI, nunca escritos a mano
+Si un prompt a OpenCode menciona un componente de shadcn (ej. "Alert de
+shadcn") sin incluir el comando `npx shadcn@latest add <componente>`
+explícito, OpenCode puede terminar escribiéndolo a mano — y las clases
+de Tailwind v4 que usan estos componentes (ej. `calc(var(--spacing)*4)`)
+son fáciles de escribir mal, rompiendo el build con "Parsing CSS source
+code failed". Regla: todo prompt que mencione un componente de shadcn
+debe incluir su comando de instalación explícito, sin excepción.
+
 ## Auth (BFF con cookies httpOnly) — COMPLETADO Y VERIFICADO
 Batería de 7 pruebas manuales pasando: cookies invisibles desde JS (con y
 sin sesión), visibles en DevTools→Application con HttpOnly marcado, login,
@@ -138,6 +147,15 @@ Batería de 7 pruebas pasando: sin direcciones → formulario directo, creación
 con state correcto verificado en DB, con direcciones → tarjetas + default,
 cancelar formulario sin perder selección, avance a step shipping, carrito
 vacío manejado sin crash, sin sesión redirige a login.
+
+## Checkout — Paso 2 (Envío) COMPLETADO Y VERIFICADO
+ShippingStep con cotización automática al entrar (POST shipping-quote),
+loading con skeletons, botón "Reintentar cotización" en error de red
+(probado con Network request blocking en DevTools), banner de envío
+gratis cuando order.subtotal >= FREE_SHIPPING_THRESHOLD (verificado con
+subtotal real superando el umbral). PATCH shipping-selection confirma
+la opción, avanza a step payment con order actualizada (shippingAmount,
+total recalculados).
 
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado

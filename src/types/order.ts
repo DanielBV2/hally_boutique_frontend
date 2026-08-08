@@ -8,6 +8,15 @@ export interface OrderItem {
   lineTotal: number;
 }
 
+export interface CheckoutParams {
+  publicKey: string;
+  currency: string;
+  amountInCents: number;
+  reference: string;
+  signature: string;
+  redirectUrl: string;
+}
+
 export interface Order {
   id: string;
   status: string;

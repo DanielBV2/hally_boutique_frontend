@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AddressStep } from "@/components/checkout/AddressStep";
+import { PaymentStep } from "@/components/checkout/PaymentStep";
 import { ShippingStep } from "@/components/checkout/ShippingStep";
 import { useSession } from "@/hooks/useSession";
 import { cn } from "@/lib/utils";
@@ -30,6 +31,7 @@ export default function CheckoutPage() {
 
   const [step, setStep] = useState<CheckoutStep>("address");
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [orderSubtotal, setOrderSubtotal] = useState<number>(0);
   const [order, setOrder] = useState<Order | null>(null);
   const idempotencyKeyRef = useRef(crypto.randomUUID());
 
@@ -78,6 +80,7 @@ export default function CheckoutPage() {
       }
 
       setOrderId(json.data.id);
+      setOrderSubtotal(json.data.subtotal);
       setStep("shipping");
     } catch {
       toast.error("Ocurrió un error inesperado. Inténtalo de nuevo.");
@@ -128,6 +131,7 @@ export default function CheckoutPage() {
         (orderId ? (
           <ShippingStep
             orderId={orderId}
+            orderSubtotal={orderSubtotal}
             onConfirm={(updatedOrder) => {
               setOrder(updatedOrder);
               setStep("payment");
@@ -139,12 +143,14 @@ export default function CheckoutPage() {
           </div>
         ))}
 
-      {step === "payment" && (
-        <div className="rounded-xl border border-border bg-muted/30 p-8 text-center">
-          <h2 className="mb-2 text-lg font-medium text-foreground">Pago</h2>
-          <p className="text-muted-foreground">Próximamente</p>
-        </div>
-      )}
+      {step === "payment" &&
+        (order ? (
+          <PaymentStep order={order} />
+        ) : (
+          <div className="rounded-xl border border-border bg-muted/30 p-8 text-center text-muted-foreground">
+            Pago no disponible
+          </div>
+        ))}
     </div>
   );
 }
