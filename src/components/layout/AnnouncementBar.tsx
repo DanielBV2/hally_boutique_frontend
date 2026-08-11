@@ -9,10 +9,18 @@ const thresholdFormatter = new Intl.NumberFormat("es-CO", {
 });
 
 export function AnnouncementBar() {
+  const message = `Envío gratis en compras superiores a ${thresholdFormatter.format(
+    FREE_SHIPPING_THRESHOLD
+  )}`;
+
   return (
-    <div className="bg-primary py-2 text-center text-sm font-medium text-primary-foreground">
-      Envío gratis en compras superiores a{" "}
-      {thresholdFormatter.format(FREE_SHIPPING_THRESHOLD)}
+    <div className="overflow-hidden bg-primary py-2 text-center text-sm font-medium text-primary-foreground">
+      <div className="animate-marquee flex w-max whitespace-nowrap">
+        <p className="px-6">{message}</p>
+        <p className="px-6" aria-hidden="true">
+          {message}
+        </p>
+      </div>
     </div>
   );
 }

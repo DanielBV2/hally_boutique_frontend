@@ -5,8 +5,9 @@ import { RefreshCw, ShieldCheck, Truck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CategoryCard } from "@/components/home/CategoryCard";
-import { ProductCard } from "@/components/products/ProductCard";
+import { WaveDivider } from "@/components/home/WaveDivider";
+import { FeaturedProductCard } from "@/components/home/FeaturedProductCard";
+import { cn } from "@/lib/utils";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
 
@@ -18,7 +19,7 @@ export default function Home() {
   const {
     data: products,
     isLoading: productsLoading,
-  } = useProducts({ limit: 6 });
+  } = useProducts({ limit: 8 });
 
   const showCategories =
     !categoriesLoading && categories && categories.length > 0;
@@ -27,19 +28,28 @@ export default function Home() {
 
   return (
     <main className="flex flex-col">
-      <section className="flex min-h-[70vh] items-center justify-center bg-gradient-to-br from-primary to-accent px-4 py-16 text-center">
-        <div className="flex max-w-2xl flex-col items-center gap-6">
-          <h1 className="text-4xl font-semibold text-primary-foreground md:text-6xl">
-            Hally Boutique
-          </h1>
-          <p className="text-lg text-primary-foreground/90 md:text-xl">
-            Moda de baño con estilo tropical, pensada para brillar en cada
-            ola.
-          </p>
-          <Button variant="secondary" asChild className="h-12 px-8 text-base">
-            <Link href="/productos">Ver colección</Link>
-          </Button>
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary to-accent">
+        <div className="mx-auto flex min-h-[70vh] w-full max-w-6xl items-center px-4 pb-24 pt-16 lg:pb-28">
+          <div className="relative z-10 flex max-w-xl flex-col gap-6">
+            <h1 className="text-5xl font-extrabold tracking-tight text-primary-foreground sm:text-6xl lg:text-7xl">
+            </h1>
+            <p className="text-lg text-primary-foreground/90 md:text-xl">
+              Moda de baño con estilo tropical, pensada para brillar en cada
+              ola.
+            </p>
+            <div className="mt-2">
+              <Button
+                variant="secondary"
+                asChild
+                className="h-12 px-8 text-base"
+              >
+                <Link href="/productos">Ver colección</Link>
+              </Button>
+            </div>
+          </div>
         </div>
+
+        <WaveDivider className="relative z-10 text-background" />
       </section>
 
       {showCategories && (
@@ -47,9 +57,25 @@ export default function Home() {
           <h2 className="mb-8 text-2xl font-semibold text-foreground">
             Explora por categoría
           </h2>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {categories.map((category, index) => (
-              <CategoryCard key={category.id} category={category} index={index} />
+          <div className="grid auto-rows-[140px] grid-cols-2 gap-4 sm:auto-rows-[180px] sm:grid-cols-3">
+            {categories.map((category, i) => (
+              <Link
+                key={category.id}
+                href={`/productos?categoryId=${category.id}`}
+                className={cn(
+                  "group relative flex items-end overflow-hidden rounded-2xl p-5 transition-transform hover:-translate-y-1",
+                  i === 0 &&
+                    categories.length >= 3 &&
+                    "col-span-2 row-span-2 sm:col-span-1 sm:row-span-2",
+                  ["bg-primary/15", "bg-accent/15", "bg-secondary/25", "bg-muted"][
+                    i % 4
+                  ],
+                )}
+              >
+                <span className="font-display text-xl font-semibold text-foreground sm:text-2xl">
+                  {category.name}
+                </span>
+              </Link>
             ))}
           </div>
         </section>
@@ -58,38 +84,46 @@ export default function Home() {
       {categoriesLoading && (
         <section className="mx-auto w-full max-w-6xl px-4 py-16">
           <Skeleton className="mb-8 h-8 w-64" />
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="aspect-square w-full rounded-xl" />
+          <div className="grid auto-rows-[140px] grid-cols-2 gap-4 sm:auto-rows-[180px] sm:grid-cols-3">
+            <Skeleton className="col-span-2 row-span-2 rounded-2xl sm:col-span-1 sm:row-span-2" />
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="rounded-2xl" />
             ))}
           </div>
         </section>
       )}
 
       {showProducts && (
-        <section className="mx-auto w-full max-w-6xl px-4 pb-16">
-          <h2 className="mb-8 text-2xl font-semibold text-foreground">
-            Descubre lo nuevo
-          </h2>
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
-            {products.items.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+        <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
+          <div className="mb-8 flex items-end justify-between">
+            <h2 className="font-display text-3xl font-semibold">
+              Descubre lo nuevo
+            </h2>
+            <Link
+              href="/productos"
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              Ver todo →
+            </Link>
           </div>
-          <div className="mt-10 flex justify-center">
-            <Button variant="outline" asChild>
-              <Link href="/productos">Ver todo</Link>
-            </Button>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-6">
+            {products.items.slice(0, 8).map((product, index) => (
+              <FeaturedProductCard
+                key={product.id}
+                product={product}
+                isNew={index < 3}
+              />
+            ))}
           </div>
         </section>
       )}
 
       {productsLoading && (
-        <section className="mx-auto w-full max-w-6xl px-4 pb-16">
+        <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
           <Skeleton className="mb-8 h-8 w-64" />
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-72 w-full rounded-lg" />
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-square w-full rounded-xl" />
             ))}
           </div>
         </section>

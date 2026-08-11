@@ -6,6 +6,7 @@ export interface ProductListItem {
   currency: string;
   thumbnailUrl: string | null;
   categoryName: string;
+  images?: { id: string; url: string; altText: string | null }[];
 }
 
 export interface ProductVariant {

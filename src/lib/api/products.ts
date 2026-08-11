@@ -20,7 +20,12 @@ export async function getProducts(params?: {
   categoryId?: string;
   search?: string;
 }): Promise<{ items: ProductListItem[]; total: number; page: number }> {
-  const query = new URLSearchParams(params as Record<string, string>).toString();
+  const searchParams = new URLSearchParams();
+  if (params?.page) searchParams.set("page", String(params.page));
+  if (params?.limit) searchParams.set("limit", String(params.limit));
+  if (params?.categoryId) searchParams.set("categoryId", params.categoryId);
+  if (params?.search) searchParams.set("search", params.search);
+  const query = searchParams.toString();
   const res = await fetch(`/api/products${query ? `?${query}` : ""}`);
   return handleResponse(res);
 }

@@ -1,18 +1,17 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart, User } from "lucide-react";
 
+import { MobileNav } from "@/components/layout/MobileNav";
+import { CategoriesFlyout } from "@/components/layout/CategoriesFlyout";
+import { SearchBar } from "@/components/layout/SearchBar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/hooks/useCart";
 import { useSession } from "@/hooks/useSession";
 import { useCartDrawerStore } from "@/stores/useCartDrawerStore";
-
-const navLinks = [
-  { href: "/productos", label: "Productos" },
-  { href: "/categorias", label: "Categorías" },
-];
 
 export function Header() {
   const { isAuthenticated } = useSession();
@@ -24,44 +23,56 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Link href="/" className="text-lg font-semibold text-foreground">
-          Hally Boutique
+      <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+        <MobileNav />
+
+        <Link href="/" className="shrink-0">
+          <Image
+            src="/logo.png"
+            alt="Hally Boutique"
+            width={300}
+            height={100}
+            priority
+            className="h-10 w-auto sm:h-12"
+          />
         </Link>
 
-        <nav className="flex items-center gap-1">
-          {navLinks.map((link) => (
-            <Button key={link.href} variant="ghost" asChild>
-              <Link href={link.href}>{link.label}</Link>
-            </Button>
-          ))}
+        <nav className="hidden items-center gap-1 lg:flex">
+          <Button variant="ghost" asChild>
+            <Link href="/productos">Productos</Link>
+          </Button>
+          <CategoriesFlyout />
         </nav>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label={isAuthenticated ? "Mi cuenta" : "Iniciar sesión"}
-          asChild
-        >
-          <Link href={isAuthenticated ? "/cuenta" : "/login"}>
-            <User />
-          </Link>
-        </Button>
+        <div className="flex items-center gap-1">
+          <SearchBar />
 
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Carrito de compras"
-          onClick={toggleCart}
-          className="relative"
-        >
-          <ShoppingCart />
-          {showBadge && (
-            <Badge className="absolute -right-1 -top-1 h-4 min-w-4 px-1 text-[10px] leading-none">
-              {totalItems}
-            </Badge>
-          )}
-        </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={isAuthenticated ? "Mi cuenta" : "Iniciar sesión"}
+            asChild
+          >
+            <Link href={isAuthenticated ? "/cuenta" : "/login"}>
+              <User />
+            </Link>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Carrito de compras"
+            onClick={toggleCart}
+            className="relative"
+          >
+            <ShoppingCart />
+            {showBadge && (
+              <Badge className="absolute -right-1 -top-1 h-4 min-w-4 px-1 text-[10px] leading-none">
+                {totalItems}
+              </Badge>
+            )}
+          </Button>
+        </div>
       </div>
     </header>
   );

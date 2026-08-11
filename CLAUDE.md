@@ -211,6 +211,12 @@ correctamente rechazado. Confirmado: fallo de Resend nunca rompe el
 endpoint (try/catch en emailClient.ts + auth.service.ts ignora el error,
 siempre responde 200 genérico).
 
+## Fix: categoryId=undefined en query string COMPLETADO Y VERIFICADO
+products.ts ahora arma la query con URLSearchParams.set() condicional,
+omitiendo undefined/''. Bug pre-existente desde la migración al BFF, no
+relacionado a la ronda de diseño. Verificado: /productos sin filtro (200),
+con categoryId real (filtra bien), con search (filtra bien).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
