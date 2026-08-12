@@ -1,26 +1,21 @@
 import type { CheckoutParams, Order, PaginatedOrders } from "@/types/order";
 import type { ShippingRateOption } from "@/types/shipping";
+import { ApiError } from "@/lib/api/errors";
 
 interface ApiResponse<T> {
   success: boolean;
   data: T;
-  error?: { message: string };
-}
-
-export class ApiError extends Error {
-  status: number;
-
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-  }
+  error?: { code?: string; message: string };
 }
 
 async function handleResponse<T>(res: Response): Promise<T> {
   const json = (await res.json()) as ApiResponse<T>;
   if (!json.success) {
-    throw new ApiError(json.error?.message ?? "Error en la petición", res.status);
+    throw new ApiError(
+      json.error?.message ?? "Error en la petición",
+      res.status,
+      json.error?.code,
+    );
   }
   return json.data;
 }

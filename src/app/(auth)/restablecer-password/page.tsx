@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { ApiError } from "@/lib/api/errors";
 import { resetPassword } from "@/lib/api/auth";
 import {
   resetPasswordSchema,
@@ -50,8 +51,12 @@ function ResetPasswordForm() {
       await resetPassword(token ?? values.token, values.newPassword);
       toast.success("Contraseña actualizada");
       router.push("/login");
-    } catch {
-      setError(INVALID_LINK_MESSAGE);
+    } catch (error) {
+      if (error instanceof ApiError && error.isRateLimited()) {
+        setError(error.message);
+      } else {
+        setError(INVALID_LINK_MESSAGE);
+      }
       setSubmitting(false);
     }
   }

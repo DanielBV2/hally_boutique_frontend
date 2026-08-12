@@ -3,17 +3,22 @@ import type {
   Cart,
   UpdateCartItemInput,
 } from "@/types/cart";
+import { ApiError } from "@/lib/api/errors";
 
 interface ApiResponse<T> {
   success: boolean;
   data: T;
-  error?: { message: string };
+  error?: { code?: string; message: string };
 }
 
 async function handleResponse<T>(res: Response): Promise<T> {
   const json = (await res.json()) as ApiResponse<T>;
   if (!json.success) {
-    throw new Error(json.error?.message ?? "Error en la petición");
+    throw new ApiError(
+      json.error?.message ?? "Error en la petición",
+      res.status,
+      json.error?.code,
+    );
   }
   return json.data;
 }

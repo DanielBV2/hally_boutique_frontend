@@ -271,6 +271,26 @@ shipping-selection (todos los endpoints que llenan el tipo Order), así
 que la condición de render no puede activarse con un valor ausente.
 Typecheck y lint limpios.
 
+## Manejo de 429 (rate limiting) COMPLETADO Y VERIFICADO
+El backend ahora tiene rate limiting (apiLimiter global 300/15min, login
+10/min, registro 10/h, forgot-password 5/h) que responde 429 con
+{ success:false, error:{ code:"RATE_LIMITED", message } }.
+- lib/api/errors.ts: ApiError compartido con status + code + isRateLimited().
+  Antes solo orders.ts tenía su propio ApiError y los otros 5 clientes
+  lanzaban Error genérico sin status; ahora los 6 clientes (products,
+  categories, cart, addresses, auth, orders) lanzan ApiError con el status
+  HTTP y el code del backend. ShippingStep.tsx importa ApiError de errors.ts.
+- olvide-password: antes cualquier error no-red mostraba el éxito falso
+  (por diseño de seguridad) — ahora un 429 muestra el mensaje real del
+  backend via toast y NO el éxito falso.
+- restablecer-password: antes todo error mostraba "enlace inválido/
+  expirado" — ahora un 429 muestra el mensaje real.
+- login/registro ya mostraban json.error?.message (que incluye el 429) —
+  sin cambios necesarios.
+Verificado end-to-end vía BFF: 10 intentos fallidos de login → 401,
+intento 11 → 429 con body RATE_LIMITED y mensaje en español del backend.
+Typecheck y lint limpios.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

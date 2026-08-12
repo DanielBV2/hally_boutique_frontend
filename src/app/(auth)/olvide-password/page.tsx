@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { ApiError } from "@/lib/api/errors";
 import { forgotPassword } from "@/lib/api/auth";
 import {
   forgotPasswordSchema,
@@ -39,6 +40,8 @@ export default function ForgotPasswordPage() {
     } catch (error) {
       if (error instanceof TypeError) {
         toast.error("Ocurrió un error, intenta de nuevo");
+      } else if (error instanceof ApiError && error.isRateLimited()) {
+        toast.error(error.message);
       } else {
         setSubmitted(true);
       }
