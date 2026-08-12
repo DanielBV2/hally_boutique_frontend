@@ -8,6 +8,7 @@ import { useAddToCartMutation } from '@/hooks/useCart';
 import { VariantSelector } from '@/components/products/VariantSelector';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatCurrency } from '@/lib/format';
 import type { ProductVariant } from '@/types/product';
 
 export default function ProductDetailPage() {
@@ -40,9 +41,10 @@ export default function ProductDetailPage() {
     );
   }
 
-  const formattedPrice = new Intl.NumberFormat('es-CO', {
-    style: 'currency', currency: product.currency, maximumFractionDigits: 0,
-  }).format(selectedVariant ? selectedVariant.price : product.basePrice);
+  const formattedPrice = formatCurrency(
+    selectedVariant ? selectedVariant.price : product.basePrice,
+    product.currency,
+  );
 
   const currentImage = product.images[selectedImageIndex]?.url;
 

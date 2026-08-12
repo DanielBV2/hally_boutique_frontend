@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useClearCartMutation } from "@/hooks/useCart";
 import { useOrder } from "@/hooks/useOrders";
+import { formatCOP } from "@/lib/format";
 import type { Order } from "@/types/order";
 
 const maxAttempts = 10;
@@ -15,12 +16,6 @@ const pollInterval = 3000;
 
 const SUCCESS_STATUSES = ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"];
 const FAILED_STATUSES = ["CANCELLED", "REFUNDED"];
-
-const copFormatter = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
 
 export default function ConfirmacionPage() {
   return (
@@ -185,7 +180,7 @@ function SuccessView({
                   </span>
                 </span>
                 <span className="text-foreground">
-                  {copFormatter.format(item.lineTotal)}
+                  {formatCOP(item.lineTotal)}
                 </span>
               </div>
             ))}
@@ -193,7 +188,7 @@ function SuccessView({
           <div className="flex items-center justify-between border-t border-border pt-2 text-base font-semibold">
             <span className="text-foreground">Total</span>
             <span className="text-foreground">
-              {copFormatter.format(order.total)}
+              {formatCOP(order.total)}
             </span>
           </div>
         </CardContent>

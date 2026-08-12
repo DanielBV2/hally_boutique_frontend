@@ -314,6 +314,18 @@ Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
 de AddressStep.tsx:30 (documentada aparte). Los únicos fetch que quedan fuera
 de client.ts son los server-to-server de lib/auth/serverAuth.ts (BFF, correcto).
 
+## Mejora 7: formatCOP() centralizado en lib/format.ts COMPLETADA
+Había 10 construcciones duplicadas de `new Intl.NumberFormat("es-CO", ...)` con
+COP a nivel de módulo (CartDrawer, OrdersTab, ProductCard, FeaturedProductCard,
+AnnouncementBar, productos/[slug], checkout/confirmacion, ShippingStep,
+PaymentStep, cuenta/pedidos/[orderId]). Ahora todo vive en src/lib/format.ts:
+- formatCOP(amount): formatter COP compartido a nivel módulo (única instancia).
+- formatCurrency(amount, currency): variante con currency dinámico (usada por
+  el detalle de producto, que lee product.currency del DTO en vez de COP fijo).
+- El resto del proyecto ya no construye ningún Intl.NumberFormat de moneda.
+Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
+de AddressStep.tsx:30 (documentada aparte).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

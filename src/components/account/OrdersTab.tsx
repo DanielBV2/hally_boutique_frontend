@@ -8,14 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyOrders } from "@/hooks/useOrders";
+import { formatCOP } from "@/lib/format";
 
 const PAGE_SIZE = 20;
-
-const currencyFormatter = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
 
 const dateFormatter = new Intl.DateTimeFormat("es-CO", {
   day: "numeric",
@@ -72,7 +67,7 @@ export function OrdersTab() {
                 </span>
               </div>
               <span className="text-base font-semibold text-foreground">
-                {currencyFormatter.format(order.total)}
+                {formatCOP(order.total)}
               </span>
             </CardContent>
           </Card>

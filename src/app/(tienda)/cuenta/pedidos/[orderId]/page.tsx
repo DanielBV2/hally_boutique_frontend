@@ -15,12 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrder } from "@/hooks/useOrders";
-
-const currencyFormatter = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
+import { formatCOP } from "@/lib/format";
 
 const dateFormatter = new Intl.DateTimeFormat("es-CO", {
   day: "numeric",
@@ -103,11 +98,11 @@ export default function OrderDetailPage({
                 </span>
                 <span className="text-muted-foreground">
                   Talla {item.size} · {item.color} ·{" "}
-                  {currencyFormatter.format(item.unitPrice)} c/u
+                  {formatCOP(item.unitPrice)} c/u
                 </span>
               </div>
               <span className="shrink-0 text-foreground">
-                {currencyFormatter.format(item.lineTotal)}
+                {formatCOP(item.lineTotal)}
               </span>
             </div>
           ))}
@@ -122,25 +117,25 @@ export default function OrderDetailPage({
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Subtotal</span>
             <span className="text-foreground">
-              {currencyFormatter.format(order.subtotal)}
+              {formatCOP(order.subtotal)}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">IVA</span>
             <span className="text-foreground">
-              {currencyFormatter.format(order.taxAmount)}
+              {formatCOP(order.taxAmount)}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Envío</span>
             <span className="text-foreground">
-              {currencyFormatter.format(order.shippingAmount)}
+              {formatCOP(order.shippingAmount)}
             </span>
           </div>
           <div className="flex items-center justify-between border-t border-border pt-2 text-base font-semibold">
             <span className="text-foreground">Total</span>
             <span className="text-foreground">
-              {currencyFormatter.format(order.total)}
+              {formatCOP(order.total)}
             </span>
           </div>
         </CardContent>

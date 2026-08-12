@@ -2,13 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
+import { formatCOP } from "@/lib/format";
 import type { ProductListItem } from "@/types/product";
-
-const priceFormatter = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
 
 export function FeaturedProductCard({
   product,
@@ -53,7 +48,7 @@ export function FeaturedProductCard({
       <div className="mt-2 flex flex-col gap-0.5">
         <h3 className="truncate font-medium text-foreground">{product.name}</h3>
         <p className="text-sm font-semibold text-foreground">
-          {priceFormatter.format(product.basePrice)}
+          {formatCOP(product.basePrice)}
         </p>
       </div>
     </Link>

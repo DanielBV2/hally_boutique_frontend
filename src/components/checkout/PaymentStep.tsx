@@ -6,13 +6,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getCheckoutParams } from "@/lib/api/orders";
+import { formatCOP } from "@/lib/format";
 import type { Order } from "@/types/order";
-
-const copFormatter = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
 
 interface PaymentStepProps {
   order: Order;
@@ -55,13 +50,13 @@ export function PaymentStep({ order }: PaymentStepProps) {
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Subtotal</span>
             <span className="text-foreground">
-              {copFormatter.format(order.subtotal)}
+              {formatCOP(order.subtotal)}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">IVA (19%)</span>
             <span className="text-foreground">
-              {copFormatter.format(order.taxAmount)}
+              {formatCOP(order.taxAmount)}
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -69,13 +64,13 @@ export function PaymentStep({ order }: PaymentStepProps) {
             <span className="text-foreground">
               {order.shippingAmount === 0
                 ? "Gratis"
-                : copFormatter.format(order.shippingAmount)}
+                : formatCOP(order.shippingAmount)}
             </span>
           </div>
           <div className="flex items-center justify-between border-t border-border pt-2 text-base font-semibold">
             <span className="text-foreground">Total</span>
             <span className="text-foreground">
-              {copFormatter.format(order.total)}
+              {formatCOP(order.total)}
             </span>
           </div>
         </div>

@@ -19,14 +19,9 @@ import {
   useRemoveCartItemMutation,
   useUpdateCartItemMutation,
 } from "@/hooks/useCart";
+import { formatCOP } from "@/lib/format";
 import { useCartDrawerStore } from "@/stores/useCartDrawerStore";
 import type { CartItem } from "@/types/cart";
-
-const priceFormatter = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
 
 export function CartDrawer() {
   const { isOpen, close } = useCartDrawerStore();
@@ -149,7 +144,7 @@ export function CartDrawer() {
                       </div>
 
                       <p className="text-xs font-medium text-foreground">
-                        {priceFormatter.format(item.unitPrice)}
+                        {formatCOP(item.unitPrice)}
                       </p>
 
                       {!item.isAvailable && (
@@ -183,7 +178,7 @@ export function CartDrawer() {
                           </Button>
                         </div>
                         <p className="text-sm font-semibold text-foreground">
-                          {priceFormatter.format(item.subtotal)}
+                          {formatCOP(item.subtotal)}
                         </p>
                       </div>
                     </div>
@@ -199,7 +194,7 @@ export function CartDrawer() {
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
               <span className="font-semibold text-foreground">
-                {priceFormatter.format(cart?.subtotal ?? 0)}
+                {formatCOP(cart?.subtotal ?? 0)}
               </span>
             </div>
             <Button className="w-full" onClick={goToCheckout}>

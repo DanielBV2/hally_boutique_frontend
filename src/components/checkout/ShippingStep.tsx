@@ -15,15 +15,10 @@ import {
   useShippingQuote,
 } from "@/hooks/useShipping";
 import { ApiError } from "@/lib/api/client";
+import { formatCOP } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types/order";
 import type { ShippingRateOption } from "@/types/shipping";
-
-const copFormatter = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
 
 // debe coincidir con FREE_SHIPPING_THRESHOLD del backend
 const FREE_SHIPPING_THRESHOLD = 150000;
@@ -169,7 +164,7 @@ function ShippingOption({ option }: { option: ShippingRateOption }) {
               {option.carrier}
             </span>
             <span className="text-sm font-medium text-foreground">
-              {copFormatter.format(option.totalPrice)}
+              {formatCOP(option.totalPrice)}
             </span>
           </div>
           <div className="text-sm text-muted-foreground">

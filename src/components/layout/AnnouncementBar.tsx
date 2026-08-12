@@ -1,15 +1,11 @@
 "use client";
 
+import { formatCOP } from "@/lib/format";
+
 const FREE_SHIPPING_THRESHOLD = 150000;
 
-const thresholdFormatter = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
-
 export function AnnouncementBar() {
-  const message = `Envío gratis en compras superiores a ${thresholdFormatter.format(
+  const message = `Envío gratis en compras superiores a ${formatCOP(
     FREE_SHIPPING_THRESHOLD
   )}`;
 
