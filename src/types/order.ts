@@ -7,6 +7,8 @@ export type OrderStatus =
   | "CANCELLED"
   | "REFUNDED";
 
+export type ShippingStatus = "PENDING" | "LABEL_GENERATED" | "LABEL_FAILED";
+
 export interface OrderItem {
   id: string;
   productName: string;
@@ -64,5 +66,6 @@ export interface Order {
   shippingService: string | null;
   shippingTrackingNumber: string | null;
   shippingLabelUrl: string | null;
+  shippingStatus: ShippingStatus;
   createdAt: string;
 }

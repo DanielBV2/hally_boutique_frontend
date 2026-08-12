@@ -252,6 +252,25 @@ elegida por el usuario), coherente con el subtítulo tropical existente.
 Verificado: / responde 200 y el H1 aparece en el HTML SSR. Typecheck y
 lint limpios.
 
+## shippingStatus (guía de envío) COMPLETADO Y VERIFICADO
+Adaptación al campo nuevo del backend (OrderDetailDTO.shippingStatus:
+PENDING | LABEL_GENERATED | LABEL_FAILED, agregado por el backend para
+persistir el estado de la guía de envío). Antes el fallo de generación de
+guía era invisible para el cliente.
+- types/order.ts: nuevo tipo ShippingStatus + campo `shippingStatus` en
+  Order (obligatorio).
+- Detalle de pedido: la card "Envío" ahora se muestra cuando hay
+  transportadora o shippingStatus != PENDING, y maneja los 3 estados:
+  LABEL_GENERATED → transportadora/servicio/guía + descargar PDF;
+  LABEL_FAILED → Alert destructivo ("Guía de envío pendiente",
+  gestionándolo con la transportadora); PENDING sin guía → "se está
+  generando, vuelve a consultar".
+Verificado a nivel de contrato: toDetailDTO del backend incluye
+shippingStatus y es usado por GET /orders/:id, POST /orders y PATCH
+shipping-selection (todos los endpoints que llenan el tipo Order), así
+que la condición de render no puede activarse con un valor ausente.
+Typecheck y lint limpios.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

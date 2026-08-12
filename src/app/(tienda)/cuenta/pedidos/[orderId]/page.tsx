@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 
 import { OrderStatusBadge } from "@/components/account/OrderStatusBadge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -167,28 +168,45 @@ export default function OrderDetailPage({
         </CardContent>
       </Card>
 
-      {order.shippingCarrier && order.shippingTrackingNumber && (
+      {(order.shippingCarrier || order.shippingStatus !== "PENDING") && (
         <Card className="mt-4">
           <CardHeader>
             <CardTitle>Envío</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Transportadora</span>
-              <span className="text-foreground">{order.shippingCarrier}</span>
-            </div>
+            {order.shippingStatus === "LABEL_FAILED" && (
+              <Alert variant="destructive" className="mb-2">
+                <TriangleAlert />
+                <AlertTitle>Guía de envío pendiente</AlertTitle>
+                <AlertDescription>
+                  Ocurrió un problema al generar la guía de envío. Ya estamos
+                  gestionándolo con la transportadora; te contactaremos cuando
+                  esté resuelto.
+                </AlertDescription>
+              </Alert>
+            )}
+            {order.shippingCarrier && (
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Transportadora</span>
+                <span className="text-foreground">
+                  {order.shippingCarrier}
+                </span>
+              </div>
+            )}
             {order.shippingService && (
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Servicio</span>
                 <span className="text-foreground">{order.shippingService}</span>
               </div>
             )}
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Guía</span>
-              <span className="text-foreground">
-                {order.shippingTrackingNumber}
-              </span>
-            </div>
+            {order.shippingTrackingNumber && (
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Guía</span>
+                <span className="text-foreground">
+                  {order.shippingTrackingNumber}
+                </span>
+              </div>
+            )}
             {order.shippingLabelUrl && (
               <a
                 href={order.shippingLabelUrl}
@@ -199,6 +217,13 @@ export default function OrderDetailPage({
                 Descargar guía
               </a>
             )}
+            {order.shippingStatus === "PENDING" &&
+              !order.shippingTrackingNumber && (
+                <p className="text-muted-foreground">
+                  La guía de envío se está generando. Vuelve a consultar en unos
+                  minutos.
+                </p>
+              )}
           </CardContent>
         </Card>
       )}
