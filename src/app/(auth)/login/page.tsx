@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLoginMutation } from "@/hooks/useLogin";
 import { ApiError } from "@/lib/api/client";
+import { getSafeRedirect } from "@/lib/auth/safeRedirect";
 
 function LoginForm() {
   const router = useRouter();
@@ -30,12 +31,7 @@ function LoginForm() {
       { email, password },
       {
         onSuccess: () => {
-          const redirect = searchParams.get("redirect");
-          const safeRedirect =
-            redirect && redirect.startsWith("/") && !redirect.startsWith("//")
-              ? redirect
-              : "/";
-          router.push(safeRedirect);
+          router.push(getSafeRedirect(searchParams.get("redirect")));
         },
       },
     );

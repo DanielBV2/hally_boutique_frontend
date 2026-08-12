@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRegisterMutation } from "@/hooks/useRegister";
 import { ApiError } from "@/lib/api/client";
+import { getSafeRedirect } from "@/lib/auth/safeRedirect";
 
 function RegisterForm() {
   const router = useRouter();
@@ -32,12 +33,7 @@ function RegisterForm() {
       { firstName, lastName, email, password },
       {
         onSuccess: () => {
-          const redirect = searchParams.get("redirect");
-          const safeRedirect =
-            redirect && redirect.startsWith("/") && !redirect.startsWith("//")
-              ? redirect
-              : "/";
-          router.push(safeRedirect);
+          router.push(getSafeRedirect(searchParams.get("redirect")));
         },
       },
     );

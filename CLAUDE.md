@@ -379,6 +379,14 @@ de AddressStep.tsx:30 (documentada aparte). Sin usos de user.role/phone en la
 UI por ahora (solo firstName/lastName/email en ProfileTab) — el campo phone
 queda tipado para cuando la edición de perfil exista.
 
+## Mejora 12: safeRedirect extraído a helper COMPLETADA
+El cálculo de redirect seguro (startsWith("/") && !startsWith("//") → else "/")
+estaba duplicado en login/page.tsx y registro/page.tsx. Ahora vive una sola
+vez en src/lib/auth/safeRedirect.ts como getSafeRedirect(redirect: string |
+null): string, consumido por ambas páginas en el onSuccess del mutate.
+Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
+de AddressStep.tsx:30 (documentada aparte).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
