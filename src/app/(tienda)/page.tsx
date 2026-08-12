@@ -108,7 +108,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-6">
-            {products.items.slice(0, 8).map((product, index) => (
+            {products.items.map((product, index) => (
               <FeaturedProductCard
                 key={product.id}
                 product={product}

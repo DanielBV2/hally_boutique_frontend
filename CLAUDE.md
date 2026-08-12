@@ -399,6 +399,21 @@ tarjetas no cambió (solo el detalle de pedido lo mostraba).
 Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
 de AddressStep.tsx:30 (documentada aparte).
 
+## Mejora 14: limpieza layout/home/VariantSelector COMPLETADA
+Tres fixes pequeños:
+- layout.tsx: Geist_Mono era cargada y exponía --font-geist-mono pero ninguna
+  regla CSS la consumía. Eliminados el import, la declaración y la variable
+  del className (quedan Inter --font-sans y Plus_Jakarta_Sans --font-display).
+- (tienda)/page.tsx: el .slice(0, 8) en el map de la home era redundante — ya
+  se pide useProducts({ limit: 8 }) del backend. Eliminado.
+- VariantSelector.tsx: notificaba al padre con onSelect() dentro de un
+  useEffect (efecto por derivación, con render extra). Ahora onSelect se llama
+  directo en los handlers de click de Talla/Color, calculando el match con el
+  estado previo del otro selector. Mismo comportamiento, sin useEffect.
+Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
+de AddressStep.tsx:30 (documentada aparte). El slice(0, 8) que queda es el
+truncado del order.id en el detalle de pedido (intencional, no es duplicado).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

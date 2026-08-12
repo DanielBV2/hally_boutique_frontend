@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import type { ProductVariant } from '@/types/product';
 
@@ -21,16 +21,30 @@ export function VariantSelector({ variants, onSelect }: VariantSelectorProps) {
     ) ?? null;
   }, [variants, selectedSize, selectedColor]);
 
+  function handleSizeClick(size: string) {
+    setSelectedSize(size);
+    onSelect(
+      selectedColor
+        ? (variants.find((v) => v.size === size && v.color === selectedColor) ?? null)
+        : null,
+    );
+  }
+
+  function handleColorClick(color: string) {
+    setSelectedColor(color);
+    onSelect(
+      selectedSize
+        ? (variants.find((v) => v.size === selectedSize && v.color === color) ?? null)
+        : null,
+    );
+  }
+
   const sizeSelected = selectedSize !== null;
   const colorSelected = selectedColor !== null;
   const bothSelected = sizeSelected && colorSelected;
   const combinationExists = match !== null;
   const outOfStock = bothSelected && combinationExists && !match.inStock;
   const combinationMissing = bothSelected && !combinationExists;
-
-  useEffect(() => {
-    onSelect(bothSelected ? match : null);
-  }, [bothSelected, match, onSelect]);
 
   return (
     <div className="space-y-4">
@@ -44,7 +58,7 @@ export function VariantSelector({ variants, onSelect }: VariantSelectorProps) {
                 key={size}
                 variant={isActive ? 'default' : 'outline'}
                 className="cursor-pointer select-none"
-                onClick={() => setSelectedSize(size)}
+                onClick={() => handleSizeClick(size)}
               >
                 {size}
               </Badge>
@@ -63,7 +77,7 @@ export function VariantSelector({ variants, onSelect }: VariantSelectorProps) {
                 key={color}
                 variant={isActive ? 'default' : 'outline'}
                 className="cursor-pointer select-none"
-                onClick={() => setSelectedColor(color)}
+                onClick={() => handleColorClick(color)}
               >
                 {color}
               </Badge>
