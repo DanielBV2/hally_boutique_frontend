@@ -1,8 +1,7 @@
 "use client";
 
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants/shipping";
 import { formatCOP } from "@/lib/format";
-
-const FREE_SHIPPING_THRESHOLD = 150000;
 
 export function AnnouncementBar() {
   const message = `Envío gratis en compras superiores a ${formatCOP(

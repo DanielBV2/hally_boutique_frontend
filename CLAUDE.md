@@ -314,7 +314,7 @@ Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
 de AddressStep.tsx:30 (documentada aparte). Los únicos fetch que quedan fuera
 de client.ts son los server-to-server de lib/auth/serverAuth.ts (BFF, correcto).
 
-## Mejora 7: formatCOP() centralizado en lib/format.ts COMPLETADA
+## FormatCOP() centralizado en lib/format.ts COMPLETADA
 Había 10 construcciones duplicadas de `new Intl.NumberFormat("es-CO", ...)` con
 COP a nivel de módulo (CartDrawer, OrdersTab, ProductCard, FeaturedProductCard,
 AnnouncementBar, productos/[slug], checkout/confirmacion, ShippingStep,
@@ -323,6 +323,15 @@ PaymentStep, cuenta/pedidos/[orderId]). Ahora todo vive en src/lib/format.ts:
 - formatCurrency(amount, currency): variante con currency dinámico (usada por
   el detalle de producto, que lee product.currency del DTO en vez de COP fijo).
 - El resto del proyecto ya no construye ningún Intl.NumberFormat de moneda.
+Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
+de AddressStep.tsx:30 (documentada aparte).
+
+## FREE_SHIPPING_THRESHOLD centralizado COMPLETADA
+La constante 150000 estaba duplicada (AnnouncementBar + ShippingStep, ambos
+con el comentario "debe coincidir con el backend"). Ahora vive una sola vez
+en src/lib/constants/shipping.ts como FREE_SHIPPING_THRESHOLD, consumida por
+los dos componentes. El comentario de sincronización con el backend se movió
+a la definición única.
 Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
 de AddressStep.tsx:30 (documentada aparte).
 

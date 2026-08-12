@@ -15,13 +15,11 @@ import {
   useShippingQuote,
 } from "@/hooks/useShipping";
 import { ApiError } from "@/lib/api/client";
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants/shipping";
 import { formatCOP } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types/order";
 import type { ShippingRateOption } from "@/types/shipping";
-
-// debe coincidir con FREE_SHIPPING_THRESHOLD del backend
-const FREE_SHIPPING_THRESHOLD = 150000;
 
 const optionKey = (option: ShippingRateOption) =>
   `${option.carrier}::${option.service}`;
