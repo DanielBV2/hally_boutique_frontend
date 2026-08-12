@@ -29,6 +29,7 @@ import {
   useAddresses,
   useDeleteAddressMutation,
 } from "@/hooks/useAddresses";
+import { formatAddressLine } from "@/lib/format";
 import type { Address } from "@/types/address";
 
 export function AddressesTab() {
@@ -76,9 +77,7 @@ export function AddressesTab() {
                 {address.isDefault && <Badge variant="secondary">Predeterminada</Badge>}
               </div>
               <div className="text-sm text-muted-foreground">
-                {[address.line1, address.line2, `${address.city}, ${address.state}`]
-                  .filter(Boolean)
-                  .join(", ")}
+                {formatAddressLine(address)}
               </div>
               <div className="text-sm text-muted-foreground">
                 {address.phone}

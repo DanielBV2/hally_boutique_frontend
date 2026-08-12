@@ -15,3 +15,20 @@ export function formatCurrency(amount: number, currency: string): string {
     maximumFractionDigits: 0,
   }).format(amount);
 }
+
+export function formatAddressLine(input: {
+  line1: string;
+  line2?: string | null;
+  city: string;
+  state: string;
+  postalCode?: string | null;
+}): string {
+  return [
+    input.line1,
+    input.line2,
+    `${input.city}, ${input.state}`,
+    input.postalCode,
+  ]
+    .filter(Boolean)
+    .join(", ");
+}

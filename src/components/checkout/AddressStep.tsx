@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAddresses } from "@/hooks/useAddresses";
+import { formatAddressLine } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Address } from "@/types/address";
 
@@ -109,9 +110,7 @@ function AddressOption({ address }: { address: Address }) {
             )}
           </div>
           <div className="text-sm text-muted-foreground">
-            {[address.line1, address.line2, `${address.city}, ${address.state}`]
-              .filter(Boolean)
-              .join(", ")}
+            {formatAddressLine(address)}
           </div>
           <div className="text-sm text-muted-foreground">{address.phone}</div>
         </CardContent>

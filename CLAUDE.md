@@ -364,7 +364,7 @@ lanza ApiError). Distingue 409 (stock) y 400 (carrito vacío) con
 `interface ApiResponse` en checkout/ ni components/checkout/ (los refetch de
 ShippingStep son de TanStack Query). Sin cambios nuevos en esta mejora.
 
-## Mejora 11: tipo User centralizado en types/user.ts COMPLETADA
+## tipo User centralizado en types/user.ts COMPLETADA
 SessionUser estaba declarado local en hooks/useSession.ts y AuthUser local en
 lib/api/auth.ts (dos duplicados del mismo shape, sin phone). Ahora hay un solo
 tipo en src/types/user.ts:
@@ -379,11 +379,23 @@ de AddressStep.tsx:30 (documentada aparte). Sin usos de user.role/phone en la
 UI por ahora (solo firstName/lastName/email en ProfileTab) — el campo phone
 queda tipado para cuando la edición de perfil exista.
 
-## Mejora 12: safeRedirect extraído a helper COMPLETADA
+## safeRedirect extraído a helper COMPLETADA
 El cálculo de redirect seguro (startsWith("/") && !startsWith("//") → else "/")
 estaba duplicado en login/page.tsx y registro/page.tsx. Ahora vive una sola
 vez en src/lib/auth/safeRedirect.ts como getSafeRedirect(redirect: string |
 null): string, consumido por ambas páginas en el onSuccess del mutate.
+Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
+de AddressStep.tsx:30 (documentada aparte).
+
+## formatAddressLine() COMPLETADA
+El join de dirección ([line1, line2, `city, state`, postalCode].filter(Boolean).
+join(", ")) estaba duplicado en 3 lugares: AddressesTab.tsx, AddressStep.tsx y
+cuenta/pedidos/[orderId]/page.tsx (este último con los campos shipping* del
+order). Ahora vive una sola vez en lib/format.ts como formatAddressLine(input),
+que recibe line1/line2/city/state/postalCode normalizados. Como Address es un
+subtipo estructural, las tarjetas pasan `address` directo; el detalle de pedido
+mapea los campos shipping*. El postalCode es opcional, así el output de las
+tarjetas no cambió (solo el detalle de pedido lo mostraba).
 Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
 de AddressStep.tsx:30 (documentada aparte).
 

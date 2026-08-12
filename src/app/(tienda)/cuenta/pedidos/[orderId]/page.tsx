@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrder } from "@/hooks/useOrders";
-import { formatCOP } from "@/lib/format";
+import { formatAddressLine, formatCOP } from "@/lib/format";
 
 const dateFormatter = new Intl.DateTimeFormat("es-CO", {
   day: "numeric",
@@ -150,14 +150,13 @@ export default function OrderDetailPage({
             {order.shippingFullName}
           </span>
           <span className="text-muted-foreground">
-            {[
-              order.shippingLine1,
-              order.shippingLine2,
-              `${order.shippingCity}, ${order.shippingState}`,
-              order.shippingPostalCode,
-            ]
-              .filter(Boolean)
-              .join(", ")}
+            {formatAddressLine({
+              line1: order.shippingLine1,
+              line2: order.shippingLine2,
+              city: order.shippingCity,
+              state: order.shippingState,
+              postalCode: order.shippingPostalCode,
+            })}
           </span>
           <span className="text-muted-foreground">{order.shippingPhone}</span>
         </CardContent>
