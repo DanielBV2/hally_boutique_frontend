@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useInvalidateSession } from "@/hooks/useSession";
+import { ApiError } from "@/lib/api/client";
+import { login } from "@/lib/api/auth";
 
 function LoginForm() {
   const router = useRouter();
@@ -25,19 +27,7 @@ function LoginForm() {
     setSubmitting(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const json = await res.json();
-
-      if (!json.success) {
-        setError(
-          json.error?.message ?? "No se pudo iniciar sesión. Inténtalo de nuevo."
-        );
-        return;
-      }
+      await login({ email, password });
 
       await invalidateSession();
 
@@ -47,8 +37,12 @@ function LoginForm() {
           ? redirect
           : "/";
       router.push(safeRedirect);
-    } catch {
-      setError("Ocurrió un error inesperado. Inténtalo de nuevo.");
+    } catch (error) {
+      setError(
+        error instanceof ApiError
+          ? error.message
+          : "Ocurrió un error inesperado. Inténtalo de nuevo.",
+      );
     } finally {
       setSubmitting(false);
     }

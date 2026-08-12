@@ -14,7 +14,7 @@ import {
   useSelectShippingMutation,
   useShippingQuote,
 } from "@/hooks/useShipping";
-import { ApiError } from "@/lib/api/errors";
+import { ApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types/order";
 import type { ShippingRateOption } from "@/types/shipping";

@@ -275,11 +275,12 @@ Typecheck y lint limpios.
 El backend ahora tiene rate limiting (apiLimiter global 300/15min, login
 10/min, registro 10/h, forgot-password 5/h) que responde 429 con
 { success:false, error:{ code:"RATE_LIMITED", message } }.
-- lib/api/errors.ts: ApiError compartido con status + code + isRateLimited().
+- lib/api/errors.ts (ahora lib/api/client.ts tras la mejora 6): ApiError
+  compartido con status + code + isRateLimited().
   Antes solo orders.ts tenía su propio ApiError y los otros 5 clientes
   lanzaban Error genérico sin status; ahora los 6 clientes (products,
   categories, cart, addresses, auth, orders) lanzan ApiError con el status
-  HTTP y el code del backend. ShippingStep.tsx importa ApiError de errors.ts.
+  HTTP y el code del backend. ShippingStep.tsx importa ApiError de client.ts.
 - olvide-password: antes cualquier error no-red mostraba el éxito falso
   (por diseño de seguridad) — ahora un 429 muestra el mensaje real del
   backend via toast y NO el éxito falso.
@@ -290,6 +291,28 @@ El backend ahora tiene rate limiting (apiLimiter global 300/15min, login
 Verificado end-to-end vía BFF: 10 intentos fallidos de login → 401,
 intento 11 → 429 con body RATE_LIMITED y mensaje en español del backend.
 Typecheck y lint limpios.
+
+## Cliente HTTP centralizado en lib/api/client.ts COMPLETADA
+Antes ApiResponse<T> + handleResponse() estaban duplicados en los 6 clientes
+(products, orders, categories, cart, auth, addresses), había una copia local
+en checkout/page.tsx, y fetch crudo con res.json() manual en login, registro,
+checkout y useSession. Ahora todo vive en src/lib/api/client.ts:
+- ApiError (status + code + isRateLimited()), migrado desde errors.ts (eliminado).
+- ApiResponse<T> y handleResponse<T> (exportados, usados internamente por apiFetch).
+- apiFetch<T>(path, init): fetch + parse + throw ApiError en un solo helper.
+Refactor:
+- Los 6 clientes usan apiFetch; desaparece el contrato duplicado.
+- auth.ts ganó login() y register() (antes fetch crudo en las páginas) + tipo AuthUser.
+- orders.ts ganó createOrder() (antes fetch crudo en checkout).
+- login/registro/checkout/useSession migrados: manejan errores con
+  `error instanceof ApiError` (checkout distingue status 409 y 400; login/
+  registro muestran error.message que incluye el mensaje real del backend,
+  preservando el comportamiento del 429).
+- errors.ts eliminado; los 9 imports migrados a @/lib/api/client (incluye
+  olvide-password, restablecer-password, ShippingStep).
+Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
+de AddressStep.tsx:30 (documentada aparte). Los únicos fetch que quedan fuera
+de client.ts son los server-to-server de lib/auth/serverAuth.ts (BFF, correcto).
 
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado

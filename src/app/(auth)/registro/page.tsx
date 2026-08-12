@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useInvalidateSession } from "@/hooks/useSession";
+import { ApiError } from "@/lib/api/client";
+import { register } from "@/lib/api/auth";
 
 function RegisterForm() {
   const router = useRouter();
@@ -27,19 +29,7 @@ function RegisterForm() {
     setSubmitting(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, email, password }),
-      });
-      const json = await res.json();
-
-      if (!json.success) {
-        setError(
-          json.error?.message ?? "No se pudo completar el registro. Inténtalo de nuevo."
-        );
-        return;
-      }
+      await register({ firstName, lastName, email, password });
 
       await invalidateSession();
 
@@ -49,8 +39,12 @@ function RegisterForm() {
           ? redirect
           : "/";
       router.push(safeRedirect);
-    } catch {
-      setError("Ocurrió un error inesperado. Inténtalo de nuevo.");
+    } catch (error) {
+      setError(
+        error instanceof ApiError
+          ? error.message
+          : "Ocurrió un error inesperado. Inténtalo de nuevo.",
+      );
     } finally {
       setSubmitting(false);
     }

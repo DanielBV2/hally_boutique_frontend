@@ -8,6 +8,8 @@ import { AddressStep } from "@/components/checkout/AddressStep";
 import { PaymentStep } from "@/components/checkout/PaymentStep";
 import { ShippingStep } from "@/components/checkout/ShippingStep";
 import { useSession } from "@/hooks/useSession";
+import { ApiError } from "@/lib/api/client";
+import { createOrder } from "@/lib/api/orders";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types/order";
 
@@ -18,12 +20,6 @@ const STEPS: { id: CheckoutStep; label: string }[] = [
   { id: "shipping", label: "Envío" },
   { id: "payment", label: "Pago" },
 ];
-
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  error?: { message: string };
-}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -48,41 +44,26 @@ export default function CheckoutPage() {
 
   async function handleAddressConfirmed(addressId: string) {
     try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          addressId,
-          idempotencyKey: idempotencyKeyRef.current,
-        }),
+      const createdOrder = await createOrder({
+        addressId,
+        idempotencyKey: idempotencyKeyRef.current,
       });
-      const json = (await res.json()) as ApiResponse<Order>;
 
-      if (res.status === 409) {
-        toast.error(
-          json.error?.message ??
-            "Stock insuficiente para uno de los productos. Revisa tu carrito.",
-        );
+      setOrderId(createdOrder.id);
+      setOrderSubtotal(createdOrder.subtotal);
+      setStep("shipping");
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        toast.error(error.message);
         return;
       }
 
-      if (res.status === 400) {
-        toast.error(json.error?.message ?? "El carrito está vacío");
+      if (error instanceof ApiError && error.status === 400) {
+        toast.error(error.message);
         router.push("/productos");
         return;
       }
 
-      if (!res.ok || !json.success || !json.data) {
-        toast.error(
-          json.error?.message ?? "No se pudo crear la orden. Inténtalo de nuevo.",
-        );
-        return;
-      }
-
-      setOrderId(json.data.id);
-      setOrderSubtotal(json.data.subtotal);
-      setStep("shipping");
-    } catch {
       toast.error("Ocurrió un error inesperado. Inténtalo de nuevo.");
     }
   }

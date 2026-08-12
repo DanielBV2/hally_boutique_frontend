@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ApiError } from "@/lib/api/errors";
+import { ApiError } from "@/lib/api/client";
 import { forgotPassword } from "@/lib/api/auth";
 import {
   forgotPasswordSchema,

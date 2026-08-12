@@ -1,48 +1,59 @@
-import { ApiError } from "@/lib/api/errors";
+import { apiFetch } from "@/lib/api/client";
 
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  error?: { code?: string; message: string };
+export interface AuthUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
 }
 
-async function handleResponse<T>(res: Response): Promise<T> {
-  const json = (await res.json()) as ApiResponse<T>;
-  if (!json.success) {
-    throw new ApiError(
-      json.error?.message ?? "Error en la petición",
-      res.status,
-      json.error?.code,
-    );
-  }
-  return json.data;
+export async function login(input: {
+  email: string;
+  password: string;
+}): Promise<{ user: AuthUser }> {
+  return apiFetch<{ user: AuthUser }>("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export async function register(input: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}): Promise<{ user: AuthUser }> {
+  return apiFetch<{ user: AuthUser }>("/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
 }
 
 export async function forgotPassword(email: string): Promise<null> {
-  const res = await fetch("/api/auth/forgot-password", {
+  return apiFetch<null>("/api/auth/forgot-password", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
   });
-  return handleResponse<null>(res);
 }
 
 export async function resetPassword(
   token: string,
   newPassword: string,
 ): Promise<null> {
-  const res = await fetch("/api/auth/reset-password", {
+  return apiFetch<null>("/api/auth/reset-password", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token, newPassword }),
   });
-  return handleResponse<null>(res);
 }
 
 export async function logout(): Promise<null> {
-  const res = await fetch("/api/auth/logout", {
+  return apiFetch<null>("/api/auth/logout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
   });
-  return handleResponse<null>(res);
 }

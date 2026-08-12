@@ -2,6 +2,8 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { apiFetch } from "@/lib/api/client";
+
 interface SessionUser {
   id: string;
   email: string;
@@ -11,9 +13,7 @@ interface SessionUser {
 }
 
 async function fetchSession(): Promise<SessionUser | null> {
-  const res = await fetch("/api/auth/me");
-  const json = await res.json();
-  return json.data;
+  return apiFetch<SessionUser | null>("/api/auth/me");
 }
 
 export function useSession() {
