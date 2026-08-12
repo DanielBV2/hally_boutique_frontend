@@ -10,7 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 function ProductsGrid() {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("categoryId") ?? undefined;
-  const { data, isLoading, isError } = useProducts({ categoryId });
+  const search = searchParams.get("search") ?? undefined;
+  const { data, isLoading, isError } = useProducts({ categoryId, search });
 
   if (isLoading) {
     return (

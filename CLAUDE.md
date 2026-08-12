@@ -217,6 +217,18 @@ omitiendo undefined/''. Bug pre-existente desde la migración al BFF, no
 relacionado a la ronda de diseño. Verificado: /productos sin filtro (200),
 con categoryId real (filtra bien), con search (filtra bien).
 
+## Fix: búsqueda por search param COMPLETADO Y VERIFICADO
+El SearchBar del header navegaba a /productos?search=... pero la página
+solo leía categoryId — el término se descartaba y la búsqueda no filtraba.
+Fix: productos/page.tsx ahora lee `search` del query string y lo pasa a
+useProducts (que ya lo reenviaba a getProducts/products.ts, eslabones que
+ya soportaban el parámetro desde la migración al BFF).
+Verificado: /productos?search=oxford filtra a 1 resultado (Camisa Oxford
+Azul), search=borrado → 1, search=camisa → 1 (solo el que contiene el
+término), término inexistente → 0. BFF /api/products?search= confirmado.
+Typecheck y lint limpios (el único error de lint es la deuda pre-existente
+de AddressStep.tsx:30, documentada aparte).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
