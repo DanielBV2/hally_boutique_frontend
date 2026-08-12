@@ -245,6 +245,13 @@ logout (200, limpia access_token y refresh_token con Expires en el pasado)
 → /api/auth/me devuelve null. Páginas /, /login 200; /cuenta 307 sin
 sesión (proxy, esperado). Typecheck y lint limpios.
 
+## Fix: H1 del hero vacío COMPLETADO
+El hero de la home tenía el <h1> vacío (remanente del pulido visual).
+Se escribió el titular: "Verano sin límites" (decisión de contenido,
+elegida por el usuario), coherente con el subtítulo tropical existente.
+Verificado: / responde 200 y el H1 aparece en el HTML SSR. Typecheck y
+lint limpios.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

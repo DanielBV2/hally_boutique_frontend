@@ -32,6 +32,7 @@ export default function Home() {
         <div className="mx-auto flex min-h-[70vh] w-full max-w-6xl items-center px-4 pb-24 pt-16 lg:pb-28">
           <div className="relative z-10 flex max-w-xl flex-col gap-6">
             <h1 className="text-5xl font-extrabold tracking-tight text-primary-foreground sm:text-6xl lg:text-7xl">
+              Verano sin límites
             </h1>
             <p className="text-lg text-primary-foreground/90 md:text-xl">
               Moda de baño con estilo tropical, pensada para brillar en cada
