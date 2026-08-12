@@ -1,18 +1,11 @@
 import { apiFetch } from "@/lib/api/client";
-
-export interface AuthUser {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-}
+import type { User } from "@/types/user";
 
 export async function login(input: {
   email: string;
   password: string;
-}): Promise<{ user: AuthUser }> {
-  return apiFetch<{ user: AuthUser }>("/api/auth/login", {
+}): Promise<{ user: User }> {
+  return apiFetch<{ user: User }>("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
@@ -24,8 +17,8 @@ export async function register(input: {
   lastName: string;
   email: string;
   password: string;
-}): Promise<{ user: AuthUser }> {
-  return apiFetch<{ user: AuthUser }>("/api/auth/register", {
+}): Promise<{ user: User }> {
+  return apiFetch<{ user: User }>("/api/auth/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),

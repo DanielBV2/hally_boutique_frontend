@@ -302,7 +302,8 @@ checkout y useSession. Ahora todo vive en src/lib/api/client.ts:
 - apiFetch<T>(path, init): fetch + parse + throw ApiError en un solo helper.
 Refactor:
 - Los 6 clientes usan apiFetch; desaparece el contrato duplicado.
-- auth.ts ganó login() y register() (antes fetch crudo en las páginas) + tipo AuthUser.
+- auth.ts ganó login() y register() (antes fetch crudo en las páginas) + tipo
+  User (renombrado de AuthUser en la mejora 11).
 - orders.ts ganó createOrder() (antes fetch crudo en checkout).
 - login/registro/checkout/useSession migrados: manejan errores con
   `error instanceof ApiError` (checkout distingue status 409 y 400; login/
@@ -362,6 +363,21 @@ lanza ApiError). Distingue 409 (stock) y 400 (carrito vacío) con
 `error instanceof ApiError`. Verificado con grep: sin `fetch(` ni
 `interface ApiResponse` en checkout/ ni components/checkout/ (los refetch de
 ShippingStep son de TanStack Query). Sin cambios nuevos en esta mejora.
+
+## Mejora 11: tipo User centralizado en types/user.ts COMPLETADA
+SessionUser estaba declarado local en hooks/useSession.ts y AuthUser local en
+lib/api/auth.ts (dos duplicados del mismo shape, sin phone). Ahora hay un solo
+tipo en src/types/user.ts:
+- User: id, email, firstName, lastName, phone (string | null), role
+  ("CUSTOMER" | "ADMIN") — alineado al UserProfileDTO del backend
+  (auth.dto.ts), que sí expone phone desde siempre.
+- useSession.ts importa User de types/ (eliminada la interface local).
+- lib/api/auth.ts elimina AuthUser e importa User en login()/register().
+- En la mejora 6 se documentó "tipo AuthUser"; queda corregido a User.
+Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
+de AddressStep.tsx:30 (documentada aparte). Sin usos de user.role/phone en la
+UI por ahora (solo firstName/lastName/email en ProfileTab) — el campo phone
+queda tipado para cuando la edición de perfil exista.
 
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado

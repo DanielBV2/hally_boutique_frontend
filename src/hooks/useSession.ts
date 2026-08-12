@@ -3,17 +3,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiFetch } from "@/lib/api/client";
+import type { User } from "@/types/user";
 
-interface SessionUser {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-}
-
-async function fetchSession(): Promise<SessionUser | null> {
-  return apiFetch<SessionUser | null>("/api/auth/me");
+async function fetchSession(): Promise<User | null> {
+  return apiFetch<User | null>("/api/auth/me");
 }
 
 export function useSession() {
