@@ -22,3 +22,18 @@ export const resetPasswordSchema = z
   });
 
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+
+export const updateProfileSchema = z.object({
+  firstName: z
+    .string()
+    .min(2, "El nombre debe tener al menos 2 caracteres")
+    .max(100, "El nombre no puede exceder 100 caracteres"),
+  lastName: z
+    .string()
+    .min(2, "El apellido debe tener al menos 2 caracteres")
+    .max(100, "El apellido no puede exceder 100 caracteres"),
+  email: z.string().email("Correo inválido"),
+  phone: z.string().optional(),
+});
+
+export type UpdateProfileFormValues = z.infer<typeof updateProfileSchema>;

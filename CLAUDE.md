@@ -182,10 +182,10 @@ dominio con ngrok por ser servicios distintos):
 Ambos túneles deben correr en paralelo, en terminales separadas.
 
 ## Sección /cuenta (Perfil, Direcciones, Pedidos) COMPLETADA
-Perfil de solo lectura, Direcciones con editar/eliminar (Dialog +
-AlertDialog) reutilizando AddressForm en modo edit, Pedidos con
-paginación real (total/page/limit del backend) y detalle en
-/cuenta/pedidos/[orderId] con envío/guía si aplica. GET /orders del
+Perfil con edición (ver "Mejora 15" más abajo), Direcciones con
+editar/eliminar (Dialog + AlertDialog) reutilizando AddressForm en modo
+edit, Pedidos con paginación real (total/page/limit del backend) y detalle
+en /cuenta/pedidos/[orderId] con envío/guía si aplica. GET /orders del
 backend ahora expone paginación completa.
 
 ## Deuda técnica anotada (no bloqueante)
@@ -413,6 +413,42 @@ Tres fixes pequeños:
 Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
 de AddressStep.tsx:30 (documentada aparte). El slice(0, 8) que queda es el
 truncado del order.id en el detalle de pedido (intencional, no es duplicado).
+
+## Mejora 15: Edición de perfil (nombre, email, teléfono) COMPLETADA Y VERIFICADA
+El perfil pasó de solo lectura ("próximamente") a formulario editable. Requirió
+trabajo en los DOS repos (el backend no tenía endpoint de actualización).
+
+Backend (hallyboutique-backend, commit propio):
+- Nuevo PATCH /api/auth/me (authMiddleware + validateSchemaMiddleware), contrato:
+  body parcial { firstName, lastName, email, phone } con al menos 1 campo
+  (refine de Zod), respuesta 200 con UserProfileDTO actualizado.
+  - 409 "El correo ya está registrado" si email pertenece a otro usuario
+    (comparación case-insensitive; el email propio con distinto casing pasa).
+  - exactOptionalPropertyTypes: el service filtra explícitamente los campos
+    undefined antes de pasar a repository.update (phone puede ser null).
+  - repository ganó update(userId, data); openapi.ts documenta el PATCH +
+    schema UpdateProfileRequest.
+  - 6 unit tests nuevos en tests/unit/auth/auth.service.test.ts (total 172).
+- Decisión: NO se reemiten tokens al cambiar email. El claim email del JWT
+  queda stale pero es inofensivo — verificado que el backend NUNCA consume
+  req.user.email, todo pasa por req.user.id/role y /auth/me lee de DB.
+
+Frontend:
+- BFF src/app/api/auth/me/route.ts ganó PATCH: proxy de autenticatedFetch con
+  body, propaga status y error del backend.
+- lib/api/auth.ts: updateProfile(input) → PATCH /api/auth/me, devuelve User.
+- hooks/useProfile.ts: useUpdateProfileMutation → onSuccess invalida session
+  (reusa useInvalidateSession), el form se re-sincroniza con el estado del server.
+- ProfileTab.tsx: formulario react-hook-form + Zod (updateProfileSchema en
+  lib/validations/auth.ts) con Nombre/Apellido/Correo/Teléfono, toast de éxito/
+  error (ApiError muestra el mensaje real del backend, ej. 409). Teléfono vacío
+  se normaliza a null (no se envía ""). El form se monta solo cuando hay user
+  (sin setState-en-effect, la deuda de AddressStep no se tocó).
+- lib/validations/auth.ts: updateProfileSchema + UpdateProfileFormValues.
+Verificado end-to-end vía BFF (register → PATCH → GET /me): cambios de nombre/
+apellido/teléfono reflejados, cambio de email reflejado, email de otro usuario
+→ 409, PATCH sin sesión → 401. Typecheck y lint limpios en ambos repos (solo la
+deuda pre-existente de AddressStep.tsx:30).
 
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado

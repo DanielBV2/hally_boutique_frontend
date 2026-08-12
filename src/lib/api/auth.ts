@@ -50,3 +50,16 @@ export async function logout(): Promise<null> {
     headers: { "Content-Type": "application/json" },
   });
 }
+
+export async function updateProfile(input: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+}): Promise<User> {
+  return apiFetch<User>("/api/auth/me", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
