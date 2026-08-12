@@ -7,45 +7,38 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useInvalidateSession } from "@/hooks/useSession";
+import { useLoginMutation } from "@/hooks/useLogin";
 import { ApiError } from "@/lib/api/client";
-import { login } from "@/lib/api/auth";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const invalidateSession = useInvalidateSession();
+  const loginMutation = useLoginMutation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const error = loginMutation.error
+    ? loginMutation.error instanceof ApiError
+      ? loginMutation.error.message
+      : "Ocurrió un error inesperado. Inténtalo de nuevo."
+    : null;
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
-    setSubmitting(true);
-
-    try {
-      await login({ email, password });
-
-      await invalidateSession();
-
-      const redirect = searchParams.get("redirect");
-      const safeRedirect =
-        redirect && redirect.startsWith("/") && !redirect.startsWith("//")
-          ? redirect
-          : "/";
-      router.push(safeRedirect);
-    } catch (error) {
-      setError(
-        error instanceof ApiError
-          ? error.message
-          : "Ocurrió un error inesperado. Inténtalo de nuevo.",
-      );
-    } finally {
-      setSubmitting(false);
-    }
+    loginMutation.mutate(
+      { email, password },
+      {
+        onSuccess: () => {
+          const redirect = searchParams.get("redirect");
+          const safeRedirect =
+            redirect && redirect.startsWith("/") && !redirect.startsWith("//")
+              ? redirect
+              : "/";
+          router.push(safeRedirect);
+        },
+      },
+    );
   }
 
   return (
@@ -90,8 +83,8 @@ function LoginForm() {
 
         {error && <p className="text-sm text-destructive">{error}</p>}
 
-        <Button type="submit" disabled={submitting}>
-          {submitting ? "Ingresando…" : "Ingresar"}
+        <Button type="submit" disabled={loginMutation.isPending}>
+          {loginMutation.isPending ? "Ingresando…" : "Ingresar"}
         </Button>
       </form>
 

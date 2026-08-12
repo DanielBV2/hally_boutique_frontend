@@ -7,47 +7,40 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useInvalidateSession } from "@/hooks/useSession";
+import { useRegisterMutation } from "@/hooks/useRegister";
 import { ApiError } from "@/lib/api/client";
-import { register } from "@/lib/api/auth";
 
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const invalidateSession = useInvalidateSession();
+  const registerMutation = useRegisterMutation();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const error = registerMutation.error
+    ? registerMutation.error instanceof ApiError
+      ? registerMutation.error.message
+      : "Ocurrió un error inesperado. Inténtalo de nuevo."
+    : null;
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
-    setSubmitting(true);
-
-    try {
-      await register({ firstName, lastName, email, password });
-
-      await invalidateSession();
-
-      const redirect = searchParams.get("redirect");
-      const safeRedirect =
-        redirect && redirect.startsWith("/") && !redirect.startsWith("//")
-          ? redirect
-          : "/";
-      router.push(safeRedirect);
-    } catch (error) {
-      setError(
-        error instanceof ApiError
-          ? error.message
-          : "Ocurrió un error inesperado. Inténtalo de nuevo.",
-      );
-    } finally {
-      setSubmitting(false);
-    }
+    registerMutation.mutate(
+      { firstName, lastName, email, password },
+      {
+        onSuccess: () => {
+          const redirect = searchParams.get("redirect");
+          const safeRedirect =
+            redirect && redirect.startsWith("/") && !redirect.startsWith("//")
+              ? redirect
+              : "/";
+          router.push(safeRedirect);
+        },
+      },
+    );
   }
 
   return (
@@ -105,8 +98,8 @@ function RegisterForm() {
 
         {error && <p className="text-sm text-destructive">{error}</p>}
 
-        <Button type="submit" disabled={submitting}>
-          {submitting ? "Creando cuenta…" : "Crear cuenta"}
+        <Button type="submit" disabled={registerMutation.isPending}>
+          {registerMutation.isPending ? "Creando cuenta…" : "Crear cuenta"}
         </Button>
       </form>
 

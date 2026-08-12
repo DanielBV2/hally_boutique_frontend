@@ -335,6 +335,25 @@ a la definición única.
 Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
 de AddressStep.tsx:30 (documentada aparte).
 
+## Mejora 9: useLoginMutation/useRegisterMutation COMPLETADA
+En la mejora 6 el fetch crudo de login/registro ya se había movido a
+login()/register() en lib/api/auth.ts (logout() ya existía desde la UI de
+logout). Lo que faltaba eran los hooks de mutación:
+- hooks/useLogin.ts: useLoginMutation → mutationFn: login, invalida session
+  en onSuccess (reusa useInvalidateSession).
+- hooks/useRegister.ts: useRegisterMutation → mutationFn: register, invalida
+  session en onSuccess.
+- login/page.tsx y registro/page.tsx refactorizados: eliminan el estado local
+  error/submitting y el try/catch; el error se deriva de mutation.error
+  (instanceof ApiError para mostrar el mensaje real del backend, incl. 429),
+  el loading viene de mutation.isPending, y el redirect (safeRedirect desde
+  searchParams) se hace en el onSuccess por-llamada del mutate (la página
+  decide el destino, el hook lo compartido).
+Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
+de AddressStep.tsx:30 (documentada aparte). Los únicos fetch directos de auth
+que quedan son forgotPassword/resetPassword (páginas de recuperación, fuera
+de alcance de esta mejora).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
