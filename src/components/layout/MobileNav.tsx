@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -15,12 +15,14 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCategories } from "@/hooks/useCategories";
+import { useLogoutMutation } from "@/hooks/useLogout";
 import { useSession } from "@/hooks/useSession";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const { isAuthenticated } = useSession();
   const { data: categories, isLoading } = useCategories();
+  const logoutMutation = useLogoutMutation();
 
   const close = () => setOpen(false);
 
@@ -100,13 +102,27 @@ export function MobileNav() {
 
             <nav className="flex flex-col gap-1">
               {isAuthenticated ? (
-                <Link
-                  href="/cuenta"
-                  onClick={close}
-                  className="rounded-md px-2 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-                >
-                  Mi cuenta
-                </Link>
+                <>
+                  <Link
+                    href="/cuenta"
+                    onClick={close}
+                    className="rounded-md px-2 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                  >
+                    Mi cuenta
+                  </Link>
+                  <button
+                    type="button"
+                    disabled={logoutMutation.isPending}
+                    onClick={() => {
+                      logoutMutation.mutate();
+                      close();
+                    }}
+                    className="flex items-center gap-2 rounded-md px-2 py-2 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+                  >
+                    <LogOut className="size-4" />
+                    Cerrar sesión
+                  </button>
+                </>
               ) : (
                 <>
                   <Link

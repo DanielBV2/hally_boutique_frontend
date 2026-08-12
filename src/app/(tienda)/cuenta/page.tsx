@@ -1,11 +1,17 @@
 "use client";
 
+import { LogOut } from "lucide-react";
+
 import { AddressesTab } from "@/components/account/AddressesTab";
 import { OrdersTab } from "@/components/account/OrdersTab";
 import { ProfileTab } from "@/components/account/ProfileTab";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLogoutMutation } from "@/hooks/useLogout";
 
 export default function CuentaPage() {
+  const logoutMutation = useLogoutMutation();
+
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8">
       <h1 className="mb-6 text-2xl font-semibold text-foreground">
@@ -31,6 +37,17 @@ export default function CuentaPage() {
           <OrdersTab />
         </TabsContent>
       </Tabs>
+
+      <Button
+        type="button"
+        variant="outline"
+        className="mt-8 text-muted-foreground"
+        disabled={logoutMutation.isPending}
+        onClick={() => logoutMutation.mutate()}
+      >
+        <LogOut />
+        Cerrar sesión
+      </Button>
     </div>
   );
 }

@@ -2,14 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, User } from "lucide-react";
+import { LogOut, ShoppingCart, User } from "lucide-react";
 
 import { MobileNav } from "@/components/layout/MobileNav";
 import { CategoriesFlyout } from "@/components/layout/CategoriesFlyout";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useCart } from "@/hooks/useCart";
+import { useLogoutMutation } from "@/hooks/useLogout";
 import { useSession } from "@/hooks/useSession";
 import { useCartDrawerStore } from "@/stores/useCartDrawerStore";
 
@@ -17,6 +25,7 @@ export function Header() {
   const { isAuthenticated } = useSession();
   const { data: cart } = useCart();
   const toggleCart = useCartDrawerStore((state) => state.toggle);
+  const logoutMutation = useLogoutMutation();
 
   const totalItems = cart?.totalItems ?? 0;
   const showBadge = isAuthenticated && totalItems > 0;
@@ -47,16 +56,37 @@ export function Header() {
         <div className="flex items-center gap-1">
           <SearchBar />
 
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label={isAuthenticated ? "Mi cuenta" : "Iniciar sesión"}
-            asChild
-          >
-            <Link href={isAuthenticated ? "/cuenta" : "/login"}>
-              <User />
-            </Link>
-          </Button>
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Mi cuenta">
+                  <User />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem asChild>
+                  <Link href="/cuenta">Mi cuenta</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  disabled={logoutMutation.isPending}
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    logoutMutation.mutate();
+                  }}
+                >
+                  <LogOut />
+                  Cerrar sesión
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button variant="ghost" size="icon" aria-label="Iniciar sesión" asChild>
+              <Link href="/login">
+                <User />
+              </Link>
+            </Button>
+          )}
 
           <Button
             variant="ghost"

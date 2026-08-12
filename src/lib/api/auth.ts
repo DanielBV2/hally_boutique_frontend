@@ -32,3 +32,11 @@ export async function resetPassword(
   });
   return handleResponse<null>(res);
 }
+
+export async function logout(): Promise<null> {
+  const res = await fetch("/api/auth/logout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+  return handleResponse<null>(res);
+}

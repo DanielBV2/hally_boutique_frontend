@@ -229,6 +229,22 @@ término), término inexistente → 0. BFF /api/products?search= confirmado.
 Typecheck y lint limpios (el único error de lint es la deuda pre-existente
 de AddressStep.tsx:30, documentada aparte).
 
+## UI de logout COMPLETADA Y VERIFICADA
+No existía ninguna forma de cerrar sesión (el endpoint /api/auth/logout
+existía pero nada lo invocaba). Se agregó:
+- logout() en lib/api/auth.ts (POST /api/auth/logout).
+- useLogoutMutation (hooks/useLogout.ts): llama logout, invalida session y
+  cart, redirige a /.
+- Header: botón de usuario ahora es un DropdownMenu (Mi cuenta / Cerrar
+  sesión). El /admin se omitió a propósito hasta implementar el panel
+  admin (evita link muerto).
+- MobileNav: botón "Cerrar sesión" debajo de "Mi cuenta".
+- /cuenta: botón "Cerrar sesión" al pie de la página.
+Verificado end-to-end vía BFF: registro → /api/auth/me refleja sesión →
+logout (200, limpia access_token y refresh_token con Expires en el pasado)
+→ /api/auth/me devuelve null. Páginas /, /login 200; /cuenta 307 sin
+sesión (proxy, esperado). Typecheck y lint limpios.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
