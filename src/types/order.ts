@@ -35,6 +35,20 @@ export interface PaginatedOrders {
   limit: number;
 }
 
+export type AdminOrderStatus = "PROCESSING" | "SHIPPED" | "DELIVERED";
+
+export interface AdminOrderListItem extends OrderListItem {
+  customerEmail: string;
+  customerName: string;
+}
+
+export interface PaginatedAdminOrders {
+  items: AdminOrderListItem[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export interface CheckoutParams {
   publicKey: string;
   currency: string;
@@ -68,4 +82,9 @@ export interface Order {
   shippingLabelUrl: string | null;
   shippingStatus: ShippingStatus;
   createdAt: string;
+}
+
+export interface AdminOrder extends Order {
+  customerEmail: string;
+  customerName: string;
 }

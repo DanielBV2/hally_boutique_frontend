@@ -1,5 +1,12 @@
 import { apiFetch } from "@/lib/api/client";
-import type { CheckoutParams, Order, PaginatedOrders } from "@/types/order";
+import type {
+  AdminOrder,
+  AdminOrderStatus,
+  CheckoutParams,
+  Order,
+  PaginatedAdminOrders,
+  PaginatedOrders,
+} from "@/types/order";
 import type { ShippingRateOption } from "@/types/shipping";
 
 export async function createOrder(input: {
@@ -54,4 +61,34 @@ export async function getMyOrders(params?: {
   return apiFetch<PaginatedOrders>(
     `/api/orders${queryString ? `?${queryString}` : ""}`,
   );
+}
+
+export async function getAdminOrders(params?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+}): Promise<PaginatedAdminOrders> {
+  const query = new URLSearchParams();
+  if (params?.page) query.set("page", String(params.page));
+  if (params?.limit) query.set("limit", String(params.limit));
+  if (params?.status) query.set("status", params.status);
+  const queryString = query.toString();
+  return apiFetch<PaginatedAdminOrders>(
+    `/api/admin/orders${queryString ? `?${queryString}` : ""}`,
+  );
+}
+
+export async function getAdminOrder(orderId: string): Promise<AdminOrder> {
+  return apiFetch<AdminOrder>(`/api/admin/orders/${orderId}`);
+}
+
+export async function updateAdminOrderStatus(
+  orderId: string,
+  status: AdminOrderStatus,
+): Promise<AdminOrder> {
+  return apiFetch<AdminOrder>(`/api/admin/orders/${orderId}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
 }

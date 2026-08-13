@@ -510,6 +510,44 @@ sesión; 403 con sesión CUSTOMER propagando { code: FORBIDDEN } del backend;
 /admin 200 SSR con skeleton; build + tsc + lint limpios (solo la deuda
 pre-existente de AddressStep.tsx:30). Data de prueba en DB: admin.fase0@test.co.
 
+## Panel admin — Fase 2 (Órdenes) COMPLETADO Y VERIFICADO
+Consume los 3 endpoints admin de órdenes del backend: GET /orders/admin/all
+(paginado + filtro por status), GET /orders/admin/:id, PATCH
+/orders/admin/:id/status (progresión PAID→PROCESSING→SHIPPED→DELIVERED; el
+backend permite saltos hacia adelante pero rechaza retrocesos/repetidos con
+409).
+
+- BFF (espacio /api/admin/orders): route.ts (GET lista con query page/limit/
+  status), [orderId]/route.ts (GET detalle), [orderId]/status/route.ts (PATCH
+  { status }), todos proxy de authenticatedFetch con propagación de error.
+- types/order.ts: AdminOrderListItem, AdminOrder (extienden Order con
+  customerEmail/customerName), PaginatedAdminOrders, AdminOrderStatus
+  ("PROCESSING"|"SHIPPED"|"DELIVERED").
+- lib/api/orders.ts: getAdminOrders, getAdminOrder, updateAdminOrderStatus.
+- hooks/useAdminOrders.ts: useAdminOrders (queryKey ["admin","orders",page,
+  limit,status]), useAdminOrder (["admin","order",id], enabled si hay id),
+  useUpdateOrderStatusMutation (invalida ["admin","orders"] y
+  ["admin","order",id] en onSuccess).
+- components/admin/AdminShell.tsx (client): header + nav secundaria con
+  estado activo vía usePathname. Por ahora solo incluye Dashboard y Órdenes
+  (las demás secciones se agregan en sus fases; sin links muertos). El
+  layout admin (server, guard por rol) ahora renderiza AdminShell.
+- /admin/ordenes: tabla (Table shadcn) con Pedido/Cliente/Fecha/Estado/Total,
+  fila clickeable al detalle, filtro por estado (Select, resetea página),
+  paginación, skeletons y estado vacío.
+- /admin/ordenes/[orderId]: detalle completo (cliente, productos, resumen,
+  dirección, envío con LABEL_FAILED) + card "Estado del pedido" con el badge
+  actual y botón del siguiente paso (PAID→"Marcar como en preparación",
+  PROCESSING→"Marcar como enviado", SHIPPED→"Marcar como entregado"). En
+  onError muestra el mensaje real del backend vía ApiError (ej. 409).
+Verificado: lista 200 con 17 órdenes y paginación (limit=3 → 3 items);
+filtro status=PAID → 8; detalle con cliente; PATCH PAID→PROCESSING → 200 y
+refleja nuevo status; PROCESSING→PROCESSING → 409 con mensaje real del
+backend; 401 sin sesión; 403 con sesión CUSTOMER; /admin/ordenes y
+/admin/ordenes/[orderId] 200 SSR. La orden usada en el test se revirtió a
+PAID por DB (el backend no permite retroceder, correcto). Typecheck y lint
+limpios (solo la deuda pre-existente de AddressStep.tsx:30).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
