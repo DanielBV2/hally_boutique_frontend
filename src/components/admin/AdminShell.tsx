@@ -2,13 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ShoppingCart } from "lucide-react";
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  Tags,
+  Users,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/ordenes", label: "Órdenes", icon: ShoppingCart },
+  { href: "/admin/productos", label: "Productos", icon: Package },
+  { href: "/admin/categorias", label: "Categorías", icon: Tags },
+  { href: "/admin/usuarios", label: "Usuarios", icon: Users },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

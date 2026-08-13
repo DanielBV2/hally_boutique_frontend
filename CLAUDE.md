@@ -548,6 +548,139 @@ backend; 401 sin sesión; 403 con sesión CUSTOMER; /admin/ordenes y
 PAID por DB (el backend no permite retroceder, correcto). Typecheck y lint
 limpios (solo la deuda pre-existente de AddressStep.tsx:30).
 
+## Panel admin — Fase 3 (Categorías) COMPLETADO Y VERIFICADO
+Consume los 4 endpoints admin de categorías del backend: GET
+/categories/admin/all (paginado + filtro isActive), POST /categories, PATCH
+/categories/:id, DELETE /categories/:id (soft delete: isActive=false).
+
+- BFF (espacio /api/admin/categories): route.ts (GET lista con query page/
+  limit/isActive + POST create), [id]/route.ts (PATCH update + DELETE),
+  ambos proxy de authenticatedFetch con propagación de error (409 nombre
+  duplicado, 404 inexistente, 409 categoría con productos activos).
+- types/category.ts: PaginatedCategories, CategoryInput.
+- lib/validations/category.ts: categorySchema (name 2-100, description ≤1000
+  opcional) + CategoryFormValues.
+- lib/api/categories.ts: getAdminCategories, createCategory, updateCategory,
+  deleteCategory (apiFetch). getCategories público intacto.
+- hooks/useAdminCategories.ts: useAdminCategories (queryKey ["admin",
+  "categories", page, limit]), useCreate/Update/DeleteCategoryMutation — las
+  tres invalidan ["admin","categories"] Y ["categories"] (público) en
+  onSuccess, así la navegación de la tienda refleja los cambios al instante.
+- components/admin/CategoryForm.tsx: react-hook-form + Zod, modo create/edit
+  (patrón de AddressForm); el error del backend (ej. 409) se muestra vía
+  toast con ApiError. Agregado Textarea vía `npx shadcn@latest add textarea`.
+- /admin/categorias: tabla (Nombre/Slug/Descripción/Acciones) con paginación,
+  botón "Nueva categoría", Dialog para create/edit y AlertDialog para delete.
+- AdminShell: nav gana "Categorías" (icono Tags).
+- Decisión importante: la página consulta SIEMPRE con `isActive: true`. El
+  backend sin el filtro devuelve TODAS las categorías (incluye las
+  soft-deleted); mostrarlas confunde porque editar/borrar una inactiva
+  falla con 404. Con el filtro, eliminar la quita de la lista al instante.
+Verificado end-to-end vía BFF: lista 200 (total 3); create 200 con slug
+autogenerado; duplicado de nombre → 409 con mensaje real del backend;
+categoría visible en GET /categories público; PATCH name → 200 y regenera
+el slug; PATCH description → 200; DELETE → 200 y desaparece del público;
+DELETE de categoría con 2 productos activos → 409 con mensaje real; DELETE
+repetido → 404; 401 sin sesión; 403 con sesión CUSTOMER (GET y PATCH).
+Las categorías de prueba se eliminaron en duro por DB (soft-delete no las
+borra del admin). Typecheck y lint limpios (solo la deuda pre-existente de
+AddressStep.tsx:30).
+
+## Panel admin — Fase 4 (Productos, variantes e imágenes) COMPLETADO Y VERIFICADO
+Consume los 10 endpoints admin de productos/variantes/imágenes del backend:
+GET /products/admin/all (paginado + isActive + categoryId), POST /products,
+PATCH /products/:id, DELETE /products/:id, POST /products/:id/images, DELETE
+/products/:id/images/:imageId, GET/POST /products/:productId/variants,
+PATCH/DELETE /products/:productId/variants/:variantId.
+
+- BFF (espacio /api/admin/products): route.ts (GET lista + POST create),
+  [id]/route.ts (PATCH + DELETE), [id]/images/route.ts (POST), [id]/images/
+  [imageId]/route.ts (DELETE), [id]/variants/route.ts (GET lista de TODAS las
+  variantes incl. inactivas + POST), [id]/variants/[variantId]/route.ts
+  (PATCH + DELETE). Todos proxy de authenticatedFetch con propagación de error
+  (404, 409 talla+color duplicado, 409 SKU en uso, 400 precio final ≤ 0).
+- types/product.ts: ProductListItem ganó secondaryImageUrl (estaba en el DTO
+  del backend pero no tipado); PaginatedProducts, ProductInput, AdminVariant,
+  VariantInput, ProductSizes.
+- lib/validations/product.ts: productSchema, variantSchema, productImageSchema.
+- lib/api/products.ts: getAdminProducts, createProduct, updateProduct,
+  deleteProduct, addProductImage, removeProductImage, getAdminVariants,
+  createVariant, updateVariant, deleteVariant.
+- hooks/useAdminProducts.ts: useAdminProducts (queryKey ["admin","products",
+  page,limit,categoryId]), useAdminProductVariants (["admin","product-variants",
+  productId], enabled si hay id). Mutations: create/delete invalidan listas
+  admin + públicas; update/image/variant invalidan además el detalle
+  ["product", slug] (así la tienda refleja el cambio al instante).
+- components/admin/ProductForm.tsx (create/edit; campos nombre, descripción,
+  precio base, moneda COP/USD, categoría Select, peso opcional — vacío = no
+  enviar, no pisar el valor existente) y VariantForm.tsx (create: talla/color/
+  sku/stock/recargo con preview de precio final; edit: talla y color SOLO
+  lectura porque el backend no las permite cambiar, más toggle "Variante
+  activa" vía PATCH isActive).
+- Página /admin/productos: tabla (miniatura/Nombre/Categoría/Precio/Acciones),
+  filtro por categoría (Select, resetea página), paginación, "Nuevo producto"
+  (Dialog con ProductForm → al crear navega al detalle), delete con AlertDialog.
+- Página /admin/productos/[slug]: "Información del producto" (ProductForm
+  edit), "Imágenes" (grid con hover para eliminar + input URL/altText para
+  agregar), "Variantes" (tabla con Estado Activa/Inactiva, editar/eliminar) y
+  botón "Eliminar producto" (redirige a la lista).
+- AdminShell: nav gana "Productos" (icono Package).
+- Decisiones importantes:
+  - Lista con isActive=true por defecto (misma razón que categorías: sin
+    filtro el backend devuelve también soft-deleted).
+  - El backend NO tiene GET admin por id: el detalle usa la ruta
+    /admin/productos/[slug] que consulta el endpoint público GET /products/
+    :slug (devuelve id, con el que se hacen PATCH/DELETE/images) + el listado
+    admin de variantes. Por eso la URL del detalle usa el slug.
+  - Lección RHF + zod: NO usar z.coerce con zodResolver — el input del form
+    (strings) choca con el output (number) y tsc revienta con errores de
+    Resolver/Control. Los campos numéricos se validan como string (refine) y
+    se convierten con Number() en handleSubmit.
+  - Lección eslint: form.watch dispara "Compilation Skipped: Use of
+    incompatible library" con el parser type-aware; usar useWatch({ control,
+    name }) que no tiene el problema.
+Verificado end-to-end vía BFF: create 200 con slug autogenerado; producto
+visible en GET /products (search); PATCH name → 200 y regenera slug; POST
+image → 200 y aparece en el detalle público; variantes 0 → create
+(M/Azul, priceDelta 10000 → finalPrice 95000 = 85000+10000); misma
+talla+color → 409 con mensaje real; SKU duplicado → 409 con mensaje real;
+PATCH stock → 200; DELETE variant → 200 (soft, desaparece del detalle
+público); DELETE image → 200; DELETE product → 200 y desaparece del
+público; variante con precio final ≤ 0 → 400 con mensaje real; 401 sin
+sesión; 403 con sesión CUSTOMER (GET y PATCH); /admin/productos y
+/admin/productos/[slug] 200 SSR; métricas intactas (17 órdenes). Productos
+de prueba limpiados. Typecheck y lint limpios (solo la deuda pre-existente
+de AddressStep.tsx:30).
+
+## Panel admin — Fase 5 (Usuarios) COMPLETADO Y VERIFICADO
+Consume el único endpoint admin de usuarios del backend: GET /auth/admin/all
+(paginado + filtro opcional por role CUSTOMER/ADMIN, limit máx 50, ordenado
+por createdAt desc). Es SOLO lectura — el backend no tiene PATCH/DELETE de
+usuarios.
+
+- BFF `src/app/api/admin/users/route.ts`: GET proxy de authenticatedFetch con
+  propagación de status/error (401 sin sesión, 403 si rol no es ADMIN).
+- types/user.ts: AdminUserListItem (id, email, firstName, lastName, role,
+  createdAt como string) + PaginatedAdminUsers (items/total/page/limit).
+- lib/api/auth.ts: getAdminUsers(params) → apiFetch con query condicional
+  (page/limit/role).
+- hooks/useAdminUsers.ts: useAdminUsers (queryKey ["admin","users",page,
+  limit,role]).
+- /admin/usuarios: tabla (Nombre/Correo/Rol/Registrado) con Badge de rol,
+  filtro por rol (Select, resetea página), paginación, skeletons y estado
+  vacío.
+- AdminShell: nav gana "Usuarios" (icono Users).
+Verificado end-to-end vía BFF: 200 con total=11 (11 usuarios en DB); primer
+item = Customer Fase0 (createdAt desc = el más reciente); role=ADMIN → 2,
+role=CUSTOMER → 9; paginación real (limit=3&page=2 → 3 items); NINGÚN item
+expone passwordHash; 401 sin sesión; 403 CUSTOMER propagando FORBIDDEN;
+/admin/usuarios 200 SSR. Typecheck y lint limpios (solo la deuda
+pre-existente de AddressStep.tsx:30).
+
+Con esto la Mejora 16 (Panel admin) queda completa: Fases 0 (base + gating
+por rol), 1 (dashboard), 2 (órdenes), 3 (categorías), 4 (productos/
+variantes/imágenes) y 5 (usuarios), cada una con su batería de pruebas.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

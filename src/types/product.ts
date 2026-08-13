@@ -5,9 +5,53 @@ export interface ProductListItem {
   basePrice: number;
   currency: string;
   thumbnailUrl: string | null;
+  secondaryImageUrl: string | null;
   categoryName: string;
   images?: { id: string; url: string; altText: string | null }[];
 }
+
+export interface PaginatedProducts {
+  items: ProductListItem[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface ProductInput {
+  name: string;
+  description: string;
+  basePrice: number;
+  currency?: string;
+  weightGrams?: number;
+  categoryId: string;
+}
+
+export interface ProductImage {
+  id: string;
+  url: string;
+  altText: string | null;
+}
+
+export interface AdminVariant {
+  id: string;
+  size: string;
+  color: string;
+  sku: string;
+  stock: number;
+  priceDelta: number;
+  finalPrice: number;
+  isActive: boolean;
+}
+
+export interface VariantInput {
+  size: string;
+  color: string;
+  sku: string;
+  stock?: number;
+  priceDelta?: number;
+}
+
+export type ProductSizes = "XS" | "S" | "M" | "L" | "XL" | "XXL";
 
 export interface ProductVariant {
   id: string;

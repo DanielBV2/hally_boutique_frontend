@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/api/client";
-import type { User } from "@/types/user";
+import type { PaginatedAdminUsers, User } from "@/types/user";
 
 export async function login(input: {
   email: string;
@@ -62,4 +62,23 @@ export async function updateProfile(input: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
+}
+
+export interface AdminUsersParams {
+  page?: number;
+  limit?: number;
+  role?: "CUSTOMER" | "ADMIN";
+}
+
+export async function getAdminUsers(
+  params: AdminUsersParams = {},
+): Promise<PaginatedAdminUsers> {
+  const query = new URLSearchParams();
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.role) query.set("role", params.role);
+  const queryString = query.toString();
+  return apiFetch<PaginatedAdminUsers>(
+    `/api/admin/users${queryString ? `?${queryString}` : ""}`,
+  );
 }
