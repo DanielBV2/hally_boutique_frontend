@@ -681,6 +681,18 @@ Con esto la Mejora 16 (Panel admin) queda completa: Fases 0 (base + gating
 por rol), 1 (dashboard), 2 (órdenes), 3 (categorías), 4 (productos/
 variantes/imágenes) y 5 (usuarios), cada una con su batería de pruebas.
 
+## Lección: shadcn Dialog/AlertDialog SIEMPRE fuera de las ramas condicionales
+Si una página con tabla tiene una rama de estado vacío que hace `return` temprano,
+los `Dialog`/`AlertDialog` (botones "Nuevo...", "Editar", "Eliminar") NO deben
+quedar SOLO en la rama con datos: al vaciarse la tabla, el botón llama
+`setOpen(true)` pero el Dialog no está montado → parece que el botón "no
+responde" (sin error en consola). Estructura correcta: header con el botón de
+crear + body condicional (skeleton / vacío / tabla) + Dialog/AlertDialog SIEMPRE
+al final del return principal. Ocurrió en /admin/productos y /admin/categorias
+(al quedar el catálogo sin productos ni categorías); verificado que ahora
+renderizan 200 en estado vacío y el Dialog queda montado. Typecheck y lint
+limpios (solo la deuda pre-existente de AddressStep.tsx:30).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

@@ -74,40 +74,7 @@ export default function AdminCategoriesPage() {
     ? Math.max(1, Math.ceil(data.total / data.limit))
     : 1;
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-40" />
-        <Skeleton className="h-10 w-40 rounded-md" />
-        <Skeleton className="h-72 w-full rounded-xl" />
-      </div>
-    );
-  }
-
-  if (!data || (data.items.length === 0 && data.page === 1)) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-foreground">Categorías</h1>
-          <Button
-            type="button"
-            onClick={() => {
-              setDialogCategory(null);
-              setDialogOpen(true);
-            }}
-          >
-            <Plus />
-            Nueva categoría
-          </Button>
-        </div>
-        <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-muted/30 p-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            No hay categorías registradas.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const isEmpty = !data || (data.items.length === 0 && data.page === 1);
 
   return (
     <div className="space-y-4">
@@ -125,81 +92,98 @@ export default function AdminCategoriesPage() {
         </Button>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead>Descripción</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.items.map((category) => (
-                <TableRow key={category.id}>
-                  <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    /{category.slug}
-                  </TableCell>
-                  <TableCell className="max-w-xs truncate text-muted-foreground">
-                    {category.description ?? "—"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setDialogCategory(category);
-                          setDialogOpen(true);
-                        }}
-                      >
-                        <Pencil />
-                        Editar
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCategoryToDelete(category)}
-                      >
-                        <Trash2 />
-                        Eliminar
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            disabled={page === 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            Anterior
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Página {data.page} de {totalPages}
-          </span>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          >
-            Siguiente
-          </Button>
+      {isLoading ? (
+        <div className="space-y-4">
+          <Skeleton className="h-10 w-40 rounded-md" />
+          <Skeleton className="h-72 w-full rounded-xl" />
         </div>
+      ) : isEmpty ? (
+        <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-muted/30 p-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            No hay categorías registradas.
+          </p>
+        </div>
+      ) : (
+        <>
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nombre</TableHead>
+                    <TableHead>Slug</TableHead>
+                    <TableHead>Descripción</TableHead>
+                    <TableHead className="text-right">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.items.map((category) => (
+                    <TableRow key={category.id}>
+                      <TableCell className="font-medium">
+                        {category.name}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        /{category.slug}
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate text-muted-foreground">
+                        {category.description ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setDialogCategory(category);
+                              setDialogOpen(true);
+                            }}
+                          >
+                            <Pencil />
+                            Editar
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCategoryToDelete(category)}
+                          >
+                            <Trash2 />
+                            Eliminar
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={page === 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Anterior
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Página {data.page} de {totalPages}
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Siguiente
+              </Button>
+            </div>
+          )}
+        </>
       )}
 
       <Dialog
