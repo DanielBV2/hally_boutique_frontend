@@ -399,7 +399,7 @@ tarjetas no cambió (solo el detalle de pedido lo mostraba).
 Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
 de AddressStep.tsx:30 (documentada aparte).
 
-## Mejora 14: limpieza layout/home/VariantSelector COMPLETADA
+## limpieza layout/home/VariantSelector COMPLETADA
 Tres fixes pequeños:
 - layout.tsx: Geist_Mono era cargada y exponía --font-geist-mono pero ninguna
   regla CSS la consumía. Eliminados el import, la declaración y la variable
@@ -414,7 +414,7 @@ Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente
 de AddressStep.tsx:30 (documentada aparte). El slice(0, 8) que queda es el
 truncado del order.id en el detalle de pedido (intencional, no es duplicado).
 
-## Mejora 15: Edición de perfil (nombre, email, teléfono) COMPLETADA Y VERIFICADA
+## Edición de perfil (nombre, email, teléfono) COMPLETADA Y VERIFICADA
 El perfil pasó de solo lectura ("próximamente") a formulario editable. Requirió
 trabajo en los DOS repos (el backend no tenía endpoint de actualización).
 
@@ -485,6 +485,30 @@ es el <title>); / y /login conservan el chrome (verificado vía aria-label del
 botón de carrito). Usuarios de prueba creados en DB: admin.fase0@test.co
 (role ADMIN) y customer.fase0@test.co (CUSTOMER), password Test1234!.
 Typecheck y lint limpios (solo la deuda pre-existente de AddressStep.tsx:30).
+
+## Panel admin — Fase 1 (Dashboard) COMPLETADO Y VERIFICADO
+Consume el único endpoint de métricas (GET /metrics/dashboard del backend).
+Nace también el espacio BFF `/api/admin/*` para el resto de fases.
+
+- BFF `src/app/api/admin/metrics/route.ts`: proxy de authenticatedFetch con
+  propagación de status y error del backend (401 sin sesión, 403 si rol no
+  es ADMIN — el backend lo rechaza, defensa en profundidad).
+- types/metrics.ts: DashboardMetrics { totalOrders, totalRevenue,
+  ordersByStatus (Record<string, number>, el backend solo incluye statuses
+  existentes), totalCustomers, lowStockVariants }.
+- lib/api/metrics.ts: getDashboardMetrics() → apiFetch("/api/admin/metrics").
+- hooks/useMetrics.ts: useDashboardMetrics (queryKey ["admin","metrics"]).
+- admin/page.tsx ahora es el dashboard: 3 cards (Ingresos formatCOP, Pedidos,
+  Clientes), lista de Pedidos por estado con OrderStatusBadge reutilizado
+  (itera los 7 statuses, 0 si ausente), y tabla "Stock bajo" con
+  Table de shadcn (agregada vía CLI) mostrando stock en text-destructive.
+  Estados: skeletons de carga, error con Alert destructivo + botón
+  Reintentar (refetch), vacío de lowStockVariants con mensaje.
+Verificado: BFF devuelve 200 con métricas reales para ADMIN (17 órdenes,
+$1.453.603 COP, 9 clientes, ordersByStatus consistente: 8+1+1+7=17); 401 sin
+sesión; 403 con sesión CUSTOMER propagando { code: FORBIDDEN } del backend;
+/admin 200 SSR con skeleton; build + tsc + lint limpios (solo la deuda
+pre-existente de AddressStep.tsx:30). Data de prueba en DB: admin.fase0@test.co.
 
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
