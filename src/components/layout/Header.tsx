@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { LogOut, ShoppingCart, User } from "lucide-react";
+import { LayoutDashboard, LogOut, ShoppingCart, User } from "lucide-react";
 
 import { MobileNav } from "@/components/layout/MobileNav";
 import { CategoriesFlyout } from "@/components/layout/CategoriesFlyout";
@@ -22,7 +22,7 @@ import { useSession } from "@/hooks/useSession";
 import { useCartDrawerStore } from "@/stores/useCartDrawerStore";
 
 export function Header() {
-  const { isAuthenticated } = useSession();
+  const { user, isAuthenticated } = useSession();
   const { data: cart } = useCart();
   const toggleCart = useCartDrawerStore((state) => state.toggle);
   const logoutMutation = useLogoutMutation();
@@ -67,6 +67,14 @@ export function Header() {
                 <DropdownMenuItem asChild>
                   <Link href="/cuenta">Mi cuenta</Link>
                 </DropdownMenuItem>
+                {user?.role === "ADMIN" && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin">
+                      <LayoutDashboard />
+                      Panel admin
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={logoutMutation.isPending}

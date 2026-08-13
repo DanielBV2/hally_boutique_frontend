@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { LogOut, Menu } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -20,7 +20,7 @@ import { useSession } from "@/hooks/useSession";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
-  const { isAuthenticated } = useSession();
+  const { user, isAuthenticated } = useSession();
   const { data: categories, isLoading } = useCategories();
   const logoutMutation = useLogoutMutation();
 
@@ -110,6 +110,16 @@ export function MobileNav() {
                   >
                     Mi cuenta
                   </Link>
+                  {user?.role === "ADMIN" && (
+                    <Link
+                      href="/admin"
+                      onClick={close}
+                      className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                    >
+                      <LayoutDashboard className="size-4" />
+                      Panel admin
+                    </Link>
+                  )}
                   <button
                     type="button"
                     disabled={logoutMutation.isPending}

@@ -450,6 +450,42 @@ apellido/teléfono reflejados, cambio de email reflejado, email de otro usuario
 → 409, PATCH sin sesión → 401. Typecheck y lint limpios en ambos repos (solo la
 deuda pre-existente de AddressStep.tsx:30).
 
+## Panel admin — Fase 0 (base + gating por rol) COMPLETADO Y VERIFICADO
+El backend ya tenía los 19 endpoints admin; esta fase crea la infraestructura
+del panel. Se decidió dividir la Mejora 16 en fases (0=base, 1=dashboard,
+2=órdenes, 3=categorías, 4=productos/variantes/imágenes, 5=usuarios), cada
+una con su batería de pruebas.
+
+- Ruta real en `src/app/admin/` (carpeta normal). Lección: un route group
+  `(admin)` NO aporta segmento a la URL, así que `(admin)/page.tsx` resuelve
+  a `/` y choca con `(tienda)/page.tsx` en build ("two parallel pages that
+  resolve to the same path"). Los route groups sirven para agrupar layouts
+  que comparten URL, no para dar prefijo.
+- Chrome de tienda movido del root layout a layouts de grupo:
+  `(tienda)/layout.tsx` y `(auth)/layout.tsx` renderizan AnnouncementBar +
+  Header + Footer (preservan el look actual de login/registro); el root
+  layout queda solo con Providers + children + CartDrawer + Toaster. Así
+  /admin tiene su propio shell sin header/footer de tienda.
+- Gating por rol server-side: `admin/layout.tsx` usa `getSessionUserServerSide()`
+  (nuevo helper read-only en lib/auth/serverAuth.ts: lee access_token, llama
+  GET /auth/me, NO refresca ni escribe cookies — `cookieStore.set()` no está
+  permitido en Server Components, `authenticatedFetch` ahí lanzaría error si
+  el token expiró). Sin sesión → /login; role !== "ADMIN" → /. El layout
+  exporta `dynamic = "force-dynamic"`.
+- src/proxy.ts: matcher ahora incluye "/admin/:path*" (sin sesión → /login
+  con redirect de retorno).
+- Header (DropdownMenu) y MobileNav: item "Panel admin" visible solo si
+  user.role === "ADMIN" — User.role por fin se consume en la UI.
+- Página /admin placeholder con cards de las secciones futuras (sin links
+  muertos).
+Batería de 5 pruebas pasando: /admin sin sesión → 307 /login?redirect=%2Fadmin;
+login CUSTOMER → GET /admin → 307 /; login ADMIN → 200 con shell admin y SIN
+AnnouncementBar/Header/Footer de tienda (el único "Hally Boutique" en el HTML
+es el <title>); / y /login conservan el chrome (verificado vía aria-label del
+botón de carrito). Usuarios de prueba creados en DB: admin.fase0@test.co
+(role ADMIN) y customer.fase0@test.co (CUSTOMER), password Test1234!.
+Typecheck y lint limpios (solo la deuda pre-existente de AddressStep.tsx:30).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

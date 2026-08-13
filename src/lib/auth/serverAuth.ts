@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import type { User } from "@/types/user";
 import {
   ACCESS_TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,
@@ -98,6 +99,27 @@ export async function authenticatedFetch(
 
   const json = await response.json().catch(() => null);
   return { ok: response.ok, status: response.status, data: json };
+}
+
+/**
+ * Lee la sesión actual SOLO para lectura (Server Components). A diferencia de
+ * authenticatedFetch, NO intenta refrescar tokens ni escribe cookies: en el
+ * render de un Server Component no está permitido llamar a cookieStore.set().
+ * Si el access token está ausente o expirado devuelve null (quien llame debe
+ * decidir el redirect).
+ */
+export async function getSessionUserServerSide(): Promise<User | null> {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
+  if (!accessToken) return null;
+
+  const response = await fetch(`${EXPRESS_API_URL}/auth/me`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!response.ok) return null;
+
+  const json = await response.json().catch(() => null);
+  return json?.data ?? null;
 }
 
 export { setAuthCookies };
