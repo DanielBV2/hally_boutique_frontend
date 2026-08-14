@@ -94,7 +94,7 @@ export function VariantForm({
         await updateVariant.mutateAsync({
           variantId: initialValues!.id,
           input: {
-            sku: values.sku,
+            sku: values.sku ?? "",
             stock: Number(values.stock),
             priceDelta: Number(values.priceDelta) || 0,
             isActive,
@@ -104,7 +104,7 @@ export function VariantForm({
         await createVariant.mutateAsync({
           size: values.size,
           color: values.color,
-          sku: values.sku,
+          sku: values.sku ?? "",
           stock: Number(values.stock),
           priceDelta: Number(values.priceDelta) || 0,
         });
@@ -196,6 +196,9 @@ export function VariantForm({
               <FormControl>
                 <Input placeholder="HB-CAM-OXF-001" {...field} />
               </FormControl>
+              <FormDescription>
+                Vacío para generar automáticamente.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

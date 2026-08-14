@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { LayoutDashboard, LogOut, ShoppingCart, User } from "lucide-react";
 
@@ -36,14 +35,7 @@ export function Header() {
         <MobileNav />
 
         <Link href="/" className="shrink-0">
-          <Image
-            src="/logo.png"
-            alt="Hally Boutique"
-            width={300}
-            height={100}
-            priority
-            className="h-10 w-auto sm:h-12"
-          />
+          <span className="titulo text-lg sm:text-xl">Hally Boutique</span>
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">

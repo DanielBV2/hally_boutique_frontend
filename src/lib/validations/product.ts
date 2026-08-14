@@ -45,7 +45,12 @@ export const variantSchema = z.object({
       "Selecciona una talla",
     ),
   color: z.string().min(2, "El color debe tener al menos 2 caracteres").max(50),
-  sku: z.string().min(3, "El SKU debe tener al menos 3 caracteres").max(50),
+  sku: z
+    .string()
+    .min(3, "El SKU debe tener al menos 3 caracteres")
+    .max(50)
+    .optional()
+    .or(z.literal("")),
   stock: z
     .string()
     .refine(

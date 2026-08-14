@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { LayoutDashboard, LogOut, Menu } from "lucide-react";
 
@@ -43,13 +42,7 @@ export function MobileNav() {
           <SheetHeader className="border-b border-border px-4 py-4">
             <SheetTitle>
               <Link href="/" onClick={close} className="block w-fit">
-                <Image
-                  src="/logo.png"
-                  alt="Hally Boutique"
-                  width={300}
-                  height={100}
-                  className="h-8 w-auto"
-                />
+                <span className="titulo text-base">Hally Boutique</span>
               </Link>
             </SheetTitle>
           </SheetHeader>
