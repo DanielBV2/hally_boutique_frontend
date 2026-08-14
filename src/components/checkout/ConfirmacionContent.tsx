@@ -5,7 +5,13 @@ import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { OrderStatusBadge } from "@/components/account/OrderStatusBadge";
 import { useClearCartMutation } from "@/hooks/useCart";
 import { useOrder } from "@/hooks/useOrders";
 import { formatCOP } from "@/lib/format";
@@ -147,35 +153,46 @@ function SuccessView({
   onContinueShopping: () => void;
 }) {
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col items-center gap-6 px-4 py-16 text-center">
+    <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-6 px-4 py-16 text-center">
       <CheckCircle2 className="size-12 text-primary" />
       <h1 className="text-xl font-semibold text-foreground">¡Pago confirmado!</h1>
+      <p className="text-muted-foreground">
+        Gracias por tu compra. Te enviamos la confirmación por correo.
+      </p>
 
-      <Card className="w-full">
-        <CardContent className="flex flex-col gap-2 p-6 text-sm">
-          <div className="flex flex-col gap-1">
+      <Card className="w-full text-left">
+        <CardHeader>
+          <div className="flex items-center justify-between gap-2">
+            <CardTitle className="text-lg font-semibold text-foreground">
+              Pedido #{order.id.slice(0, 8)}
+            </CardTitle>
+            <OrderStatusBadge status={order.status} />
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <ul className="space-y-2 text-sm">
             {order.items.map((item) => (
-              <div
+              <li
                 key={item.id}
-                className="flex items-center justify-between gap-2"
+                className="flex items-center justify-between gap-3"
               >
-                <span className="text-left text-foreground">
-                  {item.quantity} × {item.productName}{" "}
+                <span className="min-w-0 text-left text-foreground">
+                  {item.quantity} × {item.productName}
                   <span className="text-muted-foreground">
+                    {" "}
                     ({item.size} · {item.color})
                   </span>
                 </span>
-                <span className="text-foreground">
+                <span className="shrink-0 text-foreground">
                   {formatCOP(item.lineTotal)}
                 </span>
-              </div>
+              </li>
             ))}
-          </div>
-          <div className="flex items-center justify-between border-t border-border pt-2 text-base font-semibold">
+          </ul>
+
+          <div className="flex items-center justify-between border-t border-border pt-3 text-base font-semibold">
             <span className="text-foreground">Total</span>
-            <span className="text-foreground">
-              {formatCOP(order.total)}
-            </span>
+            <span className="text-foreground">{formatCOP(order.total)}</span>
           </div>
         </CardContent>
       </Card>

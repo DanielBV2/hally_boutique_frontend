@@ -108,21 +108,21 @@ export function CartDrawer() {
                 return (
                   <li
                     key={item.id}
-                    className="flex gap-3 rounded-lg border border-border p-3"
+                    className="flex gap-4 rounded-xl bg-muted p-4"
                   >
-                    {item.thumbnailUrl ? (
-                      <Image
-                        src={item.thumbnailUrl}
-                        alt={item.productName}
-                        width={64}
-                        height={64}
-                        className="h-16 w-16 shrink-0 rounded-md object-cover"
-                      />
-                    ) : (
-                      <div className="h-16 w-16 shrink-0 rounded-md bg-muted" />
-                    )}
+                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-background">
+                      {item.thumbnailUrl && (
+                        <Image
+                          src={item.thumbnailUrl}
+                          alt={item.productName}
+                          width={80}
+                          height={80}
+                          className="h-full w-full object-cover"
+                        />
+                      )}
+                    </div>
 
-                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <div className="flex min-w-0 flex-1 flex-col gap-2">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <p className="truncate font-medium text-foreground">
@@ -154,30 +154,32 @@ export function CartDrawer() {
                       )}
 
                       <div className="mt-1 flex items-center justify-between">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center rounded-lg border border-border bg-background">
                           <Button
-                            variant="outline"
-                            size="icon-sm"
+                            variant="ghost"
+                            size="icon"
                             aria-label="Disminuir cantidad"
                             disabled={stepperDisabled}
+                            className="h-8 w-8 rounded-lg hover:bg-muted"
                             onClick={() => handleDecrement(item)}
                           >
-                            <Minus />
+                            <Minus className="h-4 w-4" />
                           </Button>
                           <span className="w-8 text-center text-sm tabular-nums">
                             {item.quantity}
                           </span>
                           <Button
-                            variant="outline"
-                            size="icon-sm"
+                            variant="ghost"
+                            size="icon"
                             aria-label="Aumentar cantidad"
                             disabled={plusDisabled}
+                            className="h-8 w-8 rounded-lg hover:bg-muted"
                             onClick={() => handleIncrement(item)}
                           >
-                            <Plus />
+                            <Plus className="h-4 w-4" />
                           </Button>
                         </div>
-                        <p className="text-sm font-semibold text-foreground">
+                        <p className="text-base font-semibold text-foreground">
                           {formatCOP(item.subtotal)}
                         </p>
                       </div>

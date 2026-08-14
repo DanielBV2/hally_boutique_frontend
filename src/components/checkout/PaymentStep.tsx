@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getCheckoutParams } from "@/lib/api/orders";
-import { formatCOP } from "@/lib/format";
 import type { Order } from "@/types/order";
 
 interface PaymentStepProps {
@@ -46,33 +45,12 @@ export function PaymentStep({ order }: PaymentStepProps) {
   return (
     <Card>
       <CardContent className="flex flex-col gap-4 p-6">
-        <div className="flex flex-col gap-2 text-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span className="text-foreground">
-              {formatCOP(order.subtotal)}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">IVA (19%)</span>
-            <span className="text-foreground">
-              {formatCOP(order.taxAmount)}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Envío</span>
-            <span className="text-foreground">
-              {order.shippingAmount === 0
-                ? "Gratis"
-                : formatCOP(order.shippingAmount)}
-            </span>
-          </div>
-          <div className="flex items-center justify-between border-t border-border pt-2 text-base font-semibold">
-            <span className="text-foreground">Total</span>
-            <span className="text-foreground">
-              {formatCOP(order.total)}
-            </span>
-          </div>
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">Pago</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Paga de forma segura con Wompi, redirigido a su plataforma de
+            pago.
+          </p>
         </div>
 
         <Button

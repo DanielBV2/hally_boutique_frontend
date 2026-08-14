@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AddressStep } from "@/components/checkout/AddressStep";
+import { OrderSummary } from "@/components/checkout/OrderSummary";
 import { PaymentStep } from "@/components/checkout/PaymentStep";
 import { ShippingStep } from "@/components/checkout/ShippingStep";
 import { useSession } from "@/hooks/useSession";
@@ -69,7 +70,7 @@ export function CheckoutContent() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-8">
+    <div className="mx-auto w-full max-w-6xl px-4 py-8">
       <h1 className="mb-6 text-2xl font-semibold text-foreground">
         Finalizar compra
       </h1>
@@ -106,32 +107,40 @@ export function CheckoutContent() {
         ))}
       </div>
 
-      {step === "address" && <AddressStep onConfirm={handleAddressConfirmed} />}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="min-w-0">
+          {step === "address" && (
+            <AddressStep onConfirm={handleAddressConfirmed} />
+          )}
 
-      {step === "shipping" &&
-        (orderId ? (
-          <ShippingStep
-            orderId={orderId}
-            orderSubtotal={orderSubtotal}
-            onConfirm={(updatedOrder) => {
-              setOrder(updatedOrder);
-              setStep("payment");
-            }}
-          />
-        ) : (
-          <div className="rounded-xl border border-border bg-muted/30 p-8 text-center text-muted-foreground">
-            Envío no disponible
-          </div>
-        ))}
+          {step === "shipping" &&
+            (orderId ? (
+              <ShippingStep
+                orderId={orderId}
+                orderSubtotal={orderSubtotal}
+                onConfirm={(updatedOrder) => {
+                  setOrder(updatedOrder);
+                  setStep("payment");
+                }}
+              />
+            ) : (
+              <div className="rounded-xl border border-border bg-muted/30 p-8 text-center text-muted-foreground">
+                Envío no disponible
+              </div>
+            ))}
 
-      {step === "payment" &&
-        (order ? (
-          <PaymentStep order={order} />
-        ) : (
-          <div className="rounded-xl border border-border bg-muted/30 p-8 text-center text-muted-foreground">
-            Pago no disponible
-          </div>
-        ))}
+          {step === "payment" &&
+            (order ? (
+              <PaymentStep order={order} />
+            ) : (
+              <div className="rounded-xl border border-border bg-muted/30 p-8 text-center text-muted-foreground">
+                Pago no disponible
+              </div>
+            ))}
+        </div>
+
+        <OrderSummary order={order} />
+      </div>
     </div>
   );
 }
