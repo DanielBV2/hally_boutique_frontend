@@ -19,7 +19,7 @@ export function HomeContent() {
   const {
     data: products,
     isLoading: productsLoading,
-  } = useProducts({ limit: 8 });
+  } = useProducts({ limit: 8, sortBy: "createdAt", sortOrder: "desc" });
 
   const showCategories =
     !categoriesLoading && categories && categories.length > 0;

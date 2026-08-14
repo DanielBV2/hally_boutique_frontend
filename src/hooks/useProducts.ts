@@ -1,14 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getProducts } from "@/lib/api/products";
+import {
+  getProducts,
+  type GetProductsParams,
+} from "@/lib/api/products";
 
-export function useProducts(params?: {
-  page?: number;
-  limit?: number;
-  categoryId?: string;
-  search?: string;
-}) {
+export function useProducts(params?: GetProductsParams) {
   return useQuery({
     queryKey: ["products", params],
     queryFn: () => getProducts(params),

@@ -1,35 +1,66 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { formatCOP } from "@/lib/format";
 import type { ProductListItem } from "@/types/product";
 
 export function ProductCard({ product }: { product: ProductListItem }) {
+  const primaryImage = product.thumbnailUrl;
+  const secondaryImage = product.secondaryImageUrl;
+
   return (
-    <Link href={`/productos/${product.slug}`} className="block h-full">
-      <Card className="group h-full overflow-hidden bg-card p-0 transition-shadow hover:shadow-lg">
-        {product.thumbnailUrl ? (
-          <div className="relative aspect-square w-full overflow-hidden">
-            <Image
-              src={product.thumbnailUrl}
-              alt={product.name}
-              fill
-              sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-            />
+    <Card className="h-full w-full overflow-hidden p-0 transition-shadow hover:shadow-lg">
+      <CardContent className="p-4">
+        <Link
+          href={`/productos/${product.slug}`}
+          className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <div className="relative mb-4 aspect-square overflow-hidden rounded-2xl bg-muted">
+            {primaryImage && (
+              <Image
+                src={primaryImage}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className="object-cover transition-opacity duration-300"
+              />
+            )}
+            {secondaryImage && (
+              <Image
+                src={secondaryImage}
+                alt=""
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className="absolute inset-0 object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              />
+            )}
           </div>
-        ) : (
-          <div className="aspect-square w-full bg-muted" />
-        )}
-        <CardContent className="flex flex-col gap-1 pt-4">
-          <p className="text-xs text-muted-foreground">{product.categoryName}</p>
-          <h3 className="font-medium text-foreground">{product.name}</h3>
-          <p className="text-sm font-semibold text-foreground">
+
+          <div className="mb-4">
+            <p className="mb-1 text-xs text-muted-foreground">
+              {product.categoryName}
+            </p>
+            <CardTitle className="text-lg leading-tight">
+              {product.name}
+            </CardTitle>
+          </div>
+        </Link>
+
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xl font-bold text-foreground">
             {formatCOP(product.basePrice)}
           </p>
-        </CardContent>
-      </Card>
-    </Link>
+          <Button asChild size="sm">
+            <Link href={`/productos/${product.slug}`}>Ver detalle</Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

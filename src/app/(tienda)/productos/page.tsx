@@ -10,17 +10,34 @@ import type { Category } from "@/types/category";
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: Promise<{ categoryId?: string; search?: string }>;
+  searchParams: Promise<{
+    categoryId?: string;
+    search?: string;
+    sort?: string;
+    page?: string;
+  }>;
 }): Promise<Metadata> {
   const params = await searchParams;
   const search = params.search?.trim();
   const categoryId = params.categoryId;
+  const isFiltered = !!search || !!params.sort || Number(params.page) > 1;
 
   if (search) {
     return pageSeo({
       title: `Resultados para "${search}" · Hally Boutique`,
       description: `Productos de Hally Boutique que coinciden con "${search}".`,
-      path: `/productos?search=${encodeURIComponent(search)}`,
+      path: "/productos",
+      noindex: true,
+    });
+  }
+
+  if (isFiltered) {
+    return pageSeo({
+      title: "Productos · Hally Boutique",
+      description: "Explora el catálogo de moda de baño de Hally Boutique.",
+      path: categoryId
+        ? `/productos?categoryId=${categoryId}`
+        : "/productos",
       noindex: true,
     });
   }

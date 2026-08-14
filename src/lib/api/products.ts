@@ -8,17 +8,28 @@ import type {
   VariantInput,
 } from "@/types/product";
 
-export async function getProducts(params?: {
+export type ProductSortBy = "createdAt" | "basePrice" | "name";
+export type ProductSortOrder = "asc" | "desc";
+
+export interface GetProductsParams {
   page?: number;
   limit?: number;
   categoryId?: string;
   search?: string;
-}): Promise<{ items: ProductListItem[]; total: number; page: number }> {
+  sortBy?: ProductSortBy;
+  sortOrder?: ProductSortOrder;
+}
+
+export async function getProducts(
+  params?: GetProductsParams,
+): Promise<{ items: ProductListItem[]; total: number; page: number }> {
   const searchParams = new URLSearchParams();
   if (params?.page) searchParams.set("page", String(params.page));
   if (params?.limit) searchParams.set("limit", String(params.limit));
   if (params?.categoryId) searchParams.set("categoryId", params.categoryId);
   if (params?.search) searchParams.set("search", params.search);
+  if (params?.sortBy) searchParams.set("sortBy", params.sortBy);
+  if (params?.sortOrder) searchParams.set("sortOrder", params.sortOrder);
   const query = searchParams.toString();
   return apiFetch(`/api/products${query ? `?${query}` : ""}`);
 }
