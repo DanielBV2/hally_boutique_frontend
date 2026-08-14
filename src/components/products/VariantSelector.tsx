@@ -1,6 +1,8 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { Badge } from '@/components/ui/badge';
+
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import type { ProductVariant } from '@/types/product';
 
 interface VariantSelectorProps {
@@ -16,10 +18,15 @@ export function VariantSelector({ variants, onSelect }: VariantSelectorProps) {
 
   const match = useMemo(() => {
     if (!selectedSize || !selectedColor) return null;
-    return variants.find(
-      (v) => v.size === selectedSize && v.color === selectedColor,
-    ) ?? null;
+    return (
+      variants.find(
+        (v) => v.size === selectedSize && v.color === selectedColor,
+      ) ?? null
+    );
   }, [variants, selectedSize, selectedColor]);
+
+  const combinationExists = (size: string, color: string) =>
+    variants.some((v) => v.size === size && v.color === color);
 
   function handleSizeClick(size: string) {
     setSelectedSize(size);
@@ -39,59 +46,80 @@ export function VariantSelector({ variants, onSelect }: VariantSelectorProps) {
     );
   }
 
-  const sizeSelected = selectedSize !== null;
-  const colorSelected = selectedColor !== null;
-  const bothSelected = sizeSelected && colorSelected;
-  const combinationExists = match !== null;
-  const outOfStock = bothSelected && combinationExists && !match.inStock;
-  const combinationMissing = bothSelected && !combinationExists;
+  const bothSelected = selectedSize !== null && selectedColor !== null;
+  const combinationExistsForSelection = match !== null;
+  const outOfStock = bothSelected && combinationExistsForSelection && !match!.inStock;
+  const combinationMissing = bothSelected && !combinationExistsForSelection;
+
+  const sizeDisabled = (size: string) =>
+    selectedColor !== null && !combinationExists(size, selectedColor);
+  const colorDisabled = (color: string) =>
+    selectedSize !== null && !combinationExists(selectedSize, color);
 
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm font-medium text-foreground mb-2">Talla</p>
+        <p className="mb-2 text-sm font-medium text-foreground">Talla</p>
         <div className="flex flex-wrap gap-2">
           {sizes.map((size) => {
             const isActive = selectedSize === size;
+            const disabled = sizeDisabled(size);
             return (
-              <Badge
+              <button
                 key={size}
-                variant={isActive ? 'default' : 'outline'}
-                className="cursor-pointer select-none"
+                type="button"
+                aria-pressed={isActive}
+                disabled={disabled}
                 onClick={() => handleSizeClick(size)}
+                className={cn(
+                  buttonVariants({ variant: isActive ? 'default' : 'outline', size: 'sm' }),
+                  'rounded-full select-none',
+                  disabled && 'cursor-not-allowed opacity-40',
+                )}
               >
                 {size}
-              </Badge>
+              </button>
             );
           })}
         </div>
       </div>
 
       <div>
-        <p className="text-sm font-medium text-foreground mb-2">Color</p>
+        <p className="mb-2 text-sm font-medium text-foreground">Color</p>
         <div className="flex flex-wrap gap-2">
           {colors.map((color) => {
             const isActive = selectedColor === color;
+            const disabled = colorDisabled(color);
             return (
-              <Badge
+              <button
                 key={color}
-                variant={isActive ? 'default' : 'outline'}
-                className="cursor-pointer select-none"
+                type="button"
+                aria-pressed={isActive}
+                disabled={disabled}
                 onClick={() => handleColorClick(color)}
+                className={cn(
+                  buttonVariants({ variant: isActive ? 'default' : 'outline', size: 'sm' }),
+                  'rounded-full select-none',
+                  disabled && 'cursor-not-allowed opacity-40',
+                )}
               >
                 {color}
-              </Badge>
+              </button>
             );
           })}
         </div>
       </div>
 
       {outOfStock && (
-        <p className="text-sm text-destructive">Sin stock disponible en esta combinación</p>
+        <p className="text-sm text-destructive">
+          Sin stock disponible en esta combinación
+        </p>
       )}
 
       {combinationMissing && (
-        <p className="text-sm text-muted-foreground">Esta combinación no está disponible</p>
+        <p className="text-sm text-muted-foreground">
+          Esta combinación no está disponible
+        </p>
       )}
     </div>
   );

@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { OrderStatusBadge } from "@/components/account/OrderStatusBadge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Pagination } from "@/components/shared/Pagination";
 import {
   Select,
   SelectContent,
@@ -23,7 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAdminOrders } from "@/hooks/useAdminOrders";
-import { formatCOP } from "@/lib/format";
+import { formatCOP, formatShortDate } from "@/lib/format";
 
 const PAGE_SIZE = 20;
 
@@ -37,12 +37,6 @@ const STATUS_FILTERS: { value: string; label: string }[] = [
   { value: "CANCELLED", label: "Cancelado" },
   { value: "REFUNDED", label: "Reembolsado" },
 ];
-
-const dateFormatter = new Intl.DateTimeFormat("es-CO", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
 
 export default function AdminOrdersPage() {
   const router = useRouter();
@@ -136,10 +130,18 @@ export default function AdminOrdersPage() {
               {data.items.map((order) => (
                 <TableRow
                   key={order.id}
-                  className="cursor-pointer"
+                  role="link"
+                  tabIndex={0}
+                  aria-label={`Ver pedido ${order.id.slice(0, 8)}`}
+                  className="cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                   onClick={() =>
                     router.push(`/admin/ordenes/${order.id}`)
                   }
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      router.push(`/admin/ordenes/${order.id}`);
+                    }
+                  }}
                 >
                   <TableCell className="font-medium">
                     #{order.id.slice(0, 8)}
@@ -151,7 +153,7 @@ export default function AdminOrdersPage() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    {dateFormatter.format(new Date(order.createdAt))}
+                    {formatShortDate(order.createdAt)}
                   </TableCell>
                   <TableCell>
                     <OrderStatusBadge status={order.status} />
@@ -167,27 +169,11 @@ export default function AdminOrdersPage() {
       </Card>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            disabled={page === 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            Anterior
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Página {data.page} de {totalPages}
-          </span>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          >
-            Siguiente
-          </Button>
-        </div>
+        <Pagination
+          page={data.page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       )}
     </div>
   );

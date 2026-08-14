@@ -20,14 +20,8 @@ import {
   useUpdateOrderStatusMutation,
 } from "@/hooks/useAdminOrders";
 import { ApiError } from "@/lib/api/client";
-import { formatAddressLine, formatCOP } from "@/lib/format";
+import { formatAddressLine, formatCOP, formatDate } from "@/lib/format";
 import type { AdminOrderStatus, OrderStatus } from "@/types/order";
-
-const dateFormatter = new Intl.DateTimeFormat("es-CO", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
 
 const NEXT_STATUS: Partial<
   Record<OrderStatus, { status: AdminOrderStatus; label: string }>
@@ -113,7 +107,7 @@ export default function AdminOrderDetailPage({
             Pedido #{order.id.slice(0, 8)}
           </h1>
           <span className="text-sm text-muted-foreground">
-            {dateFormatter.format(new Date(order.createdAt))}
+            {formatDate(order.createdAt)}
           </span>
         </div>
         <OrderStatusBadge status={order.status} />

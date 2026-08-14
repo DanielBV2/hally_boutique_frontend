@@ -4,6 +4,26 @@ const copFormatter = new Intl.NumberFormat("es-CO", {
   maximumFractionDigits: 0,
 });
 
+const longDateFormatter = new Intl.DateTimeFormat("es-CO", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+
+const shortDateFormatter = new Intl.DateTimeFormat("es-CO", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+export function formatDate(date: string | Date): string {
+  return longDateFormatter.format(new Date(date));
+}
+
+export function formatShortDate(date: string | Date): string {
+  return shortDateFormatter.format(new Date(date));
+}
+
 export function formatCOP(amount: number): string {
   return copFormatter.format(amount);
 }

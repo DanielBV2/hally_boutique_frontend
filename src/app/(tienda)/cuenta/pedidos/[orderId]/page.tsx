@@ -15,13 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrder } from "@/hooks/useOrders";
-import { formatAddressLine, formatCOP } from "@/lib/format";
-
-const dateFormatter = new Intl.DateTimeFormat("es-CO", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
+import { formatAddressLine, formatCOP, formatDate } from "@/lib/format";
 
 export default function OrderDetailPage({
   params,
@@ -76,7 +70,7 @@ export default function OrderDetailPage({
             Pedido {order.id.slice(0, 8)}
           </h1>
           <span className="text-sm text-muted-foreground">
-            {dateFormatter.format(new Date(order.createdAt))}
+            {formatDate(order.createdAt)}
           </span>
         </div>
         <OrderStatusBadge status={order.status} />

@@ -3,7 +3,6 @@
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -13,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Pagination } from "@/components/shared/Pagination";
 import {
   Table,
   TableBody,
@@ -22,14 +22,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAdminUsers } from "@/hooks/useAdminUsers";
+import { formatShortDate } from "@/lib/format";
 
 const PAGE_SIZE = 20;
-
-const dateFormatter = new Intl.DateTimeFormat("es-CO", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
 
 export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
@@ -130,7 +125,7 @@ export default function AdminUsersPage() {
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {dateFormatter.format(new Date(user.createdAt))}
+                    {formatShortDate(user.createdAt)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -140,27 +135,11 @@ export default function AdminUsersPage() {
       </Card>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            disabled={page === 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            Anterior
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Página {data.page} de {totalPages}
-          </span>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          >
-            Siguiente
-          </Button>
-        </div>
+        <Pagination
+          page={data.page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       )}
     </div>
   );

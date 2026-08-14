@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
 import { CartDrawer } from "@/components/cart/CartDrawer";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/constants/site";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -24,8 +25,17 @@ const cinzel = Cinzel({
 });
 
 export const metadata: Metadata = {
-  title: "Hally Boutique",
-  description: "Moda de baño con estilo tropical.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    siteName: SITE_NAME,
+    type: "website",
+    locale: "es_CO",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

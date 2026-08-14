@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Pagination } from "@/components/shared/Pagination";
 import {
   Table,
   TableBody,
@@ -161,27 +162,11 @@ export default function AdminCategoriesPage() {
           </Card>
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-4">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={page === 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                Anterior
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Página {data.page} de {totalPages}
-              </span>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={page === totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              >
-                Siguiente
-              </Button>
-            </div>
+            <Pagination
+              page={data.page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
           )}
         </>
       )}

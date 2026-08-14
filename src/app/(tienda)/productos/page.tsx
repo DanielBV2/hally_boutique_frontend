@@ -1,51 +1,47 @@
-"use client";
-
+import type { Metadata } from "next";
 import { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 
-import { useProducts } from "@/hooks/useProducts";
-import { ProductCard } from "@/components/products/ProductCard";
+import { ProductsGrid } from "@/components/products/ProductsGrid";
 import { Skeleton } from "@/components/ui/skeleton";
+import { fetchExpress } from "@/lib/api/server";
+import { pageSeo } from "@/lib/seo";
+import type { Category } from "@/types/category";
 
-function ProductsGrid() {
-  const searchParams = useSearchParams();
-  const categoryId = searchParams.get("categoryId") ?? undefined;
-  const search = searchParams.get("search") ?? undefined;
-  const { data, isLoading, isError } = useProducts({ categoryId, search });
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ categoryId?: string; search?: string }>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const search = params.search?.trim();
+  const categoryId = params.categoryId;
 
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-2 gap-6 p-6 md:grid-cols-3 lg:grid-cols-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-72 w-full rounded-lg" />
-        ))}
-      </div>
-    );
+  if (search) {
+    return pageSeo({
+      title: `Resultados para "${search}" · Hally Boutique`,
+      description: `Productos de Hally Boutique que coinciden con "${search}".`,
+      path: `/productos?search=${encodeURIComponent(search)}`,
+      noindex: true,
+    });
   }
 
-  if (isError || !data) {
-    return (
-      <div className="p-6 text-center text-muted-foreground">
-        No se pudieron cargar los productos. Intenta de nuevo más tarde.
-      </div>
-    );
+  if (categoryId) {
+    const categories = await fetchExpress<Category[]>("/categories");
+    const category = categories?.find((c) => c.id === categoryId);
+    if (category) {
+      return pageSeo({
+        title: `${category.name} · Hally Boutique`,
+        description: `Explora la categoría ${category.name} en Hally Boutique.`,
+        path: `/productos?categoryId=${categoryId}`,
+      });
+    }
   }
 
-  if (data.items.length === 0) {
-    return (
-      <div className="p-6 text-center text-muted-foreground">
-        No hay productos disponibles todavía.
-      </div>
-    );
-  }
-
-  return (
-    <div className="grid grid-cols-2 gap-6 p-6 md:grid-cols-3 lg:grid-cols-4">
-      {data.items.map((product) => (
-        <ProductCard key={product.id} product={product} />
-      ))}
-    </div>
-  );
+  return pageSeo({
+    title: "Productos · Hally Boutique",
+    description: "Explora el catálogo de moda de baño de Hally Boutique.",
+    path: "/productos",
+  });
 }
 
 export default function ProductsPage() {

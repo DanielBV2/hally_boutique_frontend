@@ -1,16 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import { Badge } from "@/components/ui/badge";
 import { formatCOP } from "@/lib/format";
 import type { ProductListItem } from "@/types/product";
 
 export function FeaturedProductCard({
   product,
-  isNew = false,
 }: {
   product: ProductListItem;
-  isNew?: boolean;
 }) {
   const primaryImage = product.images?.[0]?.url ?? product.thumbnailUrl;
   const secondaryImage = product.images?.[1]?.url;
@@ -30,19 +27,11 @@ export function FeaturedProductCard({
         {secondaryImage && (
           <Image
             src={secondaryImage}
-            alt={product.name}
+            alt=""
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
             className="absolute inset-0 object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
           />
-        )}
-        {isNew && (
-          <Badge
-            variant="secondary"
-            className="absolute left-2 top-2 z-10"
-          >
-            Nuevo
-          </Badge>
         )}
       </div>
       <div className="mt-2 flex flex-col gap-0.5">

@@ -2,21 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
 
 import { OrderStatusBadge } from "@/components/account/OrderStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Pagination } from "@/components/shared/Pagination";
 import { useMyOrders } from "@/hooks/useOrders";
-import { formatCOP } from "@/lib/format";
+import { formatCOP, formatDate } from "@/lib/format";
 
 const PAGE_SIZE = 20;
-
-const dateFormatter = new Intl.DateTimeFormat("es-CO", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
 
 export function OrdersTab() {
   const router = useRouter();
@@ -52,50 +48,36 @@ export function OrdersTab() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3">
         {data.items.map((order) => (
-          <Card
+          <Link
             key={order.id}
-            className="cursor-pointer transition-colors hover:bg-muted/40"
-            onClick={() => router.push(`/cuenta/pedidos/${order.id}`)}
+            href={`/cuenta/pedidos/${order.id}`}
+            className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <CardContent className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-col gap-1.5">
-                <OrderStatusBadge status={order.status} />
-                <span className="text-sm text-muted-foreground">
-                  {dateFormatter.format(new Date(order.createdAt))} ·{" "}
-                  {order.itemsCount}{" "}
-                  {order.itemsCount === 1 ? "producto" : "productos"}
+            <Card className="transition-colors hover:bg-muted/40">
+              <CardContent className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-1.5">
+                  <OrderStatusBadge status={order.status} />
+                  <span className="text-sm text-muted-foreground">
+                    {formatDate(order.createdAt)} ·{" "}
+                    {order.itemsCount}{" "}
+                    {order.itemsCount === 1 ? "producto" : "productos"}
+                  </span>
+                </div>
+                <span className="text-base font-semibold text-foreground">
+                  {formatCOP(order.total)}
                 </span>
-              </div>
-              <span className="text-base font-semibold text-foreground">
-                {formatCOP(order.total)}
-              </span>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            disabled={page === 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            Anterior
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Página {data.page} de {totalPages}
-          </span>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          >
-            Siguiente
-          </Button>
-        </div>
+        <Pagination
+          page={data.page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       )}
     </div>
   );
