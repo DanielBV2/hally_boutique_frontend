@@ -848,6 +848,33 @@ Cambio SOLO frontend:
 Verificado: tsc --noEmit limpio, eslint solo reporta la deuda pre-existente
 de AddressStep.tsx:31, build ok. Sin cambios de backend.
 
+## Pago fallido = callejón sin salida COMPLETADO
+En ConfirmacionContent.tsx, la vista "Tu pago no se completó" (Order
+CANCELLED/REFUNDED por webhook de Wompi) tenía un único botón "Volver a
+intentar" que hacía router.push("/productos"), perdiendo el contexto de la
+compra. Decisión tomada tras verificar el backend:
+
+- El backend NO permite re-checkout sobre orden CANCELLED: `createCheckout`
+  lanza 409 "La orden no está en estado PENDING" para toda orden no-PENDING
+  (payment.service.ts), y `shipping-quote` también bloquea no-PENDING. La
+  orden queda CANCELLED por webhook y no hay camino para re-llamar
+  getCheckoutParams.
+- Se descartó habilitar re-checkout de la misma orden por backend porque:
+  a) `reference` de Wompi = order.idempotencyKey y Wompi espera references
+  únicas (reusarla es un riesgo no verificado en sandbox); b) CANCELLED
+  también se produce por "APPROVED sin stock" (Payment REFUNDED/FAILED), y
+  permitir re-checkout ahí generaría un loop pago→anulación (habría que
+  discriminar por Payment.status).
+- Solución frontend-only, robusta para CANCELLED y REFUNDED: "Volver a
+  intentar" navega a /checkout — el carrito NO se vacía en un pago fallido
+  (solo se vacía al confirmar PAID), así el usuario vuelve al checkout con
+  sus artículos intactos, address default preseleccionada, y se genera una
+  orden NUEVA con idempotencyKey y reference de Wompi nuevos. Se agregó
+  además botón secundario "Volver a la tienda" (→ /productos) y el texto
+  ahora aclara que los artículos siguen en el carrito.
+Verificado: tsc --noEmit limpio, eslint solo reporta la deuda pre-existente
+de AddressStep.tsx:31, build ok. Sin cambios de backend.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

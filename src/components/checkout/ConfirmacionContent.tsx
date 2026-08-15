@@ -100,12 +100,21 @@ export function ConfirmacionContent() {
           Tu pago no se completó
         </h1>
         <p className="text-muted-foreground">
-          El pago no pudo procesarse. Puedes volver a intentarlo cuando
-          quieras.
+          El pago no pudo procesarse. Los artículos siguen en tu carrito:
+          puedes volver a intentarlo cuando quieras.
         </p>
-        <Button type="button" onClick={() => router.push("/productos")}>
-          Volver a intentar
-        </Button>
+        <div className="flex w-full flex-col gap-2">
+          <Button type="button" onClick={() => router.push("/checkout")}>
+            Volver a intentar
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push("/productos")}
+          >
+            Volver a la tienda
+          </Button>
+        </div>
       </div>
     );
   }
