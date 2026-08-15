@@ -971,6 +971,11 @@ TikTok reales, wa.me + número, links /terminos y /privacidad; 3 SVGs de marca
 en el footer con aria-labels correctos; /terminos y /privacidad 200 con 8
 secciones cada una; build ok (rutas ○ estáticas); tsc limpio; eslint solo la
 deuda pre-existente de AddressStep.tsx:37. Sin cambios de backend.
+Nota posterior: se eliminó del home (HomeContent.tsx) la franja de
+confianza "Pago 100% seguro con Wompi / Envíos a toda Colombia / Cambios y
+devoluciones" — la home termina directo en el footer nuevo (decisión del
+usuario). Imports lucide correspondientes (ShieldCheck, Truck, RefreshCw)
+eliminados.
 
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { RefreshCw, ShieldCheck, Truck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -125,29 +124,6 @@ export function HomeContent() {
           </div>
         </section>
       )}
-
-      <section className="border-t border-border bg-muted/50">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-12 text-center sm:grid-cols-3">
-          <div className="flex flex-col items-center gap-2">
-            <ShieldCheck className="size-8 text-primary" />
-            <p className="text-sm font-medium text-foreground">
-              Pago 100% seguro con Wompi
-            </p>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <Truck className="size-8 text-primary" />
-            <p className="text-sm font-medium text-foreground">
-              Envíos a toda Colombia
-            </p>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <RefreshCw className="size-8 text-primary" />
-            <p className="text-sm font-medium text-foreground">
-              Cambios y devoluciones
-            </p>
-          </div>
-        </div>
-      </section>
     </main>
   );
 }
