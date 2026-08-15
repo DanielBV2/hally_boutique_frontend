@@ -40,6 +40,17 @@ export async function selectShipping(
   });
 }
 
+export async function updateOrderAddress(
+  orderId: string,
+  addressId: string,
+): Promise<Order> {
+  return apiFetch<Order>(`/api/orders/${orderId}/address`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ addressId }),
+  });
+}
+
 export async function getCheckoutParams(orderId: string): Promise<CheckoutParams> {
   return apiFetch<CheckoutParams>(`/api/orders/${orderId}/checkout`, {
     method: "POST",

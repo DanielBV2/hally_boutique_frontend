@@ -27,12 +27,14 @@ const optionKey = (option: ShippingRateOption) =>
 interface ShippingStepProps {
   orderId: string;
   orderSubtotal: number;
+  onBack: () => void;
   onConfirm: (updatedOrder: Order) => void;
 }
 
 export function ShippingStep({
   orderId,
   orderSubtotal,
+  onBack,
   onConfirm,
 }: ShippingStepProps) {
   const {
@@ -88,22 +90,30 @@ export function ShippingStep({
     return (
       <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-muted/30 p-8 text-center">
         <p className="text-foreground">No pudimos cotizar el envío</p>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={isFetching}
-          onClick={() => refetch()}
-        >
-          Reintentar cotización
-        </Button>
+        <div className="flex flex-wrap justify-center gap-2">
+          <Button type="button" variant="outline" onClick={onBack}>
+            Volver
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isFetching}
+            onClick={() => refetch()}
+          >
+            Reintentar cotización
+          </Button>
+        </div>
       </div>
     );
   }
 
   if (options && options.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-muted/30 p-8 text-center text-muted-foreground">
-        No hay opciones de envío disponibles
+      <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-muted/30 p-8 text-center text-muted-foreground">
+        <p>No hay opciones de envío disponibles</p>
+        <Button type="button" variant="outline" onClick={onBack}>
+          Volver
+        </Button>
       </div>
     );
   }
@@ -133,13 +143,19 @@ export function ShippingStep({
         ))}
       </RadioGroup>
 
-      <Button
-        type="button"
-        disabled={!selectedOption || selectShippingMutation.isPending}
-        onClick={handleConfirm}
-      >
-        {selectShippingMutation.isPending ? "Confirmando..." : "Continuar"}
-      </Button>
+      <div className="flex gap-2">
+        <Button type="button" variant="outline" onClick={onBack}>
+          Volver
+        </Button>
+        <Button
+          type="button"
+          className="flex-1"
+          disabled={!selectedOption || selectShippingMutation.isPending}
+          onClick={handleConfirm}
+        >
+          {selectShippingMutation.isPending ? "Confirmando..." : "Continuar"}
+        </Button>
+      </div>
     </div>
   );
 }

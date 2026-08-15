@@ -10,9 +10,10 @@ import type { Order } from "@/types/order";
 
 interface PaymentStepProps {
   order: Order;
+  onBack: () => void;
 }
 
-export function PaymentStep({ order }: PaymentStepProps) {
+export function PaymentStep({ order, onBack }: PaymentStepProps) {
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   async function handlePay() {
@@ -43,30 +44,41 @@ export function PaymentStep({ order }: PaymentStepProps) {
   }
 
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-4 p-6">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">Pago</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Paga de forma segura con Wompi, redirigido a su plataforma de
-            pago.
+    <div className="flex flex-col gap-3">
+      <Card>
+        <CardContent className="flex flex-col gap-4 p-6">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">Pago</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Paga de forma segura con Wompi, redirigido a su plataforma de
+              pago.
+            </p>
+          </div>
+
+          <Button
+            type="button"
+            size="lg"
+            className="w-full"
+            disabled={isRedirecting}
+            onClick={handlePay}
+          >
+            {isRedirecting ? "Redirigiendo a Wompi..." : "Pagar con Wompi"}
+          </Button>
+
+          <p className="text-center text-xs text-muted-foreground">
+            Serás redirigido a Wompi para completar el pago de forma segura
           </p>
-        </div>
+        </CardContent>
+      </Card>
 
-        <Button
-          type="button"
-          size="lg"
-          className="w-full"
-          disabled={isRedirecting}
-          onClick={handlePay}
-        >
-          {isRedirecting ? "Redirigiendo a Wompi..." : "Pagar con Wompi"}
-        </Button>
-
-        <p className="text-center text-xs text-muted-foreground">
-          Serás redirigido a Wompi para completar el pago de forma segura
-        </p>
-      </CardContent>
-    </Card>
+      <Button
+        type="button"
+        variant="outline"
+        disabled={isRedirecting}
+        onClick={onBack}
+      >
+        Volver al envío
+      </Button>
+    </div>
   );
 }

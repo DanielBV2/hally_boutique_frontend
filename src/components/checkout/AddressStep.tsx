@@ -15,9 +15,13 @@ import { AddressForm } from "./AddressForm";
 
 interface AddressStepProps {
   onConfirm: (addressId: string) => void;
+  initialAddressId?: string | null;
 }
 
-export function AddressStep({ onConfirm }: AddressStepProps) {
+export function AddressStep({
+  onConfirm,
+  initialAddressId = null,
+}: AddressStepProps) {
   const { data: addresses, isLoading } = useAddresses();
   const [showNewForm, setShowNewForm] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
@@ -27,9 +31,11 @@ export function AddressStep({ onConfirm }: AddressStepProps) {
   useEffect(() => {
     if (!addresses || addresses.length === 0) return;
     const preferred =
-      addresses.find((address) => address.isDefault) ?? addresses[0];
+      addresses.find((address) => address.id === initialAddressId) ??
+      addresses.find((address) => address.isDefault) ??
+      addresses[0];
     setSelectedAddressId((current) => current ?? preferred.id);
-  }, [addresses]);
+  }, [addresses, initialAddressId]);
 
   if (isLoading) {
     return (

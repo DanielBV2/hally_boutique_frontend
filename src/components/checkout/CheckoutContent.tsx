@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -10,7 +11,7 @@ import { PaymentStep } from "@/components/checkout/PaymentStep";
 import { ShippingStep } from "@/components/checkout/ShippingStep";
 import { useSession } from "@/hooks/useSession";
 import { ApiError } from "@/lib/api/client";
-import { createOrder } from "@/lib/api/orders";
+import { createOrder, updateOrderAddress } from "@/lib/api/orders";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types/order";
 
@@ -30,6 +31,9 @@ export function CheckoutContent() {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [orderSubtotal, setOrderSubtotal] = useState<number>(0);
   const [order, setOrder] = useState<Order | null>(null);
+  const [confirmedAddressId, setConfirmedAddressId] = useState<string | null>(
+    null,
+  );
   const idempotencyKeyRef = useRef(crypto.randomUUID());
 
   useEffect(() => {
@@ -43,15 +47,33 @@ export function CheckoutContent() {
     return null;
   }
 
-  async function handleAddressConfirmed(addressId: string) {
-    try {
-      const createdOrder = await createOrder({
-        addressId,
-        idempotencyKey: idempotencyKeyRef.current,
-      });
+  const currentStepIndex = STEPS.findIndex((s) => s.id === step);
 
-      setOrderId(createdOrder.id);
-      setOrderSubtotal(createdOrder.subtotal);
+  function goToStep(target: CheckoutStep) {
+    const targetIndex = STEPS.findIndex((s) => s.id === target);
+    if (targetIndex >= currentStepIndex) return;
+    if (target === "address") {
+      setOrder(null);
+    }
+    setStep(target);
+  }
+
+  async function handleAddressConfirmed(addressId: string) {
+    setConfirmedAddressId(addressId);
+    try {
+      if (orderId) {
+        const updatedOrder = await updateOrderAddress(orderId, addressId);
+        setOrderSubtotal(updatedOrder.subtotal);
+        setOrder(null);
+      } else {
+        const createdOrder = await createOrder({
+          addressId,
+          idempotencyKey: idempotencyKeyRef.current,
+        });
+        setOrderId(createdOrder.id);
+        setOrderSubtotal(createdOrder.subtotal);
+      }
+
       setStep("shipping");
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
@@ -76,41 +98,59 @@ export function CheckoutContent() {
       </h1>
 
       <div className="mb-8 flex items-center">
-        {STEPS.map((s, index) => (
-          <div key={s.id} className="flex flex-1 items-center">
-            <div className="flex items-center gap-2">
-              <span
+        {STEPS.map((s, index) => {
+          const isActive = step === s.id;
+          const isPast = index < currentStepIndex;
+          return (
+            <div key={s.id} className="flex flex-1 items-center">
+              <button
+                type="button"
+                disabled={!isPast}
+                onClick={() => goToStep(s.id)}
                 className={cn(
-                  "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-medium",
-                  step === s.id
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground",
+                  "flex items-center gap-2 rounded-full",
+                  isPast ? "cursor-pointer" : "cursor-default",
                 )}
+                aria-current={isActive ? "step" : undefined}
               >
-                {index + 1}
-              </span>
-              <span
-                className={cn(
-                  "hidden text-sm sm:inline",
-                  step === s.id
-                    ? "font-medium text-foreground"
-                    : "text-muted-foreground",
-                )}
-              >
-                {s.label}
-              </span>
+                <span
+                  className={cn(
+                    "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-medium",
+                    isActive
+                      ? "bg-primary text-primary-foreground"
+                      : isPast
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {isPast ? <Check className="size-4" /> : index + 1}
+                </span>
+                <span
+                  className={cn(
+                    "hidden text-sm sm:inline",
+                    isActive
+                      ? "font-medium text-foreground"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {s.label}
+                </span>
+              </button>
+              {index < STEPS.length - 1 && (
+                <div className="mx-3 h-px flex-1 bg-border" />
+              )}
             </div>
-            {index < STEPS.length - 1 && (
-              <div className="mx-3 h-px flex-1 bg-border" />
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="min-w-0">
           {step === "address" && (
-            <AddressStep onConfirm={handleAddressConfirmed} />
+            <AddressStep
+              initialAddressId={confirmedAddressId}
+              onConfirm={handleAddressConfirmed}
+            />
           )}
 
           {step === "shipping" &&
@@ -118,6 +158,7 @@ export function CheckoutContent() {
               <ShippingStep
                 orderId={orderId}
                 orderSubtotal={orderSubtotal}
+                onBack={() => goToStep("address")}
                 onConfirm={(updatedOrder) => {
                   setOrder(updatedOrder);
                   setStep("payment");
@@ -131,7 +172,10 @@ export function CheckoutContent() {
 
           {step === "payment" &&
             (order ? (
-              <PaymentStep order={order} />
+              <PaymentStep
+                order={order}
+                onBack={() => goToStep("shipping")}
+              />
             ) : (
               <div className="rounded-xl border border-border bg-muted/30 p-8 text-center text-muted-foreground">
                 Pago no disponible

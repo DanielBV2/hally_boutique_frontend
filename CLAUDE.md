@@ -875,6 +875,43 @@ compra. Decisión tomada tras verificar el backend:
 Verificado: tsc --noEmit limpio, eslint solo reporta la deuda pre-existente
 de AddressStep.tsx:31, build ok. Sin cambios de backend.
 
+## Checkout — navegación hacia atrás COMPLETADO Y VERIFICADO
+El checkout ya no es un camino de una sola vía: el stepper es clickeable
+hacia pasos previos y ShippingStep/PaymentStep tienen botones "Volver".
+Implicó un cambio ADITIVO en el backend (PATCH de dirección, ver su
+CLAUDE.md) porque la Order se crea en el paso 1 y su snapshot de dirección
+quedaba fijo al crear.
+
+- **CheckoutContent.tsx**: `goToStep(target)` solo permite volver (target
+  index < actual); el stepper convierte cada paso previo en un `<button>`
+  con check en vez del número y tint `bg-primary/15`. `handleAddressConfirmed`
+  ahora tiene branch: si `orderId` ya existe → `updateOrderAddress(orderId,
+  addressId)` (PATCH), si no → `createOrder` (como antes). Se trackea
+  `confirmedAddressId` y se pasa como `initialAddressId` a AddressStep. Al
+  volver a "address" se hace `setOrder(null)` (el resumen deja de mostrar un
+  envío que quedará inválido al cambiar de destino); volver a "shipping"
+  conserva `order` (el resumen muestra el último envío hasta re-confirmar).
+- **AddressStep**: nueva prop opcional `initialAddressId` — el efecto de
+  preselección prioriza `initialAddressId` antes que isDefault/primera.
+  (No se agregó setState-en-effect nuevo: la deuda pre-existente
+  react-hooks/set-state-in-effect sigue siendo la única, ahora en
+  AddressStep.tsx:37 porque el bloque creció.)
+- **ShippingStep**: prop `onBack` + botón "Volver" (outline) junto a
+  "Continuar"; también en los estados de error y sin-opciones para no dejar
+  callejones. El estado de la cotización es local del paso (se re-cotiza al
+  volver a montar), y el backend resetea el envío al cambiar la dirección.
+- **PaymentStep**: prop `onBack` + botón "Volver al envío" bajo la card.
+- **BFF**: `src/app/api/orders/[orderId]/address/route.ts` (PATCH, patrón
+  shipping-selection). **lib/api/orders.ts**: `updateOrderAddress(orderId,
+  addressId)`.
+Verificado end-to-end vía BFF: register → 2 addresses → cart → createOrder →
+shipping-selection (shippingAmount=60) → PATCH address (cambia snapshot,
+resetea shipping: carrier null, shippingAmount=0, shippingStatus=PENDING,
+total vuelve a subtotal+impuestos) → re-quote (11 opciones) → no-op misma
+dirección sin error → address de OTRO usuario → 404 real del backend. tsc
+limpio; eslint solo la deuda pre-existente de AddressStep.tsx:37; build ok
+(/api/orders/[orderId]/address en la ruta).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
