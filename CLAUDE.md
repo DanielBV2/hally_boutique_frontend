@@ -939,6 +939,39 @@ mod-sahara 200 SSR con Inicio → Productos → Vestidos de Baño → Mod. Sahar
 pública de categorías. tsc limpio; eslint solo la deuda pre-existente de
 AddressStep.tsx:37; build ok. Sin cambios de backend.
 
+## Footer rediseñado + páginas legales COMPLETADO
+El footer era genérico (instagram.com, facebook.com muertos, sin contacto, sin
+legal). Rediseño minimalista y compacto + dos páginas legales nuevas.
+
+- **Footer.tsx** (client, conserva useSession para la columna "Mi cuenta"):
+  - Redes REALES como íconos de marca SVG inline: Instagram
+    (https://www.instagram.com/hallyboutique?utm_source=ig_web_button_share_sheet
+    &igsh=ZDNlZDc0MzIxNw==), TikTok (https://www.tiktok.com/@hallyboutique_?
+    is_from_webapp=1&sender_device=pc) y WhatsApp (wa.me/573225754134, número
+    visible "322 575 4134" en la columna Contacto). Botones circulares pequeños
+    (size-8, borde, hover text-primary). Facebook y el instagram.com genérico
+    ELIMINADOS (eran links muertos).
+  - **Lección: lucide-react ya NO trae íconos de marca** (instagrams, tiktok,
+    whatsapp, facebook no existen en lucide-react 1.28). Los íconos de marca van
+    como SVG inline (fill="currentColor") en components/shared/SocialIcons.tsx,
+    con props tipo lucide ({ className }). WhatsApp con país +57 → wa.me/57322...
+  - Layout compacto: py-8, grid 4 columnas (brand+socials / Tienda / Mi cuenta /
+    Contacto), headings xs uppercase, links text-sm. Barra inferior delgada con
+    © + links legales.
+- **Páginas legales**: /terminos y /privacidad (carpetas normales en (tienda),
+  server components, `pageSeo` para metadata). Contenido en español genérico
+  pero profesional: 8 secciones cada una (términos: precios/pedidos/envíos/
+  cambios/propiedad intelectual/ley aplicable; privacidad: datos/finalidad/
+  compartición/cookies/derechos Ley 1581/2012). Se estandarizaron con un wrapper
+  compartido `components/shared/LegalPage.tsx` (title + lastUpdated + children,
+  tipografía legal con headings en `[&>section>h2]`). Solo WhatsApp de contacto
+  (decisión del usuario: no email, no newsletter, no FAQ por ahora).
+Verificado: / 200 SSR — footer sin facebook ni instagram.com genérico, con IG/
+TikTok reales, wa.me + número, links /terminos y /privacidad; 3 SVGs de marca
+en el footer con aria-labels correctos; /terminos y /privacidad 200 con 8
+secciones cada una; build ok (rutas ○ estáticas); tsc limpio; eslint solo la
+deuda pre-existente de AddressStep.tsx:37. Sin cambios de backend.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
