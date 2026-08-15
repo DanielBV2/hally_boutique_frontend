@@ -5,12 +5,12 @@ import type { ProductDetail } from '@/types/product';
 
 export function useProduct(
   slug: string,
-  options?: { initialData?: ProductDetail },
+  options?: { initialData?: ProductDetail; enabled?: boolean },
 ) {
   return useQuery({
     queryKey: ['product', slug],
     queryFn: () => getProductBySlug(slug),
-    enabled: !!slug,
+    enabled: !!slug && (options?.enabled ?? true),
     initialData: options?.initialData,
   });
 }

@@ -20,6 +20,7 @@ import {
   useUpdateCartItemMutation,
 } from "@/hooks/useCart";
 import { formatCOP } from "@/lib/format";
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants/shipping";
 import { useCartDrawerStore } from "@/stores/useCartDrawerStore";
 import type { CartItem } from "@/types/cart";
 
@@ -31,6 +32,13 @@ export function CartDrawer() {
   const router = useRouter();
 
   const items = cart?.items ?? [];
+  const subtotal = cart?.subtotal ?? 0;
+  const remainingForFreeShipping = FREE_SHIPPING_THRESHOLD - subtotal;
+  const hasFreeShipping = remainingForFreeShipping <= 0;
+  const shippingProgress = Math.min(
+    (subtotal / FREE_SHIPPING_THRESHOLD) * 100,
+    100,
+  );
 
   const isUpdatingItem = (itemId: string) =>
     (updateCartItem.isPending &&
@@ -74,6 +82,30 @@ export function CartDrawer() {
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto p-4">
+          {items.length > 0 && (
+            <div className="mb-4 rounded-xl bg-muted p-3">
+              {hasFreeShipping ? (
+                <p className="text-sm font-medium text-foreground">
+                  ¡Tienes envío gratis!
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Te faltan{" "}
+                  <span className="font-semibold text-foreground">
+                    {formatCOP(remainingForFreeShipping)}
+                  </span>{" "}
+                  para envío gratis
+                </p>
+              )}
+              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-background">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-300"
+                  style={{ width: `${shippingProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {isLoading ? (
             <div className="flex flex-col gap-3">
               {Array.from({ length: 3 }).map((_, i) => (

@@ -778,6 +778,52 @@ usuario en SSR (user llega como prop del layout server), sin chrome de tienda;
 de orden 200; tsc limpio; build ok; eslint limpio (solo la deuda pre-existente
 de AddressStep.tsx:31, ahora únicamente esa: use-mobile quedó arreglado).
 
+## Compra rápida + agotados + drawer (bloque UX) IMPLEMENTADO
+Bloque de mejoras de conversión elegido por el usuario en la auditoría UX.
+Implica un cambio mínimo ADITIVO en el backend (ambos repos tocados).
+
+Backend (hallyboutique-backend, commit propio):
+- `ProductListItemDTO` ganó `hasStock: boolean` (era imposible mostrar
+  "Agotado" en las tarjetas: el listado no traía variantes ni stock).
+  - product.repository.ts: `includeList` y `ProductWithListRelations` ahora
+    incluyen `variants: { select: { stock, isActive } }`.
+  - product.service.ts: `toListItemDTO` computa
+    `hasStock = variants.some(v => v.isActive && v.stock > 0)`.
+  - openapi.ts: schema ProductListItem actualizado.
+  - tests: helper makeListItem ganó `variants: []` + caso nuevo con 3
+    productos (activa con stock → true; solo sin stock → false; inactiva con
+    stock → false). 188 tests pasando, tsc limpio.
+
+Frontend:
+- `types/product.ts`: `ProductListItem.hasStock: boolean`.
+- `hooks/useProduct.ts`: soporta `enabled?: boolean` (default `!!slug`) para
+  lazy-load del detalle al abrir el popover (el listado no trae variants).
+- `components/products/QuickAddPopover.tsx` (NUEVO, client): popover shadcn
+  con trigger icon-button de carrito. Abre → carga el detalle por slug
+  (skeletons mientras, estado de error con reintento vía cerrar) → reutiliza
+  `VariantSelector` (talla/color), stepper de cantidad (1..stock), precio
+  dinámico (variante seleccionada o base) y botón "Añadir al carrito" con
+  estados (sin selección / sin stock / añadiendo…). Sin sesión → redirige a
+  `/login?redirect=/productos/<slug>` (regla: carrito siempre requiere auth).
+- `ProductCard.tsx`: overlay "Agotado" (badge destructivo sobre imagen con
+  velo) cuando `!hasStock`; el botón "Ver detalle" se reemplaza por el
+  trigger de QuickAddPopover (el detalle sigue alcanzable por imagen/título).
+- `FeaturedProductCard.tsx`: mismo overlay "Agotado" + trigger del popover
+  como overlay absoluto top-right SOBRE la imagen pero FUERA del <Link>
+  (sin interactivos anidados).
+- `hooks/useCart.ts`: `useAddToCartMutation.onSuccess` ahora también abre el
+  drawer vía `useCartDrawerStore.getState().open()` (además del toast) —
+  afecta también al botón del detalle de producto (comportamiento unificado).
+- `CartDrawer.tsx`: barra de progreso de envío gratis al inicio del listado
+  (solo con items): "Te faltan $X para envío gratis" / "¡Tienes envío
+  gratis!" + barra `bg-primary` con `FREE_SHIPPING_THRESHOLD` (constante
+  única, ya centralizada).
+Verificado automáticamente: tsc --noEmit limpio, eslint solo reporta la deuda
+pre-existente de AddressStep.tsx:31, build ok, backend 188 tests + tsc
+limpio. PENDIENTE: batería manual en vivo (backend no estaba corriendo) —
+abrir popover, añadir con sesión (drawer se abre), sin sesión (redirect),
+badge agotado con producto sin stock, barra de envío gratis.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

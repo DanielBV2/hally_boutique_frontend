@@ -10,6 +10,7 @@ import {
   updateCartItem,
 } from "@/lib/api/cart";
 import { useSession } from "@/hooks/useSession";
+import { useCartDrawerStore } from "@/stores/useCartDrawerStore";
 import type { AddCartItemInput, UpdateCartItemInput } from "@/types/cart";
 
 export function useCart() {
@@ -28,6 +29,7 @@ export function useAddToCartMutation() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["cart"] });
       toast.success("Añadido al carrito");
+      useCartDrawerStore.getState().open();
     },
     onError: (error: Error) => {
       toast.error(error.message);
