@@ -19,5 +19,7 @@ export default async function AdminLayout({
   if (!user) redirect("/login");
   if (user.role !== "ADMIN") redirect("/");
 
-  return <AdminShell>{children}</AdminShell>;
+  return (
+    <AdminShell user={user}>{children}</AdminShell>
+  );
 }

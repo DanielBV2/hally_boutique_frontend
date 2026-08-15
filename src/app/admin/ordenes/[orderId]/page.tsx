@@ -6,6 +6,7 @@ import { use } from "react";
 import { toast } from "sonner";
 
 import { OrderStatusBadge } from "@/components/account/OrderStatusBadge";
+import { OrderStatusStepper } from "@/components/admin/OrderStatusStepper";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +30,16 @@ const NEXT_STATUS: Partial<
   PAID: { status: "PROCESSING", label: "Marcar como en preparación" },
   PROCESSING: { status: "SHIPPED", label: "Marcar como enviado" },
   SHIPPED: { status: "DELIVERED", label: "Marcar como entregado" },
+};
+
+const STATUS_DESCRIPTIONS: Record<OrderStatus, string> = {
+  PENDING: "Esperando confirmación de pago.",
+  PAID: "Pago confirmado, listo para preparar.",
+  PROCESSING: "En preparación y empaque.",
+  SHIPPED: "En camino al cliente.",
+  DELIVERED: "Entregado al cliente.",
+  CANCELLED: "Orden cancelada.",
+  REFUNDED: "Pago reembolsado.",
 };
 
 export default function AdminOrderDetailPage({
@@ -129,23 +140,15 @@ export default function AdminOrderDetailPage({
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
             <CardTitle>Estado del pedido</CardTitle>
+            <OrderStatusBadge status={order.status} />
           </CardHeader>
-          <CardContent className="flex flex-col gap-3 text-sm">
-            <div className="flex items-center gap-2">
-              <OrderStatusBadge status={order.status} />
-              <span className="text-muted-foreground">
-                {order.status === "PENDING" &&
-                  "Esperando confirmación de pago."}
-                {order.status === "PAID" && "Pago confirmado, listo para preparar."}
-                {order.status === "PROCESSING" && "En preparación y empaque."}
-                {order.status === "SHIPPED" && "En camino al cliente."}
-                {order.status === "DELIVERED" && "Entregado al cliente."}
-                {order.status === "CANCELLED" && "Orden cancelada."}
-                {order.status === "REFUNDED" && "Pago reembolsado."}
-              </span>
-            </div>
+          <CardContent className="flex flex-col gap-4 text-sm">
+            <OrderStatusStepper status={order.status} />
+            <span className="text-muted-foreground">
+              {STATUS_DESCRIPTIONS[order.status]}
+            </span>
             {nextStep && (
               <Button
                 type="button"

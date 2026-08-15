@@ -2,11 +2,14 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2 } from "lucide-react";
+import { Package, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { ProductForm } from "@/components/admin/ProductForm";
+import { EmptyState } from "@/components/admin/EmptyState";
+import { PageHeader } from "@/components/admin/PageHeader";
+import { ResultsSummary } from "@/components/admin/ResultsSummary";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -79,7 +82,9 @@ export default function AdminProductsPage() {
       setProductToDelete(null);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "No se pudo eliminar el producto",
+        error instanceof Error
+          ? error.message
+          : "No se pudo eliminar el producto",
       );
     }
   }
@@ -87,52 +92,61 @@ export default function AdminProductsPage() {
   const totalPages = data
     ? Math.max(1, Math.ceil(data.total / data.limit))
     : 1;
-
   const isEmpty = !data || (data.items.length === 0 && data.page === 1);
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-foreground">Productos</h1>
-        <Button type="button" onClick={() => setDialogOpen(true)}>
-          <Plus />
-          Nuevo producto
-        </Button>
-      </div>
+      <PageHeader
+        title="Productos"
+        description="Catálogo de productos disponibles en la tienda."
+        actions={
+          <>
+            <Select
+              value={categoryId}
+              onValueChange={(value) => {
+                setCategoryId(value);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-64">
+                <SelectValue placeholder="Filtrar por categoría" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las categorías</SelectItem>
+                {categories?.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button type="button" onClick={() => setDialogOpen(true)}>
+              <Plus />
+              Nuevo producto
+            </Button>
+          </>
+        }
+      />
 
       {isLoading ? (
-        <div className="space-y-4">
-          <Skeleton className="h-10 w-40 rounded-md" />
+        <>
+          <Skeleton className="h-10 w-64 rounded-md" />
           <Skeleton className="h-72 w-full rounded-xl" />
-        </div>
+        </>
       ) : isEmpty ? (
-        <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-muted/30 p-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            No hay productos con el filtro seleccionado.
-          </p>
-        </div>
+        <EmptyState
+          icon={Package}
+          title="Sin productos"
+          description="No hay productos con el filtro seleccionado."
+        />
       ) : (
         <>
-          <Select
-            value={categoryId}
-            onValueChange={(value) => {
-              setCategoryId(value);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="w-64">
-              <SelectValue placeholder="Filtrar por categoría" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas las categorías</SelectItem>
-              {categories?.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
+          <ResultsSummary
+            page={data.page}
+            limit={data.limit}
+            total={data.total}
+            label="productos"
+          />
           <Card>
             <CardContent className="p-0">
               <Table>
@@ -148,7 +162,7 @@ export default function AdminProductsPage() {
                   {data.items.map((product) => (
                     <TableRow
                       key={product.id}
-                      className="cursor-pointer"
+                      className="cursor-pointer hover:bg-muted/50"
                       onClick={() =>
                         router.push(`/admin/productos/${product.slug}`)
                       }

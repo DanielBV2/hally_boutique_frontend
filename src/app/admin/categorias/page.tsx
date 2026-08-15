@@ -1,10 +1,13 @@
 "use client";
 
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Tags, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { CategoryForm } from "@/components/admin/CategoryForm";
+import { EmptyState } from "@/components/admin/EmptyState";
+import { PageHeader } from "@/components/admin/PageHeader";
+import { ResultsSummary } from "@/components/admin/ResultsSummary";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -74,38 +77,43 @@ export default function AdminCategoriesPage() {
   const totalPages = data
     ? Math.max(1, Math.ceil(data.total / data.limit))
     : 1;
-
   const isEmpty = !data || (data.items.length === 0 && data.page === 1);
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-foreground">Categorías</h1>
-        <Button
-          type="button"
-          onClick={() => {
-            setDialogCategory(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus />
-          Nueva categoría
-        </Button>
-      </div>
+      <PageHeader
+        title="Categorías"
+        description="Organiza el catálogo por categorías."
+        actions={
+          <Button
+            type="button"
+            onClick={() => {
+              setDialogCategory(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus />
+            Nueva categoría
+          </Button>
+        }
+      />
 
       {isLoading ? (
-        <div className="space-y-4">
-          <Skeleton className="h-10 w-40 rounded-md" />
-          <Skeleton className="h-72 w-full rounded-xl" />
-        </div>
+        <Skeleton className="h-72 w-full rounded-xl" />
       ) : isEmpty ? (
-        <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-muted/30 p-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            No hay categorías registradas.
-          </p>
-        </div>
+        <EmptyState
+          icon={Tags}
+          title="Sin categorías"
+          description="No hay categorías registradas."
+        />
       ) : (
         <>
+          <ResultsSummary
+            page={data.page}
+            limit={data.limit}
+            total={data.total}
+            label="categorías"
+          />
           <Card>
             <CardContent className="p-0">
               <Table>
@@ -119,7 +127,7 @@ export default function AdminCategoriesPage() {
                 </TableHeader>
                 <TableBody>
                   {data.items.map((category) => (
-                    <TableRow key={category.id}>
+                    <TableRow key={category.id} className="hover:bg-muted/50">
                       <TableCell className="font-medium">
                         {category.name}
                       </TableCell>
@@ -189,9 +197,7 @@ export default function AdminCategoriesPage() {
             initialValues={dialogCategory ?? undefined}
             onSuccess={() => {
               toast.success(
-                dialogCategory
-                  ? "Categoría actualizada"
-                  : "Categoría creada",
+                dialogCategory ? "Categoría actualizada" : "Categoría creada",
               );
               setDialogOpen(false);
               setDialogCategory(null);

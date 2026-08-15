@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
+import { AuthCard } from "@/components/auth/AuthCard";
+import { PasswordInput } from "@/components/auth/PasswordInput";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,7 +18,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { ApiError } from "@/lib/api/client";
 import { resetPassword } from "@/lib/api/auth";
 import {
@@ -63,30 +64,33 @@ export function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="mx-auto w-full max-w-sm px-4 py-16">
-        <h1 className="mb-6 text-2xl font-semibold text-foreground">
-          Restablecer contraseña
-        </h1>
-
-        <p className="text-sm text-muted-foreground">
-          Este enlace no es válido o ha expirado.{" "}
-          <Link
-            href="/olvide-password"
-            className="text-primary underline-offset-4 hover:underline"
-          >
-            Solicita uno nuevo
-          </Link>
-        </p>
-      </div>
+      <AuthCard
+        title="Enlace no válido"
+        description="Este enlace no es válido o ha expirado."
+      >
+        <Button type="button" asChild>
+          <Link href="/olvide-password">Solicitar un nuevo enlace</Link>
+        </Button>
+      </AuthCard>
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-sm px-4 py-16">
-      <h1 className="mb-6 text-2xl font-semibold text-foreground">
-        Restablecer contraseña
-      </h1>
-
+    <AuthCard
+      title="Restablecer contraseña"
+      description="Crea una nueva contraseña para tu cuenta."
+      footer={
+        <>
+          ¿El enlace expiró?{" "}
+          <Link
+            href="/olvide-password"
+            className="font-medium text-primary hover:underline"
+          >
+            Solicita uno nuevo
+          </Link>
+        </>
+      }
+    >
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
@@ -101,9 +105,9 @@ export function ResetPasswordForm() {
               <FormItem>
                 <FormLabel>Nueva contraseña</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
+                  <PasswordInput
                     autoComplete="new-password"
+                    autoFocus
                     {...field}
                   />
                 </FormControl>
@@ -119,11 +123,7 @@ export function ResetPasswordForm() {
               <FormItem>
                 <FormLabel>Confirmar contraseña</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    autoComplete="new-password"
-                    {...field}
-                  />
+                  <PasswordInput autoComplete="new-password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -137,15 +137,6 @@ export function ResetPasswordForm() {
           </Button>
         </form>
       </Form>
-
-      <p className="mt-6 text-sm text-muted-foreground">
-        <Link
-          href="/olvide-password"
-          className="text-primary underline-offset-4 hover:underline"
-        >
-          Solicitar un nuevo enlace
-        </Link>
-      </p>
-    </div>
+    </AuthCard>
   );
 }

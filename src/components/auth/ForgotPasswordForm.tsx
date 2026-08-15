@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import Link from "next/link";
 
+import { AuthCard } from "@/components/auth/AuthCard";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -52,46 +53,42 @@ export function ForgotPasswordForm() {
 
   if (submitted) {
     return (
-      <div className="mx-auto w-full max-w-sm px-4 py-16">
-        <h1 className="mb-6 text-2xl font-semibold text-foreground">
-          Restablecer contraseña
-        </h1>
-
-        <p className="text-sm text-muted-foreground">
-          Si el correo está registrado, te enviaremos un enlace para
-          restablecer tu contraseña.
-        </p>
-
-        <div className="mt-6 flex flex-col gap-2 text-sm">
-          <button
+      <AuthCard
+        title="Revisa tu correo"
+        description="Si el correo está registrado, te enviaremos un enlace para restablecer tu contraseña."
+      >
+        <div className="flex flex-col gap-2">
+          <Button type="button" asChild>
+            <Link href="/login">Volver a iniciar sesión</Link>
+          </Button>
+          <Button
             type="button"
+            variant="outline"
             onClick={() => setSubmitted(false)}
-            className="w-fit text-primary underline-offset-4 hover:underline"
           >
-            Volver a intentar
-          </button>
-          <Link
-            href="/login"
-            className="w-fit text-primary underline-offset-4 hover:underline"
-          >
-            Volver a iniciar sesión
-          </Link>
+            Usar otro correo
+          </Button>
         </div>
-      </div>
+      </AuthCard>
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-sm px-4 py-16">
-      <h1 className="mb-6 text-2xl font-semibold text-foreground">
-        Restablecer contraseña
-      </h1>
-
-      <p className="mb-6 text-sm text-muted-foreground">
-        Ingresa tu correo y te enviaremos un enlace para restablecer tu
-        contraseña.
-      </p>
-
+    <AuthCard
+      title="Restablecer contraseña"
+      description="Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña."
+      footer={
+        <>
+          ¿Recordaste tu contraseña?{" "}
+          <Link
+            href="/login"
+            className="font-medium text-primary hover:underline"
+          >
+            Inicia sesión
+          </Link>
+        </>
+      }
+    >
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
@@ -102,11 +99,12 @@ export function ForgotPasswordForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Correo electrónico</FormLabel>
                 <FormControl>
                   <Input
                     type="email"
                     autoComplete="email"
+                    autoFocus
                     placeholder="tucorreo@ejemplo.com"
                     {...field}
                   />
@@ -121,16 +119,6 @@ export function ForgotPasswordForm() {
           </Button>
         </form>
       </Form>
-
-      <p className="mt-6 text-sm text-muted-foreground">
-        ¿Recordaste tu contraseña?{" "}
-        <Link
-          href="/login"
-          className="text-primary underline-offset-4 hover:underline"
-        >
-          Inicia sesión
-        </Link>
-      </p>
-    </div>
+    </AuthCard>
   );
 }

@@ -693,6 +693,91 @@ al final del return principal. Ocurrió en /admin/productos y /admin/categorias
 renderizan 200 en estado vacío y el Dialog queda montado. Typecheck y lint
 limpios (solo la deuda pre-existente de AddressStep.tsx:30).
 
+## UX de auth (login/registro) adaptada a bloques shadcn login-01/signup-01 COMPLETADO
+Se adaptaron los bloques oficiales `npx shadcn@latest add login-01 signup-01` a los
+formularios existentes (react-hook-form + Zod + TanStack Query intactos; solo cambia
+el layout visual):
+
+- AuthCard rediseñada al estilo limpio de los bloques: header izquierdo sin icono
+  Sun, `max-w-sm` por defecto (registro pasa `max-w-md` para el grid 2 cols de
+  nombre/apellido), prop `className` opcional. Se aplica a las 4 páginas de auth
+  (login, registro, olvide-password, restablecer-password) por consistencia.
+- Tras visualizar el resultado, el usuario pidió que auth (login/registro) vuelva
+  a mostrar el Header de la tienda (logo, búsqueda, nav, carrito, menú usuario):
+  `(auth)/layout.tsx` renderiza `<Header />` encima del `<main>` centrado, solo
+  el Header (sin AnnouncementBar ni Footer — decisión del usuario).
+- LoginForm: link "¿Olvidaste tu contraseña?" ahora alineado inline al label de
+  contraseña (patrón del bloque), botón submit full-width, sin iconos en inputs.
+- RegisterForm: campo nuevo "Confirmar contraseña" (registerSchema ganó
+  `confirmPassword` + refine, mismo patrón que resetPasswordSchema — solo
+  client-side, se hace destructuring antes de llamar register()). El bloque
+  signup-01 también trae botón "Sign up with Google" pero se OMITIÓ (el backend
+  no tiene OAuth/social login — decisión del usuario, sin botones muertos).
+- PasswordInput: se eliminó el prop `icon` (ningún form lo usaba ya); conserva el
+  toggle ojo/ocultar.
+- El CLI instaló `components/ui/field.tsx` (dependencia de los bloques); se
+  conserva como parte del kit aunque los forms usan los componentes Form clásicos
+  de RHF (no se mezcló el patrón). El scaffolding del bloque (app/login/page.tsx,
+  app/signup/page.tsx, components/login-form.tsx, components/signup-form.tsx) se
+  eliminó — `app/login/page.tsx` habría chocado con `(auth)/login` en build.
+Verificado: tsc --noEmit limpio; eslint solo reporta la deuda pre-existente de
+AddressStep.tsx:30; build ok (rutas /login, /registro, /olvide-password,
+/restablecer-password intactas, sin conflictos); /login y /registro 200 SSR con
+título, descripciones, campo confirmar y sin iconos lucide en inputs; forgot/reset
+200 SSR sin iconos en inputs.
+
+## Panel admin — Ronda UX COMPLETADO Y VERIFICADO
+Mejora visual/UX del panel completo (decisión del usuario: 1+2+3+4+5 todo el
+alcance frontend, sin cambios de backend). Objetivo: que se vea profesional.
+
+- **Shell**: se reemplazó la nav de pestañas del header por un **sidebar
+  colapsable** (bloque shadcn `sidebar`, instalado vía CLI con `breadcrumb`,
+  `tooltip`, `avatar`). `src/components/admin/AppSidebar.tsx`: brand (icono
+  Store en caja primary + "Hally Boutique / Panel de administración"), nav en 3
+  grupos (General: Dashboard/Órdenes; Catálogo: Productos/Categorías; Sistema:
+  Usuarios) con estado activo vía `data-active`, tooltips al colapsar, footer
+  con "Volver a la tienda" + card de usuario (avatar con iniciales, nombre/
+  email, DropdownMenu con Cerrar sesión — reusa `useLogoutMutation`).
+- **AdminShell** ahora recibe `user` como prop desde el layout server (el
+  layout sigue con el gating por rol intacto) y estructura SidebarProvider
+  (variant=inset) + SidebarInset con topbar sticky: SidebarTrigger, breadcrumb
+  generado desde pathname (Dashboard → sección → detalle; el id >24 chars se
+  trunca como #ABC12345) y botón "Ver tienda". TooltipProvider envuelve todo.
+- **Tokens del sidebar** alineados a la marca en globals.css (`--sidebar-*`:
+  crema, teal para primary, tint de mar para accent) — solo CSS variables,
+  cumpliendo la regla de no hardcodear colores.
+- **Dashboard** (`admin/page.tsx`): StatCards con icono en contenedor tintado
+  (bg-primary/10, bg-accent/10, bg-muted), barra apilada horizontal de
+  "Pedidos por estado" (7 segmentos con %, colores semánticos por status +
+  leyenda con dot y conteo), nueva card "Órdenes recientes" (reusa
+  `useAdminOrders(1, 5)` con filas clickeables y link "Ver todas") y "Stock
+  bajo" con stock en Badge destructivo y links "Ver productos". Sin librería
+  de charts (no hay series temporales en el backend) — todo CSS.
+- **Detalle de orden**: nuevo `OrderStatusStepper.tsx` (5 pasos PENDING→
+  DELIVERED, círculos con check/índice, conector coloreado, current con ring,
+  labels en sm+) integrado en la card "Estado del pedido" (badge pasó al
+  header). CANCELLED/REFUNDED siguen con badge + descripción (el stepper
+  devuelve null).
+- **Detalle de producto**: las 3 cards apiladas pasan a **Tabs** (Información /
+  Imágenes (n) / Variantes (n)) con botones "Ver en tienda" (abre /productos/
+  [slug] en pestaña nueva) y "Eliminar producto" en el header. Los Dialog/
+  AlertDialog siguen al final del return (regla aprendida).
+- **Tablas**: componentes compartidos nuevos `PageHeader` (título + descripción
+  + acciones), `EmptyState` (icono en círculo + título + descripción + acción
+  opcional) y `ResultsSummary` ("Mostrando X–Y de Z {label}"). Aplicados en las
+  4 páginas de listado (órdenes/productos/categorías/usuarios) con headers
+  consistentes, hover en filas clickeables y los filtros movidos a las acciones
+  del PageHeader.
+- **Fix de lint**: el hook `use-mobile.ts` que instala el CLI del sidebar
+  disparaba `react-hooks/set-state-in-effect` (setState sincrónico en effect).
+  Se reescribió con `useSyncExternalStore` (subscribe via matchMedia, getServer
+  Snapshot=false) — mismo comportamiento, SSR-safe y sin la violación.
+Verificado: /admin 200 SSR con sidebar markup, breadcrumb, email y menú de
+usuario en SSR (user llega como prop del layout server), sin chrome de tienda;
+/ordenes /productos /usuarios /categorias 200 SSR con sus PageHeaders; detalle
+de orden 200; tsc limpio; build ok; eslint limpio (solo la deuda pre-existente
+de AddressStep.tsx:31, ahora únicamente esa: use-mobile quedó arreglado).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

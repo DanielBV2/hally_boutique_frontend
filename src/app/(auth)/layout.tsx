@@ -1,5 +1,3 @@
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
-import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 
 export default function AuthLayout({
@@ -9,10 +7,10 @@ export default function AuthLayout({
 }) {
   return (
     <>
-      <AnnouncementBar />
       <Header />
-      <main className="flex flex-1 flex-col">{children}</main>
-      <Footer />
+      <main className="flex flex-1 items-center justify-center px-4 py-12">
+        {children}
+      </main>
     </>
   );
 }

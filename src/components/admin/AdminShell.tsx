@@ -2,66 +2,111 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Fragment } from "react";
+import { ExternalLink } from "lucide-react";
+
+import { AppSidebar } from "@/components/admin/AppSidebar";
 import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Tags,
-  Users,
-} from "lucide-react";
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import type { User } from "@/types/user";
 
-import { cn } from "@/lib/utils";
+const SECTION_LABELS: Record<string, string> = {
+  ordenes: "Órdenes",
+  productos: "Productos",
+  categorias: "Categorías",
+  usuarios: "Usuarios",
+};
 
-const NAV_ITEMS = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/ordenes", label: "Órdenes", icon: ShoppingCart },
-  { href: "/admin/productos", label: "Productos", icon: Package },
-  { href: "/admin/categorias", label: "Categorías", icon: Tags },
-  { href: "/admin/usuarios", label: "Usuarios", icon: Users },
-];
+function getCrumbs(pathname: string): { label: string; href?: string }[] {
+  if (pathname === "/admin") return [{ label: "Dashboard" }];
+  const segments = pathname.split("/").filter(Boolean);
+  const crumbs: { label: string; href?: string }[] = [
+    { label: "Dashboard", href: "/admin" },
+  ];
+  const section = segments[1];
+  crumbs.push({
+    label: SECTION_LABELS[section] ?? section,
+    href: `/admin/${section}`,
+  });
+  if (segments[2]) {
+    const value = segments[2];
+    crumbs.push({
+      label: value.length > 24 ? `#${value.slice(0, 8)}` : value,
+    });
+  }
+  return crumbs;
+}
 
-export function AdminShell({ children }: { children: React.ReactNode }) {
+export function AdminShell({
+  children,
+  user,
+}: {
+  children: React.ReactNode;
+  user: User;
+}) {
   const pathname = usePathname();
+  const crumbs = getCrumbs(pathname);
 
   return (
-    <div className="min-h-screen bg-muted/40">
-      <header className="sticky top-0 z-40 border-b border-border bg-background">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-          <Link href="/admin" className="text-sm font-semibold text-foreground">
-            Panel de administración
-          </Link>
-          <Link
-            href="/"
-            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Volver a la tienda
-          </Link>
-        </div>
-        <nav className="mx-auto flex max-w-7xl items-center gap-1 overflow-x-auto px-4">
-          {NAV_ITEMS.map((item) => {
-            const isActive =
-              item.href === "/admin"
-                ? pathname === "/admin"
-                : pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
-                  isActive
-                    ? "border-primary text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <item.icon className="size-4" />
-                {item.label}
+    <TooltipProvider delayDuration={0}>
+      <SidebarProvider>
+        <AppSidebar user={user} />
+        <SidebarInset>
+          <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                {crumbs.map((crumb, index) => {
+                  const isLast = index === crumbs.length - 1;
+                  return (
+                    <Fragment key={crumb.label}>
+                      {index > 0 && (
+                        <BreadcrumbSeparator className="hidden md:block" />
+                      )}
+                      <BreadcrumbItem>
+                        {isLast || !crumb.href ? (
+                          <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                        ) : (
+                          <BreadcrumbLink asChild>
+                            <Link href={crumb.href}>{crumb.label}</Link>
+                          </BreadcrumbLink>
+                        )}
+                      </BreadcrumbItem>
+                    </Fragment>
+                  );
+                })}
+              </BreadcrumbList>
+            </Breadcrumb>
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="ml-auto text-muted-foreground"
+            >
+              <Link href="/">
+                <ExternalLink />
+                Ver tienda
               </Link>
-            );
-          })}
-        </nav>
-      </header>
-      <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>
-    </div>
+            </Button>
+          </header>
+          <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">{children}</div>
+        </SidebarInset>
+      </SidebarProvider>
+    </TooltipProvider>
   );
 }

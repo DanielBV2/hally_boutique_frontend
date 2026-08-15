@@ -39,6 +39,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import {
   useAddProductImageMutation,
   useAdminProductVariants,
   useDeleteProductMutation,
@@ -161,7 +167,7 @@ export default function AdminProductDetailPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <Link
             href="/admin/productos"
@@ -176,31 +182,56 @@ export default function AdminProductDetailPage() {
             /{product.slug} · {product.category.name}
           </p>
         </div>
-        <Button type="button" variant="destructive" onClick={() => setDeleteProductOpen(true)}>
-          <Trash2 />
-          Eliminar producto
-        </Button>
+        <div className="flex shrink-0 gap-2">
+          <Button asChild variant="outline">
+            <Link href={`/productos/${product.slug}`} target="_blank" rel="noopener noreferrer">
+              Ver en tienda
+            </Link>
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={() => setDeleteProductOpen(true)}
+          >
+            <Trash2 />
+            Eliminar producto
+          </Button>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Información del producto</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ProductForm
-            mode="edit"
-            initialValues={product}
-            slug={slug}
-            onSuccess={() => toast.success("Producto actualizado")}
-          />
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="info">
+        <TabsList>
+          <TabsTrigger value="info">Información</TabsTrigger>
+          <TabsTrigger value="images">
+            Imágenes ({product.images.length})
+          </TabsTrigger>
+          <TabsTrigger value="variants">
+            Variantes ({variants?.length ?? 0})
+          </TabsTrigger>
+        </TabsList>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Imágenes</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <TabsContent value="info" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Información del producto</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProductForm
+                mode="edit"
+                initialValues={product}
+                slug={slug}
+                onSuccess={() => toast.success("Producto actualizado")}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+      <TabsContent value="images" className="mt-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Imágenes</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
           {product.images.length > 0 ? (
             <div className="flex flex-wrap gap-3">
               {product.images.map((image) => (
@@ -255,11 +286,13 @@ export default function AdminProductDetailPage() {
             </Button>
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </TabsContent>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle>Variantes</CardTitle>
+      <TabsContent value="variants" className="mt-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardTitle>Variantes</CardTitle>
           <Button
             type="button"
             size="sm"
@@ -353,7 +386,9 @@ export default function AdminProductDetailPage() {
             </p>
           )}
         </CardContent>
-      </Card>
+        </Card>
+      </TabsContent>
+      </Tabs>
 
       <Dialog
         open={variantDialogOpen}
