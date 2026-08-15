@@ -824,6 +824,30 @@ limpio. PENDIENTE: batería manual en vivo (backend no estaba corriendo) —
 abrir popover, añadir con sesión (drawer se abre), sin sesión (redirect),
 badge agotado con producto sin stock, barra de envío gratis.
 
+## Productos sin variantes — estado claro COMPLETADO
+En ProductDetail.tsx, `handleAddToCart` requería `selectedVariant` pero
+`VariantSelector` no renderiza nada con `variants: []` → botón
+permanentemente deshabilitado "Selecciona talla y color" sin nada que
+seleccionar. Decisión (en conjunto con la regla del backend, ver su
+CLAUDE.md): "Stock vive en Variant, nunca en Product" — un producto sin
+variantes NO es vendible por diseño (es un producto incompleto del admin,
+se le agregan variantes después). Se descartó "añadir por productId" porque
+implicaría stock a nivel de producto, contradiciendo el modelo de dominio.
+Cambio SOLO frontend:
+- ProductDetail.tsx: si `product.variants.length === 0` se oculta el bloque
+  completo (VariantSelector + hint de stock + stepper de cantidad + botón
+  añadir) y se muestra un aviso claro "Producto sin opciones" (icono Info
+  de lucide, card `bg-muted`): "Este producto aún no tiene talla y color
+  disponibles. Vuelve a consultar pronto o explora el resto de nuestro
+  catálogo."
+- Coherencia con el bloque de compra rápida: un producto sin variantes tiene
+  `hasStock=false` (el backend computa `hasStock` sobre variants vacío →
+  false), así que la tarjeta ya muestra "Agotado" y oculta el botón de
+  quick-add; la rama `variants.length === 0` de QuickAddPopover queda como
+  defensa (inalcanzable en la práctica).
+Verificado: tsc --noEmit limpio, eslint solo reporta la deuda pre-existente
+de AddressStep.tsx:31, build ok. Sin cambios de backend.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

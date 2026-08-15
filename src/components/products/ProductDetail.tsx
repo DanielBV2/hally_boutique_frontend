@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Minus, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, Minus, Plus } from 'lucide-react';
 
 import { VariantSelector } from '@/components/products/VariantSelector';
 import { Button } from '@/components/ui/button';
@@ -186,73 +186,98 @@ export function ProductDetail({
             )}
           </div>
 
-          <div>
-            <VariantSelector variants={product.variants} onSelect={handleSelectVariant} />
-            <div className="mt-3">
-              {selectedVariant ? (
-                selectedVariant.inStock ? (
-                  <p className="text-sm text-muted-foreground">
-                    {selectedVariant.stock === 1
-                      ? '¡Última unidad disponible!'
-                      : `${selectedVariant.stock} disponibles`}
-                  </p>
-                ) : (
-                  <p className="text-sm font-medium text-destructive">
-                    Sin stock en esta combinación
-                  </p>
-                )
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Selecciona talla y color para continuar
+          {product.variants.length === 0 ? (
+            <div className="flex items-start gap-3 rounded-xl bg-muted p-4">
+              <Info className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
+              <div className="text-sm text-muted-foreground">
+                <p className="font-medium text-foreground">
+                  Producto sin opciones
                 </p>
-              )}
+                <p className="mt-1">
+                  Este producto aún no tiene talla y color disponibles. Vuelve
+                  a consultar pronto o explora el resto de nuestro catálogo.
+                </p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <>
+              <div>
+                <VariantSelector
+                  variants={product.variants}
+                  onSelect={handleSelectVariant}
+                />
+                <div className="mt-3">
+                  {selectedVariant ? (
+                    selectedVariant.inStock ? (
+                      <p className="text-sm text-muted-foreground">
+                        {selectedVariant.stock === 1
+                          ? '¡Última unidad disponible!'
+                          : `${selectedVariant.stock} disponibles`}
+                      </p>
+                    ) : (
+                      <p className="text-sm font-medium text-destructive">
+                        Sin stock en esta combinación
+                      </p>
+                    )
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Selecciona talla y color para continuar
+                    </p>
+                  )}
+                </div>
+              </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center rounded-lg border border-border">
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Disminuir cantidad"
-                className="h-10 w-10 rounded-lg hover:bg-muted"
-                disabled={quantity <= 1 || !selectedVariant?.inStock}
-                onClick={decrementQuantity}
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <span className="w-12 text-center font-medium text-foreground">
-                {quantity}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Aumentar cantidad"
-                className="h-10 w-10 rounded-lg hover:bg-muted"
-                disabled={
-                  !selectedVariant?.inStock || quantity >= (selectedVariant?.stock ?? 1)
-                }
-                onClick={incrementQuantity}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center rounded-lg border border-border">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Disminuir cantidad"
+                    className="h-10 w-10 rounded-lg hover:bg-muted"
+                    disabled={quantity <= 1 || !selectedVariant?.inStock}
+                    onClick={decrementQuantity}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="w-12 text-center font-medium text-foreground">
+                    {quantity}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Aumentar cantidad"
+                    className="h-10 w-10 rounded-lg hover:bg-muted"
+                    disabled={
+                      !selectedVariant?.inStock ||
+                      quantity >= (selectedVariant?.stock ?? 1)
+                    }
+                    onClick={incrementQuantity}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
 
-            <Button
-              size="lg"
-              className="flex-1"
-              disabled={!selectedVariant || !selectedVariant.inStock || addToCart.isPending}
-              onClick={handleAddToCart}
-            >
-              {addToCart.isPending
-                ? 'Añadiendo…'
-                : !selectedVariant
-                  ? 'Selecciona talla y color'
-                  : selectedVariant.inStock
-                    ? 'Añadir al carrito'
-                    : 'Sin stock disponible'}
-            </Button>
-          </div>
+                <Button
+                  size="lg"
+                  className="flex-1"
+                  disabled={
+                    !selectedVariant ||
+                    !selectedVariant.inStock ||
+                    addToCart.isPending
+                  }
+                  onClick={handleAddToCart}
+                >
+                  {addToCart.isPending
+                    ? 'Añadiendo…'
+                    : !selectedVariant
+                      ? 'Selecciona talla y color'
+                      : selectedVariant.inStock
+                        ? 'Añadir al carrito'
+                        : 'Sin stock disponible'}
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
