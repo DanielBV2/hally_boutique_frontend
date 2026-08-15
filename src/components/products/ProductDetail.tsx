@@ -1,11 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Info, Minus, Plus } from 'lucide-react';
 
 import { VariantSelector } from '@/components/products/VariantSelector';
+import { StoreBreadcrumbs } from '@/components/shared/StoreBreadcrumbs';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useProduct } from '@/hooks/useProduct';
@@ -37,6 +37,7 @@ export function ProductDetail({
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-6xl px-4 py-8">
+        <Skeleton className="mb-8 h-4 w-56" />
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           <Skeleton className="aspect-[3/4] w-full rounded-lg" />
           <div className="space-y-4">
@@ -165,12 +166,18 @@ export function ProductDetail({
         {/* Información */}
         <div className="space-y-6">
           <div>
-            <Link
-              href={`/productos?categoryId=${product.category.id}`}
-              className="mb-2 inline-block text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {product.category.name}
-            </Link>
+            <StoreBreadcrumbs
+              className="mb-3"
+              items={[
+                { label: 'Inicio', href: '/' },
+                { label: 'Productos', href: '/productos' },
+                {
+                  label: product.category.name,
+                  href: `/productos?categoryId=${product.category.id}`,
+                },
+                { label: product.name },
+              ]}
+            />
             <h1 className="text-3xl font-bold text-foreground">{product.name}</h1>
             <p className="mt-2 text-muted-foreground">{product.description}</p>
           </div>

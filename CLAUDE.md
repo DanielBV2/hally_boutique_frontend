@@ -912,6 +912,33 @@ dirección sin error → address de OTRO usuario → 404 real del backend. tsc
 limpio; eslint solo la deuda pre-existente de AddressStep.tsx:37; build ok
 (/api/orders/[orderId]/address en la ruta).
 
+## Breadcrumbs en la tienda (/productos y /productos/[slug]) COMPLETADO
+Antes la única navegación era el link de categoría en ProductDetail.tsx; ahora
+hay ruta de navegación (Inicio → Productos → Categoría → Producto) reutilizando
+los componentes shadcn `ui/breadcrumb.tsx` que ya usaba el panel admin.
+
+- **Nuevo `components/shared/StoreBreadcrumbs.tsx`**: wrapper reutilizable que
+  recibe `items: { label, href? }[]` y renderiza con Breadcrumb/BreadcrumbList/
+  Item/Link/Page/Separator (mismo patrón de render que AdminShell: Fragment +
+  separator entre items, último sin href o el último item → BreadcrumbPage).
+  Compartido, no duplica el map+Fragment en cada página.
+- **ProductsGrid (/productos)**: breadcrumb al tope (Inicio → Productos →
+  Categoría cuando hay `categoryId`). El nombre de la categoría se resuelve con
+  `useCategories()` (caché compartida con el header/flyout) buscando por
+  `category.id === categoryId`. Con `search` el último crumb es "Productos"
+  (página actual, sin link). Breadcrumb presente también en estados de
+  carga/error/vacío para evitar saltos de layout.
+- **ProductDetail (/productos/[slug])**: se ELIMINÓ el Link suelto de categoría
+  (línea ~168) y se reemplazó por el breadcrumb Inicio → Productos → Categoría
+  (link a `/productos?categoryId=...`) → Nombre del producto (página actual).
+  Import de `next/link` eliminado (quedaba sin uso). Skeleton de breadcrumb en
+  el estado de carga.
+Verificado: /productos 200 SSR con breadcrumb (Inicio → Productos); /productos/
+mod-sahara 200 SSR con Inicio → Productos → Vestidos de Baño → Mod. Sahara
+(categoría linkeada con categoryId real); categoryId resuelto en la lista
+pública de categorías. tsc limpio; eslint solo la deuda pre-existente de
+AddressStep.tsx:37; build ok. Sin cambios de backend.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

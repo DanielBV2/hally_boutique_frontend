@@ -10,8 +10,10 @@ import type {
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductFilters } from "@/components/products/ProductFilters";
 import { Pagination } from "@/components/shared/Pagination";
+import { StoreBreadcrumbs } from "@/components/shared/StoreBreadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCategories } from "@/hooks/useCategories";
 
 const PAGE_SIZE = 12;
 
@@ -43,8 +45,16 @@ export function ProductsGrid() {
     sortBy,
     sortOrder,
   });
+  const { data: categories } = useCategories();
+  const category = categories?.find((c) => c.id === categoryId);
 
   const hasFilters = !!(categoryId || search);
+
+  const crumbs = [
+    { label: "Inicio", href: "/" },
+    { label: "Productos", href: search ? undefined : "/productos" },
+    ...(category ? [{ label: category.name }] : []),
+  ];
 
   function goToPage(nextPage: number) {
     const params = new URLSearchParams(searchParams.toString());
@@ -55,6 +65,7 @@ export function ProductsGrid() {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-6 p-6">
+        <StoreBreadcrumbs items={crumbs} />
         <div className="flex gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-9 w-24 rounded-full" />
@@ -71,8 +82,11 @@ export function ProductsGrid() {
 
   if (isError || !data) {
     return (
-      <div className="p-6 text-center text-muted-foreground">
-        No se pudieron cargar los productos. Intenta de nuevo más tarde.
+      <div className="flex flex-col gap-6 p-6">
+        <StoreBreadcrumbs items={crumbs} />
+        <div className="p-6 text-center text-muted-foreground">
+          No se pudieron cargar los productos. Intenta de nuevo más tarde.
+        </div>
       </div>
     );
   }
@@ -82,6 +96,7 @@ export function ProductsGrid() {
   if (data.items.length === 0) {
     return (
       <div className="flex flex-col gap-6 p-6">
+        <StoreBreadcrumbs items={crumbs} />
         <ProductFilters total={data.total} />
         <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-muted/30 p-10 text-center">
           <p className="text-muted-foreground">
@@ -101,6 +116,7 @@ export function ProductsGrid() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
+      <StoreBreadcrumbs items={crumbs} />
       <ProductFilters total={data.total} />
       <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
         {data.items.map((product) => (
