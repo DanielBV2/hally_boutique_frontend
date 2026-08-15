@@ -30,8 +30,7 @@ export default function OrderDetailPage({
     return (
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-8">
         <Skeleton className="h-8 w-44" />
-        <Skeleton className="h-48 w-full rounded-xl" />
-        <Skeleton className="h-32 w-full rounded-xl" />
+        <Skeleton className="h-64 w-full rounded-xl" />
         <Skeleton className="h-32 w-full rounded-xl" />
       </div>
     );
@@ -51,6 +50,9 @@ export default function OrderDetailPage({
       </div>
     );
   }
+
+  const hasShippingInfo =
+    !!order.shippingCarrier || order.shippingStatus !== "PENDING";
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col px-4 py-8">
@@ -78,143 +80,165 @@ export default function OrderDetailPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Productos</CardTitle>
+          <CardTitle>Detalle del pedido</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col gap-3">
-          {order.items.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-start justify-between gap-3 text-sm"
-            >
-              <div className="flex flex-col gap-0.5">
-                <span className="text-foreground">
-                  {item.quantity} × {item.productName}
+        <CardContent className="flex flex-col gap-5">
+          <div className="grid grid-cols-3 gap-4 rounded-lg bg-muted p-4 text-sm">
+            <div>
+              <p className="mb-1 text-muted-foreground">Estado</p>
+              <OrderStatusBadge status={order.status} />
+            </div>
+            <div>
+              <p className="mb-1 text-muted-foreground">Fecha</p>
+              <p className="font-medium text-foreground">
+                {formatDate(order.createdAt)}
+              </p>
+            </div>
+            <div>
+              <p className="mb-1 text-muted-foreground">Total</p>
+              <p className="font-medium text-foreground">
+                {formatCOP(order.total)}
+              </p>
+            </div>
+          </div>
+
+          <ul className="space-y-2 text-sm">
+            {order.items.map((item) => (
+              <li
+                key={item.id}
+                className="flex items-start justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <p className="text-foreground">
+                    {item.quantity} × {item.productName}
+                  </p>
+                  <p className="text-muted-foreground">
+                    Talla {item.size} · {item.color} ·{" "}
+                    {formatCOP(item.unitPrice)} c/u
+                  </p>
+                </div>
+                <span className="shrink-0 text-foreground">
+                  {formatCOP(item.lineTotal)}
                 </span>
-                <span className="text-muted-foreground">
-                  Talla {item.size} · {item.color} ·{" "}
-                  {formatCOP(item.unitPrice)} c/u
-                </span>
-              </div>
-              <span className="shrink-0 text-foreground">
-                {formatCOP(item.lineTotal)}
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex flex-col gap-2 border-t border-border pt-3 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-foreground">
+                {formatCOP(order.subtotal)}
               </span>
             </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      <Card className="mt-4">
-        <CardHeader>
-          <CardTitle>Resumen</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-2 text-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span className="text-foreground">
-              {formatCOP(order.subtotal)}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">IVA</span>
-            <span className="text-foreground">
-              {formatCOP(order.taxAmount)}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Envío</span>
-            <span className="text-foreground">
-              {formatCOP(order.shippingAmount)}
-            </span>
-          </div>
-          <div className="flex items-center justify-between border-t border-border pt-2 text-base font-semibold">
-            <span className="text-foreground">Total</span>
-            <span className="text-foreground">
-              {formatCOP(order.total)}
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">IVA</span>
+              <span className="text-foreground">
+                {formatCOP(order.taxAmount)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Envío</span>
+              <span className="text-foreground">
+                {order.shippingAmount === 0
+                  ? "Gratis"
+                  : formatCOP(order.shippingAmount)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between border-t border-border pt-2 text-base font-semibold">
+              <span className="text-foreground">Total</span>
+              <span className="text-foreground">
+                {formatCOP(order.total)}
+              </span>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="mt-4">
-        <CardHeader>
-          <CardTitle>Dirección de envío</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-foreground">
-            {order.shippingFullName}
-          </span>
-          <span className="text-muted-foreground">
-            {formatAddressLine({
-              line1: order.shippingLine1,
-              line2: order.shippingLine2,
-              city: order.shippingCity,
-              state: order.shippingState,
-              postalCode: order.shippingPostalCode,
-            })}
-          </span>
-          <span className="text-muted-foreground">{order.shippingPhone}</span>
-        </CardContent>
-      </Card>
-
-      {(order.shippingCarrier || order.shippingStatus !== "PENDING") && (
-        <Card className="mt-4">
+      <div className={hasShippingInfo ? "mt-4 grid gap-4 sm:grid-cols-2" : "mt-4"}>
+        <Card>
           <CardHeader>
-            <CardTitle>Envío</CardTitle>
+            <CardTitle>Dirección de envío</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-2 text-sm">
-            {order.shippingStatus === "LABEL_FAILED" && (
-              <Alert variant="destructive" className="mb-2">
-                <TriangleAlert />
-                <AlertTitle>Guía de envío pendiente</AlertTitle>
-                <AlertDescription>
-                  Ocurrió un problema al generar la guía de envío. Ya estamos
-                  gestionándolo con la transportadora; te contactaremos cuando
-                  esté resuelto.
-                </AlertDescription>
-              </Alert>
-            )}
-            {order.shippingCarrier && (
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Transportadora</span>
-                <span className="text-foreground">
-                  {order.shippingCarrier}
-                </span>
-              </div>
-            )}
-            {order.shippingService && (
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Servicio</span>
-                <span className="text-foreground">{order.shippingService}</span>
-              </div>
-            )}
-            {order.shippingTrackingNumber && (
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Guía</span>
-                <span className="text-foreground">
-                  {order.shippingTrackingNumber}
-                </span>
-              </div>
-            )}
-            {order.shippingLabelUrl && (
-              <a
-                href={order.shippingLabelUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 text-primary underline underline-offset-4"
-              >
-                Descargar guía
-              </a>
-            )}
-            {order.shippingStatus === "PENDING" &&
-              !order.shippingTrackingNumber && (
-                <p className="text-muted-foreground">
-                  La guía de envío se está generando. Vuelve a consultar en unos
-                  minutos.
-                </p>
-              )}
+          <CardContent className="flex flex-col gap-1 text-sm">
+            <span className="font-medium text-foreground">
+              {order.shippingFullName}
+            </span>
+            <span className="text-muted-foreground">
+              {formatAddressLine({
+                line1: order.shippingLine1,
+                line2: order.shippingLine2,
+                city: order.shippingCity,
+                state: order.shippingState,
+                postalCode: order.shippingPostalCode,
+              })}
+            </span>
+            <span className="text-muted-foreground">{order.shippingPhone}</span>
           </CardContent>
         </Card>
-      )}
+
+        {hasShippingInfo && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Envío</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2 text-sm">
+              {order.shippingStatus === "LABEL_FAILED" && (
+                <Alert variant="destructive" className="mb-2">
+                  <TriangleAlert />
+                  <AlertTitle>Guía de envío pendiente</AlertTitle>
+                  <AlertDescription>
+                    Ocurrió un problema al generar la guía de envío. Ya
+                    estamos gestionándolo con la transportadora; te
+                    contactaremos cuando esté resuelto.
+                  </AlertDescription>
+                </Alert>
+              )}
+              {order.shippingCarrier && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Transportadora</span>
+                  <span className="text-foreground">
+                    {order.shippingCarrier}
+                  </span>
+                </div>
+              )}
+              {order.shippingService && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Servicio</span>
+                  <span className="text-foreground">
+                    {order.shippingService}
+                  </span>
+                </div>
+              )}
+              {order.shippingTrackingNumber && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Guía</span>
+                  <span className="text-foreground">
+                    {order.shippingTrackingNumber}
+                  </span>
+                </div>
+              )}
+              {order.shippingLabelUrl && (
+                <a
+                  href={order.shippingLabelUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 text-primary underline underline-offset-4"
+                >
+                  Descargar guía
+                </a>
+              )}
+              {order.shippingStatus === "PENDING" &&
+                !order.shippingTrackingNumber && (
+                  <p className="text-muted-foreground">
+                    La guía de envío se está generando. Vuelve a consultar en
+                    unos minutos.
+                  </p>
+                )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

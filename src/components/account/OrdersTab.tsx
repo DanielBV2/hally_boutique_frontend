@@ -54,16 +54,18 @@ export function OrdersTab() {
             className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Card className="transition-colors hover:bg-muted/40">
-              <CardContent className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-col gap-1.5">
+              <CardContent className="flex items-center justify-between gap-3 p-4">
+                <div className="flex min-w-0 flex-col gap-1.5">
+                  <span className="truncate text-sm font-semibold text-foreground">
+                    Pedido #{order.id.slice(0, 8)}
+                  </span>
                   <OrderStatusBadge status={order.status} />
                   <span className="text-sm text-muted-foreground">
-                    {formatDate(order.createdAt)} ·{" "}
-                    {order.itemsCount}{" "}
+                    {formatDate(order.createdAt)} · {order.itemsCount}{" "}
                     {order.itemsCount === 1 ? "producto" : "productos"}
                   </span>
                 </div>
-                <span className="text-base font-semibold text-foreground">
+                <span className="shrink-0 text-base font-semibold text-foreground">
                   {formatCOP(order.total)}
                 </span>
               </CardContent>
