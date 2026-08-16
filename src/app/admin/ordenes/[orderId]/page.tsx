@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, TriangleAlert } from "lucide-react";
+import { ArrowLeft, Copy, Mail, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import { toast } from "sonner";
@@ -51,6 +51,15 @@ export default function AdminOrderDetailPage({
   const { orderId } = use(params);
   const { data: order, isLoading } = useAdminOrder(orderId);
   const statusMutation = useUpdateOrderStatusMutation();
+
+  const copyToClipboard = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${label} copiado`);
+    } catch {
+      toast.error("No se pudo copiar al portapapeles");
+    }
+  };
 
   const nextStep = order ? NEXT_STATUS[order.status] : undefined;
 
@@ -114,9 +123,21 @@ export default function AdminOrderDetailPage({
 
       <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold text-foreground">
-            Pedido #{order.id.slice(0, 8)}
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-semibold text-foreground">
+              Pedido #{order.id.slice(0, 8)}
+            </h1>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground"
+              aria-label="Copiar ID de la orden"
+              onClick={() => copyToClipboard(order.id, "ID de la orden")}
+            >
+              <Copy />
+            </Button>
+          </div>
           <span className="text-sm text-muted-foreground">
             {formatDate(order.createdAt)}
           </span>
@@ -133,8 +154,26 @@ export default function AdminOrderDetailPage({
             <span className="font-medium text-foreground">
               {order.customerName}
             </span>
-            <span className="text-muted-foreground">
-              {order.customerEmail}
+            <span className="flex items-center gap-1.5">
+              <a
+                href={`mailto:${order.customerEmail}`}
+                className="inline-flex items-center gap-1 text-primary underline underline-offset-4"
+              >
+                <Mail className="h-3.5 w-3.5" />
+                {order.customerEmail}
+              </a>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-muted-foreground"
+                aria-label="Copiar correo del cliente"
+                onClick={() =>
+                  copyToClipboard(order.customerEmail, "Correo")
+                }
+              >
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
             </span>
           </CardContent>
         </Card>

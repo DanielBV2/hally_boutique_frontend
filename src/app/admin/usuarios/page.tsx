@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/admin/EmptyState";
+import { AdminSearchInput } from "@/components/admin/AdminSearchInput";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { ResultsSummary } from "@/components/admin/ResultsSummary";
 import { useAdminUsers } from "@/hooks/useAdminUsers";
@@ -33,11 +34,13 @@ const PAGE_SIZE = 20;
 export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [role, setRole] = useState<string>("all");
+  const [search, setSearch] = useState("");
 
   const { data, isLoading } = useAdminUsers({
     page,
     limit: PAGE_SIZE,
     role: role === "all" ? undefined : (role as "CUSTOMER" | "ADMIN"),
+    search: search || undefined,
   });
 
   const totalPages = data
@@ -51,22 +54,31 @@ export default function AdminUsersPage() {
         title="Usuarios"
         description="Cuentas registradas en la tienda."
         actions={
-          <Select
-            value={role}
-            onValueChange={(value) => {
-              setRole(value);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="w-44">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los roles</SelectItem>
-              <SelectItem value="CUSTOMER">Clientes</SelectItem>
-              <SelectItem value="ADMIN">Administradores</SelectItem>
-            </SelectContent>
-          </Select>
+          <>
+            <AdminSearchInput
+              placeholder="Buscar por nombre o correo…"
+              onChange={(value) => {
+                setSearch(value);
+                setPage(1);
+              }}
+            />
+            <Select
+              value={role}
+              onValueChange={(value) => {
+                setRole(value);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los roles</SelectItem>
+                <SelectItem value="CUSTOMER">Clientes</SelectItem>
+                <SelectItem value="ADMIN">Administradores</SelectItem>
+              </SelectContent>
+            </Select>
+          </>
         }
       />
 

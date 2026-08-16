@@ -79,6 +79,7 @@ export interface AdminUsersParams {
   page?: number;
   limit?: number;
   role?: "CUSTOMER" | "ADMIN";
+  search?: string;
 }
 
 export async function getAdminUsers(
@@ -88,6 +89,7 @@ export async function getAdminUsers(
   if (params.page) query.set("page", String(params.page));
   if (params.limit) query.set("limit", String(params.limit));
   if (params.role) query.set("role", params.role);
+  if (params.search) query.set("search", params.search);
   const queryString = query.toString();
   return apiFetch<PaginatedAdminUsers>(
     `/api/admin/users${queryString ? `?${queryString}` : ""}`,

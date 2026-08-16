@@ -1232,6 +1232,38 @@ restaura; /admin/productos 200 SSR con la descripción nueva (la tabla es
 client-side tras la carga, esperado). Backend: tsc limpio + 201 tests.
 Frontend: tsc limpio, eslint limpio, build ok.
 
+## Búsqueda en /admin/usuarios + copiar ID/correo y mailto en el detalle de orden COMPLETADO Y VERIFICADO
+Dos mejoras pedidas por el usuario. La primera requirió un cambio ADITIVO en el
+backend (param search en GET /auth/admin/all, ver su CLAUDE.md — sigue siendo
+solo lectura).
+
+**Búsqueda en /admin/usuarios**:
+- BFF `src/app/api/admin/users/route.ts`: passthrough de `search`.
+- `lib/api/auth.ts`: `AdminUsersParams` ganó `search?: string` y `getAdminUsers`
+  lo envía solo si es truthy.
+- `hooks/useAdminUsers.ts`: `search` entra al queryKey (["admin","users",page,
+  limit,role,search]) — debounce e invalidaciones reutilizan la caché.
+- `/admin/usuarios/page.tsx`: `AdminSearchInput` (placeholder "Buscar por nombre
+  o correo…") en las acciones del PageHeader junto al Select de rol; resetea la
+  página a 1 al escribir. El input sobrevive a cambios de filtro/página (el
+  local state es la fuente de verdad, patrón AdminSearchInput).
+
+**Detalle de orden (/admin/ordenes/[orderId])**:
+- Botón copiar ID (icono Copy, aria-label "Copiar ID de la orden") junto al
+  título "Pedido #ABC12345" — copia el ID COMPLETO (no el truncado).
+- Card Cliente: el correo ahora es un link `mailto:` (icono Mail, text-primary
+  underline) + botón copiar (icono Copy pequeño, aria-label "Copiar correo del
+  cliente"). Útil cuando hay LABEL_FAILED: agiliza contactar al cliente.
+- Helper `copyToClipboard(text, label)` con `navigator.clipboard.writeText` y
+  toasts ("<label> copiado" / error si falla). Sin dependencias nuevas.
+Verificado: búsqueda en vivo vía BFF (login admin): total=18 sin filtro;
+firstName real → 1; local-part del email → 1; "@test.co" case-insensitive → 16;
+search+role combinados → filtra; inexistente → 0. /admin/usuarios 200 SSR con
+el AdminSearchInput visible; /admin/ordenes/[orderId] 200 SSR con skeleton (la
+card y los botones se renderizan tras la data client-side, mismo patrón que
+/admin/productos). Backend: tsc limpio + 202 tests. Frontend: tsc limpio,
+eslint limpio, build ok.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

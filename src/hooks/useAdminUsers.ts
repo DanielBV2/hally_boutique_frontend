@@ -9,7 +9,7 @@ import {
 
 export function useAdminUsers(params: AdminUsersParams = {}) {
   return useQuery({
-    queryKey: ["admin", "users", params.page, params.limit, params.role],
+    queryKey: ["admin", "users", params.page, params.limit, params.role, params.search],
     queryFn: () => getAdminUsers(params),
   });
 }
