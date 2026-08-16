@@ -1149,6 +1149,49 @@ weightGrams=300 real en GET /products/mod-sahara; /checkout y /cuenta 200;
 ruta BFF /api/auth/me/password presente en el build. Backend: tsc limpio +
 197 tests; frontend: tsc limpio, eslint limpio, build ok.
 
+## Búsqueda por texto en Órdenes y Productos del admin COMPLETADO Y VERIFICADO
+Los listados admin filtran por estado/categoría pero no por texto; buscar "el
+pedido de María" o "camisa oxford" era manual. Ahora ambos endpoints del
+backend aceptan `search` (case-insensitive) y hay un input con debounce en el
+PageHeader de las dos páginas.
+
+- **Backend (search en GET /orders/admin/all)**: `adminOrdersQuerySchema` ganó
+  `search`; `OrderFilters` ganó `search?: string` y `findAllAdmin` arma
+  `where.OR` con: id de orden (contains), email del usuario, firstName OR
+  lastName del usuario, e items.some productName. Se combina con `status`
+  (top-level keys de Prisma se ANDean). Controller pasa search al service.
+- **Backend (search en GET /products/admin/all)**: `adminProductsQuerySchema`
+  ganó `search`; `findManyAdmin` filtra `where.name = { contains, mode:
+  "insensitive" }` (mismo criterio que el público). Controller + service
+  propagan. openapi.ts documenta el param en ambos endpoints (con
+  descripciones del alcance).
+- **Frontend**:
+  - BFF `/api/admin/orders` y `/api/admin/products`: passthrough de `search`.
+  - `lib/api/orders.ts` `getAdminOrders({ ..., search })`; `lib/api/products.ts`
+    `AdminProductsParams.search` (solo se envía si es truthy).
+  - `useAdminOrders(page, limit, status?, search?)` y `useAdminProducts`:
+    search entra al queryKey (debounce + invalidaciones reutilizan la caché).
+  - **Nuevo `components/admin/AdminSearchInput.tsx`**: input con icono Search,
+    debounce de 350ms y botón X para limpiar. Implementado SIN setState-en-
+    effect: el debounce usa `setTimeout` en efecto (async, no se flaggea) +
+    ref para el callback más reciente (`onChangeRef`), y un flag `isFirstRun`
+    para no disparar onChange en el montaje. El local state es la fuente de
+    verdad (input no controlado por el padre), así el término sobrevive a
+    cambios de filtro/página.
+  - `/admin/ordenes`: placeholder "Buscar por cliente, correo, producto o
+    #pedido…"; `/admin/productos`: "Buscar por nombre de producto…". Ambos
+    resetean la página a 1 al escribir.
+Verificado en vivo vía BFF (login admin.fase0@test.co): orders total=22;
+search=maria (firstName real) → 1; email local-part → 1; id completo → 1;
+#id truncado (8 chars, el formato de la tabla) → 1; search=oxford (producto)
+→ 17; search+status combinados → filtra bien; inexistente → 0. products
+total=7; search=oxford → 1 (Camisa Oxford Azul); search=OXFORD → 1 (case-
+insensitive); search=mod → 7 (los 7 productos son "Mod. X", correcto);
+search+isActive → combina. /admin/ordenes y /admin/productos 200 SSR con el
+input visible en el HTML (con sesión admin; sin sesión el layout redirige).
+Backend: tsc limpio + 199 tests (2 nuevos: propagación de search en order y
+product service). Frontend: tsc limpio, eslint limpio, build ok.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

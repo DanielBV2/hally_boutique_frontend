@@ -38,6 +38,7 @@ export function useAdminProducts(params: AdminProductsParams = {}) {
       params.page,
       params.limit,
       params.categoryId,
+      params.search,
     ],
     queryFn: () => getAdminProducts(params),
   });

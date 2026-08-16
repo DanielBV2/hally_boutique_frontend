@@ -43,6 +43,7 @@ export interface AdminProductsParams {
   limit?: number;
   isActive?: boolean;
   categoryId?: string;
+  search?: string;
 }
 
 export async function getAdminProducts(
@@ -55,6 +56,7 @@ export async function getAdminProducts(
     query.set("isActive", String(params.isActive));
   if (params.categoryId !== undefined)
     query.set("categoryId", params.categoryId);
+  if (params.search) query.set("search", params.search);
   const queryString = query.toString();
   return apiFetch<PaginatedProducts>(
     `/api/admin/products${queryString ? `?${queryString}` : ""}`,

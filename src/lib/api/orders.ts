@@ -78,11 +78,13 @@ export async function getAdminOrders(params?: {
   page?: number;
   limit?: number;
   status?: string;
+  search?: string;
 }): Promise<PaginatedAdminOrders> {
   const query = new URLSearchParams();
   if (params?.page) query.set("page", String(params.page));
   if (params?.limit) query.set("limit", String(params.limit));
   if (params?.status) query.set("status", params.status);
+  if (params?.search) query.set("search", params.search);
   const queryString = query.toString();
   return apiFetch<PaginatedAdminOrders>(
     `/api/admin/orders${queryString ? `?${queryString}` : ""}`,

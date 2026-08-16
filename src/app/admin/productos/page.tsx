@@ -7,6 +7,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { ProductForm } from "@/components/admin/ProductForm";
+import { AdminSearchInput } from "@/components/admin/AdminSearchInput";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { ResultsSummary } from "@/components/admin/ResultsSummary";
@@ -60,12 +61,14 @@ export default function AdminProductsPage() {
   const { data: categories } = useCategories();
   const [page, setPage] = useState(1);
   const [categoryId, setCategoryId] = useState<string>("all");
+  const [search, setSearch] = useState("");
 
   const { data, isLoading } = useAdminProducts({
     page,
     limit: PAGE_SIZE,
     isActive: true,
     categoryId: categoryId === "all" ? undefined : categoryId,
+    search: search || undefined,
   });
   const deleteProduct = useDeleteProductMutation();
 
@@ -101,6 +104,13 @@ export default function AdminProductsPage() {
         description="Catálogo de productos disponibles en la tienda."
         actions={
           <>
+            <AdminSearchInput
+              placeholder="Buscar por nombre de producto…"
+              onChange={(value) => {
+                setSearch(value);
+                setPage(1);
+              }}
+            />
             <Select
               value={categoryId}
               onValueChange={(value) => {

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ShoppingCart } from "lucide-react";
 
 import { OrderStatusBadge } from "@/components/account/OrderStatusBadge";
+import { AdminSearchInput } from "@/components/admin/AdminSearchInput";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { ResultsSummary } from "@/components/admin/ResultsSummary";
@@ -46,11 +47,13 @@ export default function AdminOrdersPage() {
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<string>("all");
+  const [search, setSearch] = useState("");
 
   const { data, isLoading } = useAdminOrders(
     page,
     PAGE_SIZE,
     status === "all" ? undefined : status,
+    search || undefined,
   );
 
   const totalPages = data
@@ -64,7 +67,15 @@ export default function AdminOrdersPage() {
         title="Órdenes"
         description="Gestiona el estado de los pedidos de la tienda."
         actions={
-          <Select
+          <>
+            <AdminSearchInput
+              placeholder="Buscar por cliente, correo, producto o #pedido…"
+              onChange={(value) => {
+                setSearch(value);
+                setPage(1);
+              }}
+            />
+            <Select
             value={status}
             onValueChange={(value) => {
               setStatus(value);
@@ -82,6 +93,7 @@ export default function AdminOrdersPage() {
               ))}
             </SelectContent>
           </Select>
+          </>
         }
       />
 

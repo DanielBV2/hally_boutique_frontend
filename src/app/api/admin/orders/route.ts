@@ -8,9 +8,11 @@ export async function GET(request: Request) {
   const page = searchParams.get("page");
   const limit = searchParams.get("limit");
   const status = searchParams.get("status");
+  const search = searchParams.get("search");
   if (page) query.set("page", page);
   if (limit) query.set("limit", limit);
   if (status) query.set("status", status);
+  if (search) query.set("search", search);
   const queryString = query.toString();
 
   const result = await authenticatedFetch(

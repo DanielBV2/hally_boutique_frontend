@@ -13,10 +13,11 @@ export function useAdminOrders(
   page: number,
   limit: number,
   status?: string,
+  search?: string,
 ) {
   return useQuery({
-    queryKey: ["admin", "orders", page, limit, status ?? "all"],
-    queryFn: () => getAdminOrders({ page, limit, status }),
+    queryKey: ["admin", "orders", page, limit, status ?? "all", search ?? ""],
+    queryFn: () => getAdminOrders({ page, limit, status, search }),
   });
 }
 

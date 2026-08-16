@@ -9,10 +9,12 @@ export async function GET(request: Request) {
   const limit = searchParams.get("limit");
   const isActive = searchParams.get("isActive");
   const categoryId = searchParams.get("categoryId");
+  const search = searchParams.get("search");
   if (page) query.set("page", page);
   if (limit) query.set("limit", limit);
   if (isActive) query.set("isActive", isActive);
   if (categoryId) query.set("categoryId", categoryId);
+  if (search) query.set("search", search);
   const queryString = query.toString();
 
   const result = await authenticatedFetch(
