@@ -1046,6 +1046,30 @@ flaggeaba por causar un render extra en cascada (patrón anti-recomendado:
 Verificado: tsc limpio; `npm run lint` sin errores (0 problemas); build ok. Sin
 cambios de backend.
 
+## Lightbox de imágenes en el detalle de producto COMPLETADO
+Para moda es clave ampliar la foto del producto. La imagen principal del detalle
+ahora abre un lightbox con zoom (shadcn Dialog, ya instalado en el kit).
+
+- **Nuevo `components/products/ProductImageLightbox.tsx`**: Dialog con imagen
+  grande `object-contain` (aspect 3/4 en móvil, `h-[70vh]` en sm+), flechas
+  prev/next (solo si hay más de 1 imagen) y barra de miniaturas sincronizada
+  (border-t, mismas clases de selección `border-primary` que la galería). El
+  Dialog se cierra con X (default de shadcn), Esc o click en overlay. Estado
+  "Sin imagen" cubierto. `DialogHeader sr-only` con `DialogTitle` = nombre del
+  producto (Radix exige título para a11y).
+- **ProductDetail.tsx**: la imagen principal pasó a ser un `<button>` con
+  `cursor-zoom-in` (aria-label "Ampliar imagen de <producto>") que abre el
+  lightbox, más un badge `ZoomIn` semi-transparente en la esquina superior
+  derecha como affordance (hover lo intensifica). El índice del lightbox se
+  comparte con la galería (`onIndexChange` → `setSelectedImageIndex`): navegar
+  en el lightbox sincroniza la miniatura del detalle y viceversa. El lightbox
+  se renderiza al final del return (regla aprendida: Dialog fuera de ramas).
+Verificado: /productos/mod-sahara 200 SSR con el botón de zoom presente (aria-
+label "Ampliar imagen de Mod. Sahara"); 2 imágenes → galería con miniaturas;
+lightbox cerrado NO renderiza markup del Dialog (Radix desmonta al estar
+cerrado, esperado). tsc limpio; eslint limpio; build ok. Sin cambios de
+backend.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

@@ -2,8 +2,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Info, Minus, Plus } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Info,
+  Minus,
+  Plus,
+  ZoomIn,
+} from 'lucide-react';
 
+import { ProductImageLightbox } from '@/components/products/ProductImageLightbox';
 import { VariantSelector } from '@/components/products/VariantSelector';
 import { StoreBreadcrumbs } from '@/components/shared/StoreBreadcrumbs';
 import { Button } from '@/components/ui/button';
@@ -33,6 +41,7 @@ export function ProductDetail({
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -125,13 +134,23 @@ export function ProductDetail({
 
           <div className="relative aspect-[3/4] flex-1 overflow-hidden rounded-lg bg-muted">
             {currentImage ? (
-              <Image
-                src={currentImage}
-                alt={product.name}
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
-              />
+              <button
+                type="button"
+                aria-label={`Ampliar imagen de ${product.name}`}
+                className="group absolute inset-0 block h-full w-full cursor-zoom-in"
+                onClick={() => setLightboxOpen(true)}
+              >
+                <Image
+                  src={currentImage}
+                  alt={product.name}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                />
+                <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-background/80 text-muted-foreground backdrop-blur-sm transition-colors group-hover:bg-background/90 group-hover:text-foreground">
+                  <ZoomIn className="h-4 w-4" />
+                </span>
+              </button>
             ) : (
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
                 Sin imagen
@@ -287,6 +306,15 @@ export function ProductDetail({
           )}
         </div>
       </div>
+
+      <ProductImageLightbox
+        images={images}
+        index={selectedImageIndex}
+        productName={product.name}
+        open={lightboxOpen}
+        onOpenChange={setLightboxOpen}
+        onIndexChange={setSelectedImageIndex}
+      />
     </div>
   );
 }
