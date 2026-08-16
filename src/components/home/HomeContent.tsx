@@ -6,22 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WaveDivider } from "@/components/home/WaveDivider";
 import { FeaturedProductCard } from "@/components/home/FeaturedProductCard";
-import { cn } from "@/lib/utils";
-import { useCategories } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
 
 export function HomeContent() {
-  const {
-    data: categories,
-    isLoading: categoriesLoading,
-  } = useCategories();
   const {
     data: products,
     isLoading: productsLoading,
   } = useProducts({ limit: 8, sortBy: "createdAt", sortOrder: "desc" });
 
-  const showCategories =
-    !categoriesLoading && categories && categories.length > 0;
   const showProducts =
     !productsLoading && products && products.items.length > 0;
 
@@ -52,56 +44,15 @@ export function HomeContent() {
         <WaveDivider className="relative z-10 text-background" />
       </section>
 
-      {showCategories && (
-        <section className="mx-auto w-full max-w-6xl px-4 py-16">
-          <h2 className="mb-8 text-2xl font-semibold text-foreground">
-            Explora por categoría
-          </h2>
-          <div className="grid auto-rows-[140px] grid-cols-2 gap-4 sm:auto-rows-[180px] sm:grid-cols-3">
-            {categories.map((category, i) => (
-              <Link
-                key={category.id}
-                href={`/productos?categoryId=${category.id}`}
-                className={cn(
-                  "group relative flex items-end overflow-hidden rounded-2xl p-5 transition-transform hover:-translate-y-1",
-                  i === 0 &&
-                    categories.length >= 3 &&
-                    "col-span-2 row-span-2 sm:col-span-1 sm:row-span-2",
-                  ["bg-primary/15", "bg-accent/15", "bg-secondary/25", "bg-muted"][
-                    i % 4
-                  ],
-                )}
-              >
-                <span className="font-display text-xl font-semibold text-foreground sm:text-2xl">
-                  {category.name}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {categoriesLoading && (
-        <section className="mx-auto w-full max-w-6xl px-4 py-16">
-          <Skeleton className="mb-8 h-8 w-64" />
-          <div className="grid auto-rows-[140px] grid-cols-2 gap-4 sm:auto-rows-[180px] sm:grid-cols-3">
-            <Skeleton className="col-span-2 row-span-2 rounded-2xl sm:col-span-1 sm:row-span-2" />
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="rounded-2xl" />
-            ))}
-          </div>
-        </section>
-      )}
-
       {showProducts && (
         <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
-          <div className="mb-8 flex items-end justify-between">
+          <div className="mb-8 text-center">
             <h2 className="font-display text-3xl font-semibold">
               Descubre lo nuevo
             </h2>
             <Link
               href="/productos"
-              className="text-sm font-medium text-primary hover:underline"
+              className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
             >
               Ver todo →
             </Link>
