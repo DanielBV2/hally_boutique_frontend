@@ -1,15 +1,47 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useSyncExternalStore } from "react";
 import { Truck, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants/shipping";
 import { formatCOP } from "@/lib/format";
 
+const STORAGE_KEY = "announcement-bar-dismissed";
+
+const listeners = new Set<() => void>();
+
+function emitChange() {
+  for (const listener of listeners) listener();
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function getSnapshot() {
+  return window.localStorage.getItem(STORAGE_KEY) !== "dismissed";
+}
+
+function getServerSnapshot() {
+  return true;
+}
+
+function dismissBar() {
+  window.localStorage.setItem(STORAGE_KEY, "dismissed");
+  emitChange();
+}
+
 export function AnnouncementBar() {
-  const [isVisible, setIsVisible] = useState(true);
+  const isVisible = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot
+  );
 
   if (!isVisible) return null;
 
@@ -44,7 +76,7 @@ export function AnnouncementBar() {
         size="icon-sm"
         aria-label="Cerrar aviso"
         className="absolute right-2 hover:bg-primary-foreground/10 hover:text-primary-foreground"
-        onClick={() => setIsVisible(false)}
+        onClick={dismissBar}
       >
         <X className="size-4" />
       </Button>

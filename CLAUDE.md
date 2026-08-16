@@ -1070,6 +1070,34 @@ lightbox cerrado NO renderiza markup del Dialog (Radix desmonta al estar
 cerrado, esperado). tsc limpio; eslint limpio; build ok. Sin cambios de
 backend.
 
+## 404 y error boundary propios + AnnouncementBar persistente COMPLETADO
+Dos mejoras de marca/UX:
+
+- **`src/app/not-found.tsx`** (404 on-brand): renderiza el chrome completo de
+  la tienda (AnnouncementBar + Header + Footer — el root not-found NO hereda
+  los layouts de route group, hay que montarlos explícitamente) y un contenido
+  centrado: icono SearchX en círculo `bg-primary/10`, "Error 404" en
+  uppercase tracking-widest, título "Página no encontrada", descripción y dos
+  botones (Volver al inicio / Ver productos). Build genera la ruta
+  `/_not-found`.
+- **`src/app/error.tsx`** (500 boundary, client component): mismo chrome de
+  tienda + icono TriangleAlert en `bg-destructive/10`, "Error inesperado",
+  "Algo salió mal" con botones "Intentar de nuevo" (`reset()`) y "Volver al
+  inicio". `console.error(error)` en un useEffect (solo logging, no rompe la
+  regla set-state-in-effect).
+- **AnnouncementBar persistente**: antes el cierre vivía en un `useState(true)`
+  → el aviso reaparecía en cada recarga. Ahora el estado de cierre se persiste
+  en `localStorage` con la clave `announcement-bar-dismissed` y se lee con
+  `useSyncExternalStore` (patrón del use-mobile): `getSnapshot` lee el
+  localStorage, `getServerSnapshot` devuelve true (SSR-safe, sin warning de
+  hidratación), y un mini-store de listeners en el módulo + `emitChange()` al
+  dismiss notifica el cambio en la MISMA pestaña (el evento `storage` de
+  window solo dispara en otras pestañas). Decisión: dismissible persistente
+  (NO no-dismissible). Evita `useState` + `useEffect` → sin setState-en-effect.
+Verificado: /no-existe → 404 con "Página no encontrada" + bar + botones; /
+mantiene la barra (200). tsc limpio; eslint limpio; build ok (`/_not-found`
+generada). Sin cambios de backend.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
