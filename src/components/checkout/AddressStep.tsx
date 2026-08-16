@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,14 +28,11 @@ export function AddressStep({
     null,
   );
 
-  useEffect(() => {
-    if (!addresses || addresses.length === 0) return;
-    const preferred =
-      addresses.find((address) => address.id === initialAddressId) ??
-      addresses.find((address) => address.isDefault) ??
-      addresses[0];
-    setSelectedAddressId((current) => current ?? preferred.id);
-  }, [addresses, initialAddressId]);
+  const preferred =
+    addresses?.find((address) => address.id === initialAddressId) ??
+    addresses?.find((address) => address.isDefault) ??
+    addresses?.[0];
+  const effectiveSelectedId = selectedAddressId ?? preferred?.id ?? null;
 
   if (isLoading) {
     return (
@@ -50,7 +47,7 @@ export function AddressStep({
     return (
       <div className="flex flex-col gap-6">
         <RadioGroup
-          value={selectedAddressId ?? ""}
+          value={effectiveSelectedId ?? ""}
           onValueChange={setSelectedAddressId}
           className="flex flex-col gap-3"
         >
@@ -69,8 +66,8 @@ export function AddressStep({
           </Button>
           <Button
             type="button"
-            disabled={!selectedAddressId}
-            onClick={() => onConfirm(selectedAddressId as string)}
+            disabled={!effectiveSelectedId}
+            onClick={() => onConfirm(effectiveSelectedId as string)}
           >
             Continuar
           </Button>

@@ -1020,6 +1020,32 @@ Verificado: / 200 SSR con el botón presente (inicialmente `opacity-0`);
 tsc limpio; eslint solo la deuda pre-existente de AddressStep.tsx:37; build ok.
 Sin cambios de backend.
 
+## Deuda técnica AddressStep.tsx:37 RESUELTA
+La única deuda de lint pre-existente del proyecto quedó eliminada. Era un
+`useEffect` en AddressStep (checkout) que pre-seleccionaba la dirección
+llamando `setSelectedAddressId` de forma SÍNCRONA dentro del cuerpo del
+efecto → la regla `react-hooks/set-state-in-effect` (React Compiler lint) la
+flaggeaba por causar un render extra en cascada (patrón anti-recomendado:
+"ajustar estado desde datos en un efecto").
+
+- Qué hacía: cuando cargaban las direcciones, preseleccionaba la preferida
+  (`initialAddressId` → `isDefault` → primera) con
+  `setSelectedAddressId(current => current ?? preferred.id)`.
+- Fix (patrón de React docs "you might not need an effect"): se ELIMINÓ el
+  useEffect por completo. La preselección ahora se DERIVA en cada render:
+  `effectiveSelectedId = selectedAddressId ?? preferred?.id ?? null` (preferred
+  = `addresses?.find(initialAddressId) ?? find(isDefault) ?? [0]`). RadioGroup
+  usa `effectiveSelectedId`, el botón Continuar valida `!effectiveSelectedId`.
+  Mismo comportamiento (si el usuario elige, su selección manda y nunca se
+  sobreescribe; si no elige, el radio muestra la preferida) SIN estado extra ni
+  renders en cascada. Quedan fuera imports de `useEffect`.
+- IMPORTANTE para sesiones futuras: TODAS las secciones históricas de este
+  archivo que mencionan "eslint solo reporta la deuda pre-existente de
+  AddressStep.tsx:37" describen el estado del momento y quedaron obsoletas.
+  Desde este punto el criterio es `eslint` LIMPIO y `tsc --noEmit` limpio.
+Verificado: tsc limpio; `npm run lint` sin errores (0 problemas); build ok. Sin
+cambios de backend.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
