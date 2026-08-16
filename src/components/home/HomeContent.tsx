@@ -26,18 +26,8 @@ export function HomeContent() {
               Verano sin límites
             </h1>
             <p className="text-lg text-primary-foreground/90 md:text-xl">
-              Moda de baño con estilo tropical, pensada para brillar en cada
-              ola.
+              Descubre nuestra nueva colección de moda de baño con estilo tropical.
             </p>
-            <div className="mt-2">
-              <Button
-                variant="secondary"
-                asChild
-                className="h-12 px-8 text-base"
-              >
-                <Link href="/productos">Ver colección</Link>
-              </Button>
-            </div>
           </div>
         </div>
 
@@ -45,17 +35,15 @@ export function HomeContent() {
       </section>
 
       {showProducts && (
-        <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
+        <section className="mx-auto w-full max-w-6xl px-4 py-7 sm:px-6">
           <div className="mb-8 text-center">
             <h2 className="font-display text-3xl font-semibold">
               Descubre lo nuevo
             </h2>
-            <Link
-              href="/productos"
-              className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
-            >
-              Ver todo →
-            </Link>
+           <h4 className="mt-2 text-lg text-muted-foreground">
+            Moda de baño con estilo tropical, pensada para brillar en cada
+            ola.
+            </h4>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-6">
             {products.items.map((product) => (
@@ -75,6 +63,12 @@ export function HomeContent() {
           </div>
         </section>
       )}
+
+      <section className="mx-auto w-full max-w-6xl px-4 py-10 text-center sm:px-6"> 
+        <Button asChild className="mt-0 h-10 px-8 text-base">
+          <Link href="/productos">Ver más</Link>
+        </Button>
+      </section>
     </main>
   );
 }

@@ -1192,6 +1192,46 @@ input visible en el HTML (con sesión admin; sin sesión el layout redirige).
 Backend: tsc limpio + 199 tests (2 nuevos: propagación de search en order y
 product service). Frontend: tsc limpio, eslint limpio, build ok.
 
+## Home: CTA reestructurado + toggle Activo/Inactivo en productos del admin COMPLETADO Y VERIFICADO
+Dos cambios pedidos por el usuario en la misma ronda. El segundo requirió un
+cambio ADITIVO en el backend (ver su CLAUDE.md).
+
+**Home (HomeContent.tsx)**:
+- Se ELIMINÓ el botón "Ver colección" del hero (quedó solo el H1 + subtítulo;
+  el hero se conserva limpio).
+- Nuevo CTA justo ARRIBA del footer (después de la sección de productos,
+  siempre renderizado, también con la carga de productos en curso): heading
+  "¿Buscas algo más?", texto "Explora todos nuestros productos disponibles." y
+  botón primary `Button asChild` → Link a /productos con label "Ver más" (el
+  nombre lo eligió el usuario). `Button`/`Link` se reutilizan, sin imports
+  nuevos.
+
+**Toggle Activo/Inactivo en /admin/productos**:
+- El usuario asumió que `PATCH /products/:id` ya aceptaba isActive; verificado
+  que NO (el schema del backend no lo tenía y `updateProduct` no lo propagaba)
+  → se agregó el soporte en el backend (ver CLAUDE.md del backend).
+- `types/product.ts`: `ProductListItem.isActive: boolean` y
+  `ProductInput.isActive?: boolean`.
+- `hooks/useAdminProducts.ts`: `useToggleProductActiveMutation` (mutationFn
+  `updateProduct(id, { isActive })`, invalida ["admin","products"] + ["products"]
+  en onSuccess).
+- `/admin/productos/page.tsx`: la lista ahora consulta SIN `isActive: true`
+  (cambio respecto a Fase 4) para que el Switch pueda reactivar productos — la
+  tabla muestra todo el catálogo, incluidos inactivos/soft-deleted. Nueva
+  columna "Estado" con `<Switch checked={product.isActive}>` (shadcn, instalado
+  vía CLI) envuelto en un div con `onClick stopPropagation` (el click en fila
+  navega al detalle), deshabilitado mientras el PATCH está en curso
+  (`togglingId` por fila), toasts de éxito/error (ApiError con mensaje real).
+  Descripción del PageHeader actualizada: "Gestiona el catálogo de la tienda.
+  Desactiva un producto para ocultarlo en la tienda."
+Verificado: / 200 SSR sin "Ver colección" y con el CTA "Ver más" + subtítulo
+(client-rendered en el listado pero el CTA es estático → presente en SSR); BFF
+en vivo (login admin): lista admin total=10 (7 activos), DTO expone isActive,
+PATCH isActive=false → 200 y listado lo refleja, PATCH isActive=true → 200 y
+restaura; /admin/productos 200 SSR con la descripción nueva (la tabla es
+client-side tras la carga, esperado). Backend: tsc limpio + 201 tests.
+Frontend: tsc limpio, eslint limpio, build ok.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

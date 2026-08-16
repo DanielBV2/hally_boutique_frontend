@@ -80,6 +80,15 @@ export function useDeleteProductMutation() {
   });
 }
 
+export function useToggleProductActiveMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+      updateProduct(id, { isActive }),
+    onSuccess: () => invalidateProductQueries(queryClient),
+  });
+}
+
 export function useAddProductImageMutation(slug: string) {
   const queryClient = useQueryClient();
   return useMutation({

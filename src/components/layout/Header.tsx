@@ -40,7 +40,7 @@ export function Header() {
 
         <nav className="hidden items-center gap-1 lg:flex">
           <Button variant="ghost" asChild>
-            <Link href="/productos">Productos</Link>
+            <Link href="/productos">Tienda</Link>
           </Button>
           <CategoriesFlyout />
         </nav>

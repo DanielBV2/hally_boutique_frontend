@@ -30,6 +30,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { Pagination } from "@/components/shared/Pagination";
 import {
   Select,
@@ -50,6 +51,7 @@ import { useCategories } from "@/hooks/useCategories";
 import {
   useAdminProducts,
   useDeleteProductMutation,
+  useToggleProductActiveMutation,
 } from "@/hooks/useAdminProducts";
 import { formatCOP } from "@/lib/format";
 import type { ProductListItem } from "@/types/product";
@@ -66,16 +68,35 @@ export default function AdminProductsPage() {
   const { data, isLoading } = useAdminProducts({
     page,
     limit: PAGE_SIZE,
-    isActive: true,
     categoryId: categoryId === "all" ? undefined : categoryId,
     search: search || undefined,
   });
   const deleteProduct = useDeleteProductMutation();
+  const toggleActive = useToggleProductActiveMutation();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<ProductListItem | null>(
     null,
   );
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  async function handleToggle(product: ProductListItem, isActive: boolean) {
+    setTogglingId(product.id);
+    try {
+      await toggleActive.mutateAsync({ id: product.id, isActive });
+      toast.success(
+        isActive ? "Producto activado" : "Producto desactivado",
+      );
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "No se pudo cambiar el estado del producto",
+      );
+    } finally {
+      setTogglingId(null);
+    }
+  }
 
   async function handleDelete() {
     if (!productToDelete) return;
@@ -101,7 +122,7 @@ export default function AdminProductsPage() {
     <div className="space-y-4">
       <PageHeader
         title="Productos"
-        description="Catálogo de productos disponibles en la tienda."
+        description="Gestiona el catálogo de la tienda. Desactiva un producto para ocultarlo en la tienda."
         actions={
           <>
             <AdminSearchInput
@@ -165,6 +186,7 @@ export default function AdminProductsPage() {
                     <TableHead>Producto</TableHead>
                     <TableHead>Categoría</TableHead>
                     <TableHead className="text-right">Precio</TableHead>
+                    <TableHead>Estado</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -202,6 +224,25 @@ export default function AdminProductsPage() {
                       </TableCell>
                       <TableCell className="text-right font-semibold">
                         {formatCOP(product.basePrice)}
+                      </TableCell>
+                      <TableCell>
+                        <div
+                          className="flex items-center"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <Switch
+                            checked={product.isActive}
+                            onCheckedChange={(checked) =>
+                              handleToggle(product, checked)
+                            }
+                            disabled={togglingId === product.id}
+                            aria-label={
+                              product.isActive
+                                ? `Desactivar ${product.name}`
+                                : `Activar ${product.name}`
+                            }
+                          />
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">

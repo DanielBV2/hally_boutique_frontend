@@ -9,6 +9,7 @@ export interface ProductListItem {
   categoryName: string;
   images?: { id: string; url: string; altText: string | null }[];
   hasStock: boolean;
+  isActive: boolean;
 }
 
 export interface PaginatedProducts {
@@ -25,6 +26,7 @@ export interface ProductInput {
   currency?: string;
   weightGrams?: number;
   categoryId: string;
+  isActive?: boolean;
 }
 
 export interface ProductImage {
