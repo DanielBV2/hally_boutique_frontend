@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PasswordForm } from "@/components/account/PasswordForm";
 import { useUpdateProfileMutation } from "@/hooks/useProfile";
 import { useSession } from "@/hooks/useSession";
 import { ApiError } from "@/lib/api/client";
@@ -157,9 +158,14 @@ export function ProfileTab() {
   if (!user) return null;
 
   return (
-    <ProfileForm
-      key={[user.firstName, user.lastName, user.email, user.phone].join("|")}
-      user={user}
-    />
+    <>
+      <ProfileForm
+        key={[user.firstName, user.lastName, user.email, user.phone].join("|")}
+        user={user}
+      />
+      <div className="mt-8 border-t border-border pt-8">
+        <PasswordForm />
+      </div>
+    </>
   );
 }

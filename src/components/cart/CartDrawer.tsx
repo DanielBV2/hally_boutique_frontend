@@ -279,6 +279,9 @@ export function CartDrawer() {
                 {formatCOP(cart?.subtotal ?? 0)}
               </span>
             </div>
+            <p className="-mt-2 text-xs text-muted-foreground">
+              El costo de envío se calcula al finalizar la compra.
+            </p>
             <Button className="w-full" onClick={goToCheckout}>
               Ir a pagar
             </Button>

@@ -61,7 +61,7 @@ export function ProductForm({
           description: initialValues.description,
           basePrice: String(initialValues.basePrice),
           currency: initialValues.currency,
-          weightGrams: undefined,
+          weightGrams: String(initialValues.weightGrams ?? ""),
           categoryId: initialValues.category.id,
         }
       : {
@@ -69,7 +69,7 @@ export function ProductForm({
           description: "",
           basePrice: "",
           currency: "COP",
-          weightGrams: undefined,
+          weightGrams: "",
           categoryId: "",
         },
   });

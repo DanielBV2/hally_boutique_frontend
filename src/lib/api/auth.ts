@@ -64,6 +64,17 @@ export async function updateProfile(input: {
   });
 }
 
+export async function changePassword(input: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<null> {
+  return apiFetch<null>("/api/auth/me/password", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
 export interface AdminUsersParams {
   page?: number;
   limit?: number;

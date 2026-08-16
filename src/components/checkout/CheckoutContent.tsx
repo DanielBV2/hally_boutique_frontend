@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Check } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -9,6 +10,7 @@ import { AddressStep } from "@/components/checkout/AddressStep";
 import { OrderSummary } from "@/components/checkout/OrderSummary";
 import { PaymentStep } from "@/components/checkout/PaymentStep";
 import { ShippingStep } from "@/components/checkout/ShippingStep";
+import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/useSession";
 import { ApiError } from "@/lib/api/client";
 import { createOrder, updateOrderAddress } from "@/lib/api/orders";
@@ -93,9 +95,17 @@ export function CheckoutContent() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-semibold text-foreground">
-        Finalizar compra
-      </h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold text-foreground">
+          Finalizar compra
+        </h1>
+        <Button variant="outline" asChild>
+          <Link href="/productos">
+            <ArrowLeft className="size-4" />
+            Continuar comprando
+          </Link>
+        </Button>
+      </div>
 
       <div className="mb-8 flex items-center">
         {STEPS.map((s, index) => {

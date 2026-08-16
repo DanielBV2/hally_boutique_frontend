@@ -1098,6 +1098,57 @@ Verificado: /no-existe → 404 con "Página no encontrada" + bar + botones; /
 mantiene la barra (200). tsc limpio; eslint limpio; build ok (`/_not-found`
 generada). Sin cambios de backend.
 
+## Lote UX: drawer al añadir (ya existía), "Continuar comprando", nota de
+## envío en drawer, cambiar contraseña desde /cuenta, peso visible al editar
+Cinco mejoras en un lote. La primera ya estaba resuelta; las otras cuatro se
+implementaron (cambio de contraseña + weightGrams implicaron backend).
+
+- **Añadir al carrito abre el drawer**: ya existía desde el bloque de compra
+  rápida — `useAddToCartMutation.onSuccess` llama
+  `useCartDrawerStore.getState().open()` además del toast (useCart.ts). Sin
+  cambios.
+- **"Continuar comprando" en checkout**: CheckoutContent ahora tiene un header
+  `flex` con el H1 a la izquierda y un botón outline `asChild` con Link a
+  /productos (ícono ArrowLeft). Sin cambios de backend.
+- **Nota de envío en el CartDrawer**: bajo la fila Subtotal del SheetFooter,
+  texto `text-xs text-muted-foreground` "El costo de envío se calcula al
+  finalizar la compra." (el drawer solo muestra subtotal; el envío se cotiza
+  en el paso 2 del checkout).
+- **Cambiar contraseña desde /cuenta** (NUEVO PATCH en backend + BFF):
+  - Backend: `PATCH /api/auth/me/password` con authMiddleware +
+    validateSchemaMiddleware(changePasswordSchema): body { currentPassword,
+    newPassword } con refine "nueva ≠ actual". El service verifica la actual
+    con bcrypt.compare (401 "La contraseña actual es incorrecta"), hashea la
+    nueva con SALT_ROUNDS, la persiste vía repository.updatePassword y REVOCA
+    todas las sesiones (revokeAllForUser, igual que resetPassword). Decisión:
+    el usuario que cambia la contraseña debe iniciar sesión de nuevo — flujo
+    seguro y consistente con reset-password. 4 unit tests nuevos en
+    auth.service.test.ts (total 197).
+  - Frontend: BFF `src/app/api/auth/me/password/route.ts` (PATCH proxy con
+    propagación de status/error); `lib/api/auth.ts` `changePassword()`;
+    `lib/validations/auth.ts` `changePasswordSchema` (current obligatoria,
+    nueva min 8 + mayúscula + número + refinеs confirm y ≠ actual);
+    `hooks/useChangePassword.ts` (onSuccess: logout + invalida session/cart +
+    toast "Contraseña actualizada. Inicia sesión de nuevo." + push /login —
+    el logout post-cambio puede fallar porque el backend ya revocó todo, va
+    en try/catch); `components/account/PasswordForm.tsx` (Card "Cambiar
+    contraseña" con PasswordInputs y autoComplete current/new-password,
+    montada en ProfileTab debajo del formulario de perfil).
+- **Peso visible al editar producto** (backend + frontend): el backend
+  guardaba `Product.weightGrams` (Int, default 300) pero NO lo exponía en el
+  detalle público → ProductForm edit dejaba el campo vacío. Ahora
+  `ProductDetailDTO` incluye `weightGrams: number` y `toDetailDTO` lo
+  devuelve; frontend `ProductDetail.weightGrams` tipado y
+  `ProductForm.defaultValues` usa `String(initialValues.weightGrams ?? "")`
+  (el submit sigue normalizando: vacío = no enviar, no pisar el valor).
+  openapi.ts documenta el campo en ProductDetail.
+Verificado end-to-end: PATCH contraseña directo al backend (401 con current
+incorrecta; 200 correcta; login con la vieja → 401; login con la nueva → 200;
+restaurada a Test1234!), y vía BFF 3001 (login → me → change → restore);
+weightGrams=300 real en GET /products/mod-sahara; /checkout y /cuenta 200;
+ruta BFF /api/auth/me/password presente en el build. Backend: tsc limpio +
+197 tests; frontend: tsc limpio, eslint limpio, build ok.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
