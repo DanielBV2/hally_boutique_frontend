@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCategories } from "@/hooks/useCategories";
+import { scrollToResults } from "@/lib/scroll";
 import { cn } from "@/lib/utils";
 
 export const SORT_OPTIONS = [
@@ -44,6 +45,7 @@ export function ProductFilters({ total }: { total: number }) {
     params.delete("page");
     const query = params.toString();
     router.push(`/productos${query ? `?${query}` : ""}`);
+    scrollToResults();
   }
 
   const chipClass = (active: boolean) =>

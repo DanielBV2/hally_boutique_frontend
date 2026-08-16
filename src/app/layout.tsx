@@ -3,6 +3,7 @@ import { Cinzel, Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
+import { BackToTop } from "@/components/shared/BackToTop";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/constants/site";
 
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Providers>
           {children}
           <CartDrawer />
+          <BackToTop />
           <Toaster />
         </Providers>
       </body>

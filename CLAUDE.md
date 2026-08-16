@@ -977,6 +977,49 @@ devoluciones" — la home termina directo en el footer nuevo (decisión del
 usuario). Imports lucide correspondientes (ShieldCheck, Truck, RefreshCw)
 eliminados.
 
+## Vaciar carrito en el CartDrawer COMPLETADO
+El drawer solo permitía borrar item por item. Se conectó el "Vaciar carrito"
+con confirmación vía AlertDialog (useClearCartMutation ya existía y el BFF
+`DELETE /api/cart` ya estaba en su lugar — solo faltaba el botón).
+
+- **CartDrawer.tsx**: en el SheetHeader, a la derecha de "Tu carrito", botón
+  ghost "Vaciar carrito" (ícono Trash2, hover text-destructive) visible solo
+  con items. Abre AlertDialog de shadcn (componente ya instalado en el kit,
+  patrón del delete de AddressesTab): título "¿Vaciar el carrito?", descripción
+  que aclara que se elimina todo y no se puede deshacer; Cancelar / "Vaciar
+  carrito" (action con bg-destructive). El botón se deshabilita mientras
+  `clearCart.isPending`.
+- **useCart.ts**: `useClearCartMutation.onSuccess` ganó `toast.success("Carrito
+  vaciado")` (consistente con el toast de remove por item, que ya existía).
+Verificado: flujo real vía BFF (login customer.fase0@test.co → cart 0 items →
+POST /api/cart/items 2 unidades → cart 1 item → DELETE /api/cart 200 → cart 0
+items). tsc limpio; eslint solo la deuda pre-existente de AddressStep.tsx:37;
+build ok. Sin cambios de backend.
+
+## "Volver arriba" + scroll-to-top al paginar/filtrar en /productos COMPLETADO
+Al paginar o cambiar filtros en /productos el scroll se quedaba donde estaba.
+Se agregó scroll-to-top con manejo de foco + botón global "Volver arriba".
+
+- **lib/scroll.ts** (nuevo): `scrollToResults()` → busca el anchor `#resultados`,
+  `scrollIntoView({ behavior: "smooth", block: "start" })` + `focus({ preventScroll:
+  true })`. Offset del header sticky vía `scroll-mt-24` en el wrapper.
+- **ProductsGrid**: el contenedor principal (y el del estado vacío) ahora es
+  `<div id="resultados" tabIndex={-1} className="... scroll-mt-24 ... outline-none">`.
+  `goToPage()` y el botón "Ver todos" del vacío llaman `scrollToResults()` tras
+  el `router.push`.
+- **ProductFilters**: `updateParams()` (chips de categoría, sort, limpiar
+  búsqueda) llama `scrollToResults()` tras el push. Cualquier cambio de
+  filtro/página devuelve el foco al inicio de los resultados.
+- **components/shared/BackToTop.tsx** (nuevo): botón flotante fijo
+  `fixed bottom-6 right-6 z-40` (ícono ArrowUp, aria-label "Volver arriba") que
+  aparece tras scrollear 400px (listener scroll passive, `window.scrollTo`
+  smooth) y se oculta con opacity/pointer-events. Montado en el root layout
+  (src/app/layout.tsx) → disponible en todo el sitio, incl. /admin.
+Verificado: / 200 SSR con el botón presente (inicialmente `opacity-0`);
+#resultados solo existe tras hidratación (ProductsGrid es client, esperado).
+tsc limpio; eslint solo la deuda pre-existente de AddressStep.tsx:37; build ok.
+Sin cambios de backend.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

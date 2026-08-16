@@ -7,6 +7,17 @@ import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Sheet,
   SheetContent,
   SheetFooter,
@@ -16,6 +27,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useCart,
+  useClearCartMutation,
   useRemoveCartItemMutation,
   useUpdateCartItemMutation,
 } from "@/hooks/useCart";
@@ -29,6 +41,7 @@ export function CartDrawer() {
   const { data: cart, isLoading } = useCart();
   const updateCartItem = useUpdateCartItemMutation();
   const removeCartItem = useRemoveCartItemMutation();
+  const clearCart = useClearCartMutation();
   const router = useRouter();
 
   const items = cart?.items ?? [];
@@ -78,7 +91,42 @@ export function CartDrawer() {
     <Sheet open={isOpen} onOpenChange={(open) => !open && close()}>
       <SheetContent side="right" className="flex flex-col gap-0 p-0">
         <SheetHeader className="border-b border-border px-4 py-4">
-          <SheetTitle>Tu carrito</SheetTitle>
+          <div className="flex w-full items-center gap-2">
+            <SheetTitle>Tu carrito</SheetTitle>
+            {items.length > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-30 h-8 gap-1.5 px-2 text-xs text-muted-foreground hover:text-destructive"
+                    disabled={clearCart.isPending}
+                  >
+                    <Trash2 className="size-3.5" />
+                    Vaciar carrito
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Vaciar el carrito?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Se eliminarán todos los productos de tu carrito. Esta
+                      acción no se puede deshacer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => clearCart.mutate()}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Vaciar carrito
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto p-4">

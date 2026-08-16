@@ -76,6 +76,7 @@ export function useClearCartMutation() {
     mutationFn: () => clearCart(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast.success("Carrito vaciado");
     },
     onError: (error: Error) => {
       toast.error(error.message);

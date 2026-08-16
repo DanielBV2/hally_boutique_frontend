@@ -14,6 +14,7 @@ import { StoreBreadcrumbs } from "@/components/shared/StoreBreadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCategories } from "@/hooks/useCategories";
+import { scrollToResults } from "@/lib/scroll";
 
 const PAGE_SIZE = 12;
 
@@ -60,6 +61,7 @@ export function ProductsGrid() {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(nextPage));
     router.push(`/productos?${params.toString()}`);
+    scrollToResults();
   }
 
   if (isLoading) {
@@ -95,7 +97,11 @@ export function ProductsGrid() {
 
   if (data.items.length === 0) {
     return (
-      <div className="flex flex-col gap-6 p-6">
+      <div
+        id="resultados"
+        tabIndex={-1}
+        className="flex scroll-mt-24 flex-col gap-6 p-6 outline-none"
+      >
         <StoreBreadcrumbs items={crumbs} />
         <ProductFilters total={data.total} />
         <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-muted/30 p-10 text-center">
@@ -105,7 +111,13 @@ export function ProductsGrid() {
               : "No hay productos disponibles todavía."}
           </p>
           {hasFilters && (
-            <Button type="button" onClick={() => router.push("/productos")}>
+            <Button
+              type="button"
+              onClick={() => {
+                router.push("/productos");
+                scrollToResults();
+              }}
+            >
               Ver todos los productos
             </Button>
           )}
@@ -115,7 +127,11 @@ export function ProductsGrid() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div
+      id="resultados"
+      tabIndex={-1}
+      className="flex scroll-mt-24 flex-col gap-6 p-6 outline-none"
+    >
       <StoreBreadcrumbs items={crumbs} />
       <ProductFilters total={data.total} />
       <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
