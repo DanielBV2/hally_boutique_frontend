@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import { OrderStatusBadge } from "@/components/account/OrderStatusBadge";
-import { PageHeader } from "@/components/admin/PageHeader";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

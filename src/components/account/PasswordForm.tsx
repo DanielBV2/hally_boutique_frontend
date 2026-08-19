@@ -1,13 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -62,15 +63,16 @@ export function PasswordForm() {
         className="flex flex-col gap-4"
       >
         <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ShieldCheck className="size-4 text-muted-foreground" />
+              Seguridad
+            </CardTitle>
+          </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">
-                Cambiar contraseña
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Al actualizarla deberás iniciar sesión de nuevo.
-              </p>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              Al actualizar tu contraseña deberás iniciar sesión de nuevo.
+            </p>
 
             <FormField
               control={form.control}
@@ -80,7 +82,7 @@ export function PasswordForm() {
                   <FormLabel>Contraseña actual</FormLabel>
                   <FormControl>
                     <PasswordInput
-                      placeholder="Contraseña actual"
+                      placeholder="Tu contraseña actual"
                       autoComplete="current-password"
                       {...field}
                     />
@@ -99,7 +101,7 @@ export function PasswordForm() {
                     <FormLabel>Nueva contraseña</FormLabel>
                     <FormControl>
                       <PasswordInput
-                        placeholder="Nueva contraseña"
+                        placeholder="Mínimo 8 caracteres"
                         autoComplete="new-password"
                         {...field}
                       />
@@ -132,6 +134,7 @@ export function PasswordForm() {
 
         <div className="flex justify-end">
           <Button type="submit" disabled={isSubmitting}>
+            <ShieldCheck className="size-4" />
             {isSubmitting ? "Actualizando…" : "Actualizar contraseña"}
           </Button>
         </div>

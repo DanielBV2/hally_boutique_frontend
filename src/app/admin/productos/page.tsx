@@ -8,9 +8,9 @@ import { toast } from "sonner";
 
 import { ProductForm } from "@/components/admin/ProductForm";
 import { AdminSearchInput } from "@/components/admin/AdminSearchInput";
-import { EmptyState } from "@/components/admin/EmptyState";
-import { PageHeader } from "@/components/admin/PageHeader";
-import { ResultsSummary } from "@/components/admin/ResultsSummary";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { ResultsSummary } from "@/components/shared/ResultsSummary";
 import {
   AlertDialog,
   AlertDialogAction,

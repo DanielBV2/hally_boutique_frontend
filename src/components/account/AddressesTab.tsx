@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -16,7 +16,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AddressForm } from "@/components/checkout/AddressForm";
+import { EmptyState } from "@/components/shared/EmptyState";
 import {
   useAddresses,
   useDeleteAddressMutation,
@@ -58,73 +64,119 @@ export function AddressesTab() {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-3">
-        <Skeleton className="h-28 w-full rounded-xl" />
-        <Skeleton className="h-28 w-full rounded-xl" />
+        <Skeleton className="h-32 w-full rounded-xl" />
+        <Skeleton className="h-32 w-full rounded-xl" />
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
-      {addresses && addresses.length > 0 ? (
-        addresses.map((address) => (
-          <Card key={address.id}>
-            <CardContent className="flex flex-col gap-1">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-medium text-foreground">
-                  {address.fullName}
-                </span>
-                {address.isDefault && <Badge variant="secondary">Predeterminada</Badge>}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {formatAddressLine(address)}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {address.phone}
-              </div>
-              <div className="mt-2 flex gap-2">
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <MapPin className="size-4 text-muted-foreground" />
+              Mis direcciones
+            </CardTitle>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setDialogAddress(null);
+                setDialogOpen(true);
+              }}
+            >
+              <Plus className="size-4" />
+              Agregar
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {addresses && addresses.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {addresses.map((address) => (
+                <div
+                  key={address.id}
+                  className="flex items-start justify-between gap-3 rounded-lg border border-border p-4 transition-colors hover:bg-muted/40"
+                >
+                  <div className="flex min-w-0 gap-3">
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted">
+                      <MapPin className="size-4 text-muted-foreground" />
+                    </div>
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-foreground">
+                          {address.fullName}
+                        </span>
+                        {address.isDefault && (
+                          <Badge variant="secondary" className="text-xs">
+                            Predeterminada
+                          </Badge>
+                        )}
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        {formatAddressLine(address)}
+                      </span>
+                      {address.phone && (
+                        <span className="text-sm text-muted-foreground">
+                          {address.phone}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 text-muted-foreground hover:text-foreground"
+                      onClick={() => {
+                        setDialogAddress(address);
+                        setDialogOpen(true);
+                      }}
+                    >
+                      <Pencil className="size-3.5" />
+                      <span className="sr-only">Editar</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => setAddressToDelete(address)}
+                    >
+                      <Trash2 className="size-3.5" />
+                      <span className="sr-only">Eliminar</span>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={MapPin}
+              title="Sin direcciones"
+              description="Agrega tu primera dirección de envío para facilitar tus compras."
+              action={
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setDialogAddress(address);
+                    setDialogAddress(null);
                     setDialogOpen(true);
                   }}
                 >
-                  <Pencil />
-                  Editar
+                  <Plus className="size-4" />
+                  Agregar dirección
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setAddressToDelete(address)}
-                >
-                  <Trash2 />
-                  Eliminar
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))
-      ) : (
-        <div className="rounded-xl border border-border bg-muted/30 p-8 text-center text-sm text-muted-foreground">
-          Aún no tienes direcciones guardadas.
-        </div>
-      )}
-
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => {
-          setDialogAddress(null);
-          setDialogOpen(true);
-        }}
-      >
-        <Plus />
-        Agregar dirección
-      </Button>
+              }
+            />
+          )}
+        </CardContent>
+      </Card>
 
       <Dialog
         open={dialogOpen}

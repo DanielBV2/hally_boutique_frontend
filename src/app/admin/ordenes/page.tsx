@@ -6,9 +6,9 @@ import { ShoppingCart } from "lucide-react";
 
 import { OrderStatusBadge } from "@/components/account/OrderStatusBadge";
 import { AdminSearchInput } from "@/components/admin/AdminSearchInput";
-import { EmptyState } from "@/components/admin/EmptyState";
-import { PageHeader } from "@/components/admin/PageHeader";
-import { ResultsSummary } from "@/components/admin/ResultsSummary";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { ResultsSummary } from "@/components/shared/ResultsSummary";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination } from "@/components/shared/Pagination";

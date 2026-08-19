@@ -22,10 +22,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EmptyState } from "@/components/admin/EmptyState";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { AdminSearchInput } from "@/components/admin/AdminSearchInput";
-import { PageHeader } from "@/components/admin/PageHeader";
-import { ResultsSummary } from "@/components/admin/ResultsSummary";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { ResultsSummary } from "@/components/shared/ResultsSummary";
 import { useAdminUsers } from "@/hooks/useAdminUsers";
 import { formatShortDate } from "@/lib/format";
 

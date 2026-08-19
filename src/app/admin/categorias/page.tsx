@@ -5,9 +5,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { CategoryForm } from "@/components/admin/CategoryForm";
-import { EmptyState } from "@/components/admin/EmptyState";
-import { PageHeader } from "@/components/admin/PageHeader";
-import { ResultsSummary } from "@/components/admin/ResultsSummary";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { ResultsSummary } from "@/components/shared/ResultsSummary";
 import {
   AlertDialog,
   AlertDialogAction,

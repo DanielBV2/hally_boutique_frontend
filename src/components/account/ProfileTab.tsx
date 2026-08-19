@@ -1,12 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Mail, Phone, Save, User } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -17,7 +18,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PasswordForm } from "@/components/account/PasswordForm";
 import { useUpdateProfileMutation } from "@/hooks/useProfile";
 import { useSession } from "@/hooks/useSession";
 import { ApiError } from "@/lib/api/client";
@@ -25,9 +25,9 @@ import {
   updateProfileSchema,
   type UpdateProfileFormValues,
 } from "@/lib/validations/auth";
-import type { User } from "@/types/user";
+import type { User as UserType } from "@/types/user";
 
-function ProfileForm({ user }: { user: User }) {
+function ProfileForm({ user }: { user: UserType }) {
   const updateProfile = useUpdateProfileMutation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -67,9 +67,15 @@ function ProfileForm({ user }: { user: User }) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-6"
       >
         <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <User className="size-4 text-muted-foreground" />
+              Información personal
+            </CardTitle>
+          </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
@@ -102,6 +108,12 @@ function ProfileForm({ user }: { user: User }) {
         </Card>
 
         <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Mail className="size-4 text-muted-foreground" />
+              Contacto
+            </CardTitle>
+          </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <FormField
               control={form.control}
@@ -122,9 +134,15 @@ function ProfileForm({ user }: { user: User }) {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Teléfono</FormLabel>
+                  <FormLabel className="flex items-center gap-1.5">
+                    Teléfono
+                    <span className="text-xs text-muted-foreground">(opcional)</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="3001234567" {...field} />
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input placeholder="3001234567" className="pl-9" {...field} />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -135,6 +153,7 @@ function ProfileForm({ user }: { user: User }) {
 
         <div className="flex justify-end">
           <Button type="submit" disabled={isSubmitting}>
+            <Save className="size-4" />
             {isSubmitting ? "Guardando…" : "Guardar cambios"}
           </Button>
         </div>
@@ -149,8 +168,8 @@ export function ProfileTab() {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-4">
-        <Skeleton className="h-20 w-full rounded-xl" />
-        <Skeleton className="h-20 w-full rounded-xl" />
+        <Skeleton className="h-40 w-full rounded-xl" />
+        <Skeleton className="h-40 w-full rounded-xl" />
       </div>
     );
   }
@@ -158,14 +177,9 @@ export function ProfileTab() {
   if (!user) return null;
 
   return (
-    <>
-      <ProfileForm
-        key={[user.firstName, user.lastName, user.email, user.phone].join("|")}
-        user={user}
-      />
-      <div className="mt-8 border-t border-border pt-8">
-        <PasswordForm />
-      </div>
-    </>
+    <ProfileForm
+      key={[user.firstName, user.lastName, user.email, user.phone].join("|")}
+      user={user}
+    />
   );
 }
