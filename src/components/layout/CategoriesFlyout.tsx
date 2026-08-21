@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,11 +14,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCategories } from "@/hooks/useCategories";
 
 export function CategoriesFlyout() {
+  const pathname = usePathname();
   const { data: categories, isLoading } = useCategories();
+
+  const isActive = pathname.startsWith("/categorias");
+  const activeProps = {
+    className: isActive ? "text-primary hover:text-primary" : undefined,
+    "aria-current": isActive ? ("page" as const) : undefined,
+  };
 
   if (!isLoading && (!categories || categories.length === 0)) {
     return (
-      <Button variant="ghost" asChild>
+      <Button variant="ghost" asChild {...activeProps}>
         <Link href="/categorias">Categorías</Link>
       </Button>
     );
@@ -26,7 +34,9 @@ export function CategoriesFlyout() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost">Categorías</Button>
+        <Button variant="ghost" {...activeProps}>
+          Categorías
+        </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-64 p-2">
         {isLoading ? (

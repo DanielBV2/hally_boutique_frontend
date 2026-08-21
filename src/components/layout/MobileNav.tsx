@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LayoutDashboard, LogOut, Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -16,14 +17,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCategories } from "@/hooks/useCategories";
 import { useLogoutMutation } from "@/hooks/useLogout";
 import { useSession } from "@/hooks/useSession";
+import { cn } from "@/lib/utils";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
   const { user, isAuthenticated } = useSession();
   const { data: categories, isLoading } = useCategories();
   const logoutMutation = useLogoutMutation();
 
   const close = () => setOpen(false);
+  const isProductosActive = pathname.startsWith("/productos");
 
   return (
     <>
@@ -52,7 +56,13 @@ export function MobileNav() {
               <Link
                 href="/productos"
                 onClick={close}
-                className="rounded-md px-2 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                aria-current={isProductosActive ? "page" : undefined}
+                className={cn(
+                  "rounded-md px-2 py-2 text-sm font-medium transition-colors hover:bg-muted",
+                  isProductosActive
+                    ? "text-primary"
+                    : "text-foreground hover:text-foreground"
+                )}
               >
                 Productos
               </Link>

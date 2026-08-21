@@ -32,7 +32,7 @@ const SECTION_LABELS: Record<string, string> = {
 };
 
 function getCrumbs(pathname: string): { label: string; href?: string }[] {
-  if (pathname === "/admin") return [{ label: "Dashboard" }];
+  if (pathname === "/admin") return [{ label: "" }];
   const segments = pathname.split("/").filter(Boolean);
   const crumbs: { label: string; href?: string }[] = [
     { label: "Dashboard", href: "/admin" },
@@ -66,9 +66,8 @@ export function AdminShell({
       <SidebarProvider>
         <AppSidebar user={user} />
         <SidebarInset>
-          <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
+          <header className="flex h-10 shrink-0 items-center gap-2 border-b bg-background px-4">
             <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb>
               <BreadcrumbList>
                 {crumbs.map((crumb, index) => {

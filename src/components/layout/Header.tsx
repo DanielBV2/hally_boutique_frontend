@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LayoutDashboard, LogOut, ShoppingCart, User } from "lucide-react";
 
 import { MobileNav } from "@/components/layout/MobileNav";
 import { CategoriesFlyout } from "@/components/layout/CategoriesFlyout";
 import { SearchBar } from "@/components/layout/SearchBar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -21,10 +23,17 @@ import { useSession } from "@/hooks/useSession";
 import { useCartDrawerStore } from "@/stores/useCartDrawerStore";
 
 export function Header() {
+  const pathname = usePathname();
   const { user, isAuthenticated } = useSession();
   const { data: cart } = useCart();
   const toggleCart = useCartDrawerStore((state) => state.toggle);
   const logoutMutation = useLogoutMutation();
+
+  const isTiendaActive = pathname.startsWith("/productos");
+  const initials =
+    isAuthenticated && user
+      ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+      : "";
 
   const totalItems = cart?.totalItems ?? 0;
   const showBadge = isAuthenticated && totalItems > 0;
@@ -39,8 +48,14 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
-          <Button variant="ghost" asChild>
-            <Link href="/productos">Tienda</Link>
+          <Button
+            variant="ghost"
+            asChild
+            className={isTiendaActive ? "text-primary hover:text-primary" : undefined}
+          >
+            <Link href="/productos" aria-current={isTiendaActive ? "page" : undefined}>
+              Tienda
+            </Link>
           </Button>
           <CategoriesFlyout />
         </nav>
@@ -52,7 +67,15 @@ export function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="Mi cuenta">
-                  <User />
+                  {initials ? (
+                    <Avatar className="size-8">
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <User />
+                  )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">

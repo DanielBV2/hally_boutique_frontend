@@ -123,10 +123,6 @@ export function AppSidebar({ user }: { user: User }) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Volver a la tienda">
-              <Link href="/">
-                <ExternalLink />
-                <span>Volver a la tienda</span>
-              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
@@ -162,9 +158,6 @@ export function AppSidebar({ user }: { user: User }) {
                   {user.email}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/">Volver a la tienda</Link>
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => logout.mutate()}>
                   Cerrar sesión
                 </DropdownMenuItem>
