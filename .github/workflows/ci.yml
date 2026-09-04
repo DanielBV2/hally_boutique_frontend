@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancelar runs previos en la misma rama (evita uso innecesario de minutos)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # El build va ANTES de typecheck: `next build` genera los tipos de
+      # rutas tipadas (LayoutProps/PageProps) en .next/types/, necesarios
+      # para que `tsc --noEmit` resuelva esos globales. En un runner limpio
+      # no existe .next previo, así que sin build primero typecheck
+      # fallaría con "Cannot find name 'LayoutProps'". Además next build ya
+      # ejecuta su propio chequeo de tipos.
+      - name: Build
+        run: npm run build
+        # El build no necesita env vars reales: NEXT_PUBLIC_* tiene
+        # fallback por defecto en el código.
+        env:
+          NEXT_PUBLIC_SITE_URL: http://localhost:3001
+          NEXT_PUBLIC_API_URL: http://localhost:3000/api
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
