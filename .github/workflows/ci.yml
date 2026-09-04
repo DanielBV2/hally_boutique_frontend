@@ -29,12 +29,12 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-      - name: Type-check
-        run: npm run typecheck
-
-      - name: Lint
-        run: npm run lint
-
+      # El build va ANTES de typecheck: `next build` genera los tipos de
+      # rutas tipadas (LayoutProps/PageProps) en .next/types/, necesarios
+      # para que `tsc --noEmit` resuelva esos globales. En un runner limpio
+      # no existe .next previo, así que sin build primero typecheck
+      # fallaría con "Cannot find name 'LayoutProps'". Además next build ya
+      # ejecuta su propio chequeo de tipos.
       - name: Build
         run: npm run build
         # El build no necesita env vars reales: NEXT_PUBLIC_* tiene
@@ -42,3 +42,9 @@ jobs:
         env:
           NEXT_PUBLIC_SITE_URL: http://localhost:3001
           NEXT_PUBLIC_API_URL: http://localhost:3000/api
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
