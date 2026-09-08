@@ -1292,6 +1292,23 @@ Fuera de alcance por ahora (incremento futuro): subida de source maps
 y tracing de performance, que requieren SENTRY_AUTH_TOKEN como secreto
 de CI — org/project de Sentry aún no están wireados en next.config.ts.
 
+## SEO técnico: robots.ts + sitemap.ts COMPLETADO Y VERIFICADO
+src/app/robots.ts y src/app/sitemap.ts con las convenciones nativas de
+Next.js App Router (MetadataRoute). robots.ts: allow "/" por defecto,
+disallow /api/, /admin/, /cuenta/, /checkout/ (crawl budget — el
+noindex real de esas rutas ya vive en su metadata individual vía
+pageSeo). sitemap.ts: rutas estáticas indexables (/, /productos,
+/categorias, /terminos, /privacidad) + todos los productos activos
+obtenidos paginando fetchExpress contra /products directo al backend
+(sin pasar por el proxy /api/products). Si el fetch de una página de
+productos falla, se reporta a Sentry y el sitemap devuelve lo que ya
+tenía en vez de romperse completo.
+Pendiente/futuro: las páginas de categoría filtradas por query string
+(/productos?categoryId=X) son indexables (tienen canonical propio) pero
+no están en el sitemap todavía — se dejó fuera de alcance por ahora,
+Google las puede seguir descubriendo vía enlaces internos desde
+/categorias.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
