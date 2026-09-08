@@ -1264,6 +1264,34 @@ card y los botones se renderizan tras la data client-side, mismo patrón que
 /admin/productos). Backend: tsc limpio + 202 tests. Frontend: tsc limpio,
 eslint limpio, build ok.
 
+## CI (GitHub Actions) COMPLETADO Y VERIFICADO
+.github/workflows/ci.yml corre en push/PR a main: npm ci → typecheck
+(tsc --noEmit, script nuevo en package.json) → lint → build. Un solo
+job, sin servicios (este repo no depende de DB ni env vars reales para
+buildear — NEXT_PUBLIC_SITE_URL y NEXT_PUBLIC_API_URL ya tienen fallback
+en código). Sin paso de format (no hay Prettier en este repo) ni de test
+(no hay suite todavía — se añadirá como job aparte cuando exista Vitest/
+Playwright, ver "Testing automatizado" en el roadmap). Mismo patrón de
+Node 24 / actions/checkout@v4 que el CI del backend. Rama con branch
+protection en main: cambio hecho en rama ci/github-actions-pipeline vía
+PR, no commit directo.
+
+## Sentry — captura de errores COMPLETADO Y VERIFICADO
+@sentry/nextjs instalado, Sentry.init() en los tres runtimes (cliente/
+servidor/edge) leyendo NEXT_PUBLIC_SENTRY_DSN de env — deshabilitado
+sin romper nada si el DSN no está definido (así CI corre con DSN vacío).
+error.tsx ahora también hace Sentry.captureException(error) además del
+console.error existente. Nuevo global-error.tsx para errores del root
+layout (no existía, App Router lo requiere aparte de error.tsx normal).
+Bug real corregido de paso: authenticatedFetch() en serverAuth.ts no
+tenía try/catch alrededor de los fetch() al backend Express — un backend
+caído tumbaba el Route Handler con excepción no capturada. Ahora ambos
+fetch están en try/catch, capturan a Sentry con el path como contexto,
+y devuelven { ok:false, status:503 } en vez de propagar la excepción.
+Fuera de alcance por ahora (incremento futuro): subida de source maps
+y tracing de performance, que requieren SENTRY_AUTH_TOKEN como secreto
+de CI — org/project de Sentry aún no están wireados en next.config.ts.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
