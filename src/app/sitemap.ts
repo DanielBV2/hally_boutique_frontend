@@ -19,17 +19,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let pagesFetched = 0;
 
   while (pagesFetched < MAX_PAGES) {
-    let data: PaginatedProducts | null;
-    try {
-      data = await fetchExpress<PaginatedProducts>(
-        `/products?page=${page}&limit=${PAGE_LIMIT}`,
+    const data = await fetchExpress<PaginatedProducts>(
+      `/products?page=${page}&limit=${PAGE_LIMIT}`,
+    );
+
+    if (!data) {
+      Sentry.captureMessage(
+        "sitemap: fallo al obtener productos para el catálogo",
+        { extra: { page, limit: PAGE_LIMIT } },
       );
-    } catch (error) {
-      Sentry.captureException(error);
       break;
     }
 
-    if (!data || !Array.isArray(data.items) || data.items.length === 0) {
+    if (!Array.isArray(data.items) || data.items.length === 0) {
       break;
     }
 

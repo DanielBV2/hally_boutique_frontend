@@ -1308,6 +1308,11 @@ Pendiente/futuro: las páginas de categoría filtradas por query string
 no están en el sitemap todavía — se dejó fuera de alcance por ahora,
 Google las puede seguir descubriendo vía enlaces internos desde
 /categorias.
+Fix aplicado: el try/catch original alrededor de fetchExpress() en
+sitemap.ts era código muerto (fetchExpress ya atrapa sus propios
+errores y devuelve null, nunca relanza). Ahora se reporta a Sentry con
+captureMessage cuando data es null (fallo real de fetch), no cuando
+items viene vacío (catálogo agotado normalmente).
 
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
