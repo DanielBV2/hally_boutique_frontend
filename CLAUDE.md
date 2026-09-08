@@ -1314,6 +1314,20 @@ errores y devuelve null, nunca relanza). Ahora se reporta a Sentry con
 captureMessage cuando data es null (fallo real de fetch), no cuando
 items viene vacío (catálogo agotado normalmente).
 
+## Testing: Vitest configurado (paso 1 de varios) COMPLETADO Y VERIFICADO
+Vitest + React Testing Library instalados, vitest.config.ts con
+environment jsdom (preparado para pruebas de componentes en pasos
+futuros), alias @/* resuelto, setup con jest-dom matchers. Primeras
+pruebas reales en src/lib/format.test.ts cubriendo formatCOP,
+formatDate/formatShortDate y formatAddressLine (incluye el caso de
+campos opcionales ausentes). npm run test corre en CI como step
+independiente antes del build. Se verificó que las pruebas realmente
+fallan si se rompe la función correspondiente (no son falsos positivos).
+Siguientes pasos del roadmap de testing (aún no empezados): pruebas de
+hooks (useCart, useLogin) y componentes clave, luego Playwright para
+2-3 flujos E2E críticos (login, carrito → checkout completo, admin
+CRUD de productos).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

@@ -29,6 +29,11 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      # Las pruebas unitarias no dependen del build: corren rápido y fallan
+      # temprano si algo se rompe.
+      - name: Tests
+        run: npm run test
+
       # El build va ANTES de typecheck: `next build` genera los tipos de
       # rutas tipadas (LayoutProps/PageProps) en .next/types/, necesarios
       # para que `tsc --noEmit` resuelva esos globales. En un runner limpio
