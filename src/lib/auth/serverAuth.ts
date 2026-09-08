@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { cookies } from "next/headers";
 import type { User } from "@/types/user";
 import {
@@ -35,11 +36,20 @@ async function tryRefresh(): Promise<string | null> {
   const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
   if (!refreshToken) return null;
 
-  const response = await fetch(`${EXPRESS_API_URL}/auth/refresh`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refreshToken }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${EXPRESS_API_URL}/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
+    });
+  } catch (error) {
+    Sentry.captureException(error, {
+      tags: { fetch: "tryRefresh" },
+      extra: { url: `${EXPRESS_API_URL}/auth/refresh` },
+    });
+    return null;
+  }
 
   if (!response.ok) {
     await clearAuthCookies();
@@ -73,28 +83,45 @@ export async function authenticatedFetch(
     }
   }
 
-  let response = await fetch(`${EXPRESS_API_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-      ...options.headers,
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${EXPRESS_API_URL}${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        ...options.headers,
+      },
+    });
+  } catch (error) {
+    Sentry.captureException(error, {
+      tags: { fetch: "authenticatedFetch" },
+      extra: { path, url: `${EXPRESS_API_URL}${path}` },
+    });
+    return { ok: false, status: 503, data: null };
+  }
 
   if (response.status === 401) {
     const newAccessToken = await tryRefresh();
     if (!newAccessToken) {
       return { ok: false, status: 401, data: null };
     }
-    response = await fetch(`${EXPRESS_API_URL}${path}`, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${newAccessToken}`,
-        ...options.headers,
-      },
-    });
+    try {
+      response = await fetch(`${EXPRESS_API_URL}${path}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${newAccessToken}`,
+          ...options.headers,
+        },
+      });
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: { fetch: "authenticatedFetch-retry" },
+        extra: { path, url: `${EXPRESS_API_URL}${path}` },
+      });
+      return { ok: false, status: 503, data: null };
+    }
   }
 
   const json = await response.json().catch(() => null);
