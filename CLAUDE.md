@@ -1328,6 +1328,19 @@ hooks (useCart, useLogin) y componentes clave, luego Playwright para
 2-3 flujos E2E críticos (login, carrito → checkout completo, admin
 CRUD de productos).
 
+## Testing: pruebas de componente + store (paso 2 de varios) COMPLETADO Y VERIFICADO
+src/components/products/VariantSelector.test.tsx cubre la lógica real
+de selección talla/color: match correcto, combinación inexistente
+(mensaje + onSelect(null)), combinación sin stock, y disabled cruzado
+entre talla/color. Usa @testing-library/user-event para las
+interacciones. src/stores/useCartDrawerStore.test.ts prueba open/
+close/toggle del store de zustand, con reset de estado en beforeEach
+para no depender del orden de ejecución entre tests.
+Deliberadamente fuera de alcance: useCart, useLogin y cualquier hook
+sobre TanStack Query — necesitan mockear la capa de API (src/lib/api/*)
+y/o un wrapper de QueryClientProvider para pruebas, que se construye
+en un paso futuro dedicado cuando se aborden esos hooks.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
