@@ -1352,6 +1352,20 @@ qs — todas transitivas de devDependencies como eslint y el CLI de
 shadcn, sin impacto en el código desplegado). npm audit: 0
 vulnerabilidades.
 
+## Testing: hooks de TanStack Query (paso 3 de varios) COMPLETADO Y VERIFICADO
+src/test/query-client.tsx: helper reutilizable con QueryClient de
+prueba (retry: false) + wrapper de QueryClientProvider para renderHook,
+pensado para reusarse en futuras pruebas de hooks. Cubiertos como
+patrón representativo: useAddToCartMutation (éxito: llama addCartItem,
+toast.success, abre useCartDrawerStore real; error: toast.error, NO
+abre el drawer) y useLoginMutation (éxito: llama login con las
+credenciales; error: estado isError/error expuesto sin excepción sin
+capturar). API mockeada con vi.mock, store de carrito usado real (no
+mockeado) con reset en beforeEach.
+Deliberadamente fuera de alcance: el resto de mutaciones de useCart.ts
+(update/remove/clear), la query useCart, y useSession — mismo patrón,
+paso futuro.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
