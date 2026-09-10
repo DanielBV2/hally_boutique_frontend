@@ -1341,6 +1341,17 @@ sobre TanStack Query — necesitan mockear la capa de API (src/lib/api/*)
 y/o un wrapper de QueryClientProvider para pruebas, que se construye
 en un paso futuro dedicado cuando se aborden esos hooks.
 
+## Fix de seguridad: Next.js 16.3.0 → 16.3.4 COMPLETADO Y VERIFICADO
+next@16.3.0 tenía dos CVEs (uno crítico: RCE no autenticado en la
+Image Optimization API con archivos AVIF, aplica independiente del SO
+y este proyecto usa next/image con Cloudinary en todo el catálogo).
+Actualizado a 16.3.4 (parche) junto con eslint-config-next a la misma
+versión. De paso se resolvió la vulnerabilidad de sharp (dependencia
+interna de next/image). npm audit fix limpió el resto (hono, js-yaml,
+qs — todas transitivas de devDependencies como eslint y el CLI de
+shadcn, sin impacto en el código desplegado). npm audit: 0
+vulnerabilidades.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
