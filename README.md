@@ -20,6 +20,18 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Pruebas E2E (Playwright)
+
+Prerrequisito: levanta el backend de pruebas primero (entorno aislado en el
+puerto 3010) siguiendo la sección "Entorno E2E (Playwright)" del README del
+repo backend (`npm run docker:test:up && npm run seed:e2e && npm run dev:test`).
+Playwright levanta únicamente el frontend contra ese backend.
+
+```bash
+npm run test:e2e      # smoke de registro + login
+npm run test:e2e:ui   # lo mismo con la UI de Playwright
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
