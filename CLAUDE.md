@@ -1366,6 +1366,20 @@ Deliberadamente fuera de alcance: el resto de mutaciones de useCart.ts
 (update/remove/clear), la query useCart, y useSession — mismo patrón,
 paso futuro.
 
+## E2E: Playwright configurado (paso 1: smoke test) COMPLETADO Y VERIFICADO
+@playwright/test instalado (solo chromium por ahora). playwright.config.ts
+levanta SOLO el frontend (npm run dev) apuntando NEXT_PUBLIC_API_URL a
+http://localhost:3010/api — el backend de pruebas se levanta aparte,
+ver README del repo backend, sección "Entorno E2E". e2e/auth.spec.ts:
+smoke test de registro con email único por corrida + login con esas
+mismas credenciales, usando selectores por rol/label (sin data-testid).
+npm run test:e2e / test:e2e:ui añadidos. Deliberadamente NO integrado
+a ci.yml todavía (requiere orquestar el backend ahí también, paso
+futuro). Verificado corriendo contra el backend E2E real, no simulado.
+Siguiente paso: pruebas del flujo completo de checkout usando el
+producto sembrado por seed:e2e del backend (slug
+vestido-de-bano-tropical-e2e).
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
