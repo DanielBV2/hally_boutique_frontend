@@ -1,19 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-const PASSWORD = "Test1234!"; // cumple el registerSchema (min 8, mayúscula, número)
+import { E2E_PASSWORD, registerNewUser } from "./helpers/auth";
 
 test("registro y login de extremo a extremo", async ({ page }) => {
-  const email = `e2e-${Date.now()}@hallytest.co`;
-
-  await page.goto("/registro");
-
-  await page.getByLabel("Nombre").fill("Test");
-  await page.getByLabel("Apellido").fill("E2E");
-  await page.getByLabel("Correo electrónico").fill(email);
-  await page.getByLabel("Contraseña", { exact: true }).fill(PASSWORD);
-  await page.getByLabel("Confirmar contraseña").fill(PASSWORD);
-
-  await page.getByRole("button", { name: "Crear cuenta" }).click();
+  const email = await registerNewUser(page);
 
   await expect(page).toHaveURL("/");
   await expect(
@@ -29,7 +19,7 @@ test("registro y login de extremo a extremo", async ({ page }) => {
 
   await page.goto("/login");
   await page.getByLabel("Correo electrónico").fill(email);
-  await page.getByLabel("Contraseña", { exact: true }).fill(PASSWORD);
+  await page.getByLabel("Contraseña", { exact: true }).fill(E2E_PASSWORD);
   await page.getByRole("button", { name: "Ingresar" }).click();
 
   await expect(page).toHaveURL("/");
