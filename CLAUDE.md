@@ -1380,6 +1380,33 @@ Siguiente paso: pruebas del flujo completo de checkout usando el
 producto sembrado por seed:e2e del backend (slug
 vestido-de-bano-tropical-e2e).
 
+## E2E: checkout completo con Playwright (paso 2) COMPLETADO Y VERIFICADO
+e2e/checkout.spec.ts: registro → producto sembrado
+(vestido-de-bano-tropical-e2e, variante S/Verde) → carrito → dirección
+→ envío (usa el fallback estático del backend cuando Envia falla, que
+siempre pasa con las credenciales dummy de .env.test) → intercepta la
+navegación a checkout.wompi.co con page.route (no completa un pago
+real) y verifica los parámetros de la URL (currency COP, amount-in-cents
+> 0 y múltiplo de 100, reference y signature:integrity no vacíos,
+redirect-url apunta a /checkout/confirmacion). e2e/helpers/auth.ts:
+registerNewUser(page) + E2E_PASSWORD extraídos de auth.spec.ts
+(reutilizado por ambos specs; auth.spec.ts solo cambió para importar el
+helper, sin tocar su lógica de aserciones).
+Verificado en vivo contra el backend real (:3010, seed:e2e): la suite
+completa pasa 2/2. Detalles empíricos descubiertos en la primera corrida
+(no forzados): el drawer del carrito se abre solo al añadir
+(useAddToCartMutation.onSuccess → useCartDrawerStore.open()), y
+getByLabel("Dirección") collisionaba con el checkbox "Usar como
+dirección principal" → se usa { exact: true } para el campo line1.
+Ruido esperado, no errores: 404 del upstream de Cloudinary (la imagen
+del producto sembrado no existe en la nube) y un warning de React
+"uncontrolled → controlled" del Select de departamento (pre-existente
+en AddressForm, value={field.value || undefined}).
+Decisión de diseño: no se completa un pago real en Wompi — esa
+responsabilidad ya está cubierta por
+tests/integration/payments/webhookCheckout.integration.test.ts del
+backend. El frontend solo es responsable de armar bien la redirección.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
