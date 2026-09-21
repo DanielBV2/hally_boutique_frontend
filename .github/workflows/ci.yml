@@ -46,7 +46,7 @@ jobs:
         # fallback por defecto en el código.
         env:
           NEXT_PUBLIC_SITE_URL: http://localhost:3001
-          NEXT_PUBLIC_API_URL: http://localhost:3000/api
+          EXPRESS_API_URL: http://localhost:3000/api
           NEXT_PUBLIC_SENTRY_DSN: ""
 
       - name: Type-check

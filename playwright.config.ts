@@ -26,7 +26,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
-      NEXT_PUBLIC_API_URL: "http://localhost:3010/api",
+      EXPRESS_API_URL: "http://localhost:3010/api",
     },
   },
 });
