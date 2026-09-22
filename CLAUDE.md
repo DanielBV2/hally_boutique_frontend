@@ -1268,7 +1268,7 @@ eslint limpio, build ok.
 .github/workflows/ci.yml corre en push/PR a main: npm ci → typecheck
 (tsc --noEmit, script nuevo en package.json) → lint → build. Un solo
 job, sin servicios (este repo no depende de DB ni env vars reales para
-buildear — NEXT_PUBLIC_SITE_URL y NEXT_PUBLIC_API_URL ya tienen fallback
+buildear — NEXT_PUBLIC_SITE_URL y EXPRESS_API_URL ya tienen fallback
 en código). Sin paso de format (no hay Prettier en este repo) ni de test
 (no hay suite todavía — se añadirá como job aparte cuando exista Vitest/
 Playwright, ver "Testing automatizado" en el roadmap). Mismo patrón de
@@ -1368,7 +1368,7 @@ paso futuro.
 
 ## E2E: Playwright configurado (paso 1: smoke test) COMPLETADO Y VERIFICADO
 @playwright/test instalado (solo chromium por ahora). playwright.config.ts
-levanta SOLO el frontend (npm run dev) apuntando NEXT_PUBLIC_API_URL a
+levanta SOLO el frontend (npm run dev) apuntando EXPRESS_API_URL a
 http://localhost:3010/api — el backend de pruebas se levanta aparte,
 ver README del repo backend, sección "Entorno E2E". e2e/auth.spec.ts:
 smoke test de registro con email único por corrida + login con esas
@@ -1406,6 +1406,22 @@ Decisión de diseño: no se completa un pago real en Wompi — esa
 responsabilidad ya está cubierta por
 tests/integration/payments/webhookCheckout.integration.test.ts del
 backend. El frontend solo es responsable de armar bien la redirección.
+
+## Limpieza menor (punto 5 del roadmap) COMPLETADO Y VERIFICADO
+- Lint a 0 warnings: quitados imports sin usar en AdminShell.tsx
+  (Separator) y AppSidebar.tsx (ExternalLink)
+- EXPRESS_API_URL ya no lleva prefijo NEXT_PUBLIC_ (era innecesario:
+  solo se usa server-side, nunca en el navegador). Actualiza tu
+  .env.local si tenías el nombre anterior.
+- .env.example agregado documentando EXPRESS_API_URL,
+  NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_SENTRY_DSN
+- README.md reescrito con setup real del proyecto (antes era el
+  genérico de create-next-app)
+- Headers de seguridad básicos en next.config.ts: X-Content-Type-Options,
+  X-Frame-Options, Referrer-Policy, Permissions-Policy
+Deliberadamente fuera de alcance: Content-Security-Policy — necesita
+probarse con cuidado contra Sentry/Google Fonts/Cloudinary/hidratación,
+queda como trabajo futuro aparte.
 
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado

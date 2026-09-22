@@ -1,24 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hally Boutique — Frontend
 
-## Getting Started
+Frontend de e-commerce de vestidos de baño y accesorios. Next.js 16 (App
+Router) + React 19 + TypeScript, Tailwind CSS, TanStack Query y Zustand.
 
-First, run the development server:
+El frontend corre en el puerto 3001 y consume la API REST del backend
+(`../hallyboutique-backend`, puerto 3000) vía patrón BFF con cookies
+httpOnly.
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # completar valores
+npm run dev                  # http://localhost:3001
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Requiere el backend corriendo aparte (repo `hallyboutique-backend`). Las
+instrucciones de ese repo no se duplican aquí — sigue su README para
+levantar la API y la base de datos.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` — servidor de desarrollo (puerto 3001)
+- `npm run build` — build de producción
+- `npm run lint` — ESLint
+- `npm run typecheck` — `tsc --noEmit`
+- `npm run test` — Vitest (unit de lógica y componentes)
+- `npm run test:e2e` — Playwright (requiere el backend de pruebas, ver
+  la sección "Pruebas E2E (Playwright)")
+- `npm run test:e2e:ui` — lo mismo con la UI de Playwright
 
 ## Pruebas E2E (Playwright)
 
@@ -31,18 +41,3 @@ Playwright levanta únicamente el frontend contra ese backend.
 npm run test:e2e      # smoke de registro + login
 npm run test:e2e:ui   # lo mismo con la UI de Playwright
 ```
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
