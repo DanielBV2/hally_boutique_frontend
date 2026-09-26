@@ -1423,6 +1423,18 @@ Deliberadamente fuera de alcance: Content-Security-Policy — necesita
 probarse con cuidado contra Sentry/Google Fonts/Cloudinary/hidratación,
 queda como trabajo futuro aparte.
 
+## Testing: cobertura completa de useCart y useSession COMPLETADO Y VERIFICADO
+useCart.test.ts extendido: useCart() query (gating por isAuthenticated
+vía mock de useSession), useUpdateCartItemMutation,
+useRemoveCartItemMutation, useClearCartMutation — mismo patrón que
+useAddToCartMutation (mock de lib/api/cart + sonner, invalidación de
+la query "cart" verificada). Nuevo useSession.test.ts: useSession()
+(user/isAuthenticated con y sin sesión, mock de apiFetch) y
+useInvalidateSession() (invalida la query "session").
+Con esto, toda la capa de hooks de TanStack Query relacionada al
+carrito y la sesión tiene cobertura — mismo patrón replicable para
+cualquier hook nuevo que se agregue.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables
