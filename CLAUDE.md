@@ -1435,6 +1435,51 @@ Con esto, toda la capa de hooks de TanStack Query relacionada al
 carrito y la sesión tiene cobertura — mismo patrón replicable para
 cualquier hook nuevo que se agregue.
 
+## CI: Playwright E2E integrado (paso final del roadmap) — IMPLEMENTADO, PENDIENTE PRIMERA CORRIDA REAL EN GITHUB
+Nuevo job "e2e" en ci.yml (además de "build", que NO se tocó: el diff son
+120 líneas 100% agregadas, 0 eliminadas). El job lleva `needs: build` para no
+gastar minutos de runner si el build/lint/Vitest ya falló, y
+`timeout-minutes: 30` como red de seguridad.
+Secuencia: checkout del frontend + checkout de hally_boutique_backend a
+backend-e2e/ (repo público, sin token), setup-node 24 con `cache: npm` y
+`cache-dependency-path` apuntando a los DOS package-lock.json (ambos existen
+ya porque el checkout del backend va antes del setup-node), luego en
+backend-e2e: npm ci → npm run build → `npx dotenv -e .env.test -- npx prisma
+migrate deploy` → npm run seed:e2e → arranque con nohup en background + loop
+de curl a /health (no un sleep fijo), y en la raíz del frontend: npm ci →
+`npx playwright install --with-deps chromium` → npm run test:e2e → artifact de
+playwright-report/ con `if: failure()`.
+Servicio Postgres postgres:16-alpine (test/test/hallyboutique_test, 5433:5432,
+healthcheck pg_isready), copiando el patrón del propio ci.yml del backend.
+
+Verificado LOCALMENTE de punta a punta (sí simulé, contra un Postgres real
+en 5433): migrate deploy aplicó las 15 migraciones, seed:e2e sembró
+vestido-de-bano-tropical-e2e con sus 3 variantes, backend compilado
+arrancado con .env.test respondió /health 200 {"database":"ok"} tras ~16s, y
+`npm run test:e2e` pasó 2/2. Además se corrió la suite con `CI=true` para
+ejercitar el código path exacto de CI.
+
+**Lo que NO está verificado todavía: que GitHub Actions ejecute esto bien.**
+El job solo correrá de verdad al abrir el PR. Si falla, lo más probable es
+la interacción con los services de GitHub, no la lógica (que ya pasó local).
+
+### Cambios en playwright.config.ts que hicieron posible el artifact
+- `reporter`: era `process.env.CI ? "github" : "html"`, y el reporter "github"
+  NO genera el directorio playwright-report/ → el artifact del paso 3j habría
+  subido NADA. Ahora en CI se combinan: `[["github"], ["html", {open:"never"}]]`
+  (anotaciones inline en la UI del job + HTML para el artifact). Verificado
+  localmente con CI=true: aparecen los `::notice` y se genera index.html (524KB).
+- `trace`: era "on-first-retry" con `retries: 0`, o sea que NUNCA se generaba
+  traza (ni local ni en CI). Ahora "retain-on-failure": captura la traza siempre
+  y la borra si el test pasa, así un E2E rojo deja navegación completa para
+  debuggear. NO se subió `retries` a propósito: enmascararía flakiness real.
+- No se tocó `webServer` (EXPRESS_API_URL=http://localhost:3010/api).
+
+Con esto, el roadmap de producción original queda completo: CI
+(lint/typecheck/build/tests unitarios/E2E), Sentry, SEO, testing en
+las tres capas, fix de seguridad, y limpieza — haciéndose cumplir
+automáticamente en cada push/PR a main.
+
 ## Estado del proyecto
 - [x] Proyecto Next.js inicializado, shadcn/ui instalado
 - [x] Paleta de diseño temporal (tropical/pastel) aplicada vía CSS variables

@@ -8,10 +8,20 @@ export default defineConfig({
   },
   fullyParallel: false,
   retries: 0,
-  reporter: process.env.CI ? "github" : "html",
+  // En CI se combinan: el reporter "github" pone anotaciones inline de cada
+  // fallo directamente en la vista del job, y el reporter "html" genera
+  // playwright-report/ — que el workflow sube como artifact para poder
+  // debuggear sin acceso al runner. Con solo "github" no se genera ese
+  // directorio y el artifact saldría vacío.
+  reporter: process.env.CI
+    ? [["github"], ["html", { open: "never" }]]
+    : "html",
   use: {
     baseURL: "http://localhost:3001",
-    trace: "on-first-retry",
+    // "retain-on-failure" (y no "on-first-retry") porque retries es 0:
+    // con la config anterior nunca se generaba traza. Así, cuando un E2E
+    // falla, queda el trace con la navegación completa para debuggear.
+    trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
   projects: [
